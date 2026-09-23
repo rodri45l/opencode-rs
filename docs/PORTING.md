@@ -57,6 +57,17 @@ From `scripts/test_inventory.py`:
   Effect internals (fibers, `Layer`, `Context`). Re-express against the Rust API.
 - **n/a** — not code; leave a one-line justification.
 
+## Writer / verifier split
+
+Parallel agents share one Cargo target lock, so per-agent test runs serialise.
+Keep writing parallel and compiling central:
+
+- Writers: code only; at most one `cargo check -p <crate>` (optional private
+  `CARGO_TARGET_DIR`); no workspace-wide `fmt`/`clippy`/`test`.
+- Orchestrator: one `cargo fmt --all` + `cargo clippy --workspace --all-targets --
+  -D warnings` + `cargo test --workspace` after the wave, then commit/PR.
+- Fix compile breaks centrally or by resuming the responsible agent.
+
 ## Progress metric
 
 `cargo test --workspace` pass/fail counts are the porting progress. Red-first

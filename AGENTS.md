@@ -57,6 +57,23 @@ merge gate:
 - Define the API surface as stubs returning a typed `NotImplemented` error. Do
   **not** use `panic!`/`todo!()` in library code.
 
+## Agent workflow (writer / verifier split)
+
+Parallel agents compete for the single Cargo target-dir lock, so per-agent
+`cargo test` mostly serialises. Therefore:
+
+- **Writer agents** create/modify code only. They may run **at most one**
+  `cargo check -p <crate>` (optionally with a private
+  `CARGO_TARGET_DIR=/tmp/opencode/target-<crate>` to avoid the lock) to ensure the
+  crate compiles. They do **not** run `fmt`/`clippy`/`test` across the workspace.
+- **The orchestrator** runs `cargo fmt --all`,
+  `cargo clippy --workspace --all-targets -- -D warnings`, and
+  `cargo test --workspace` exactly once after the wave, then opens the PR.
+- Compile/integration errors are fixed by the orchestrator, or by resuming the
+  responsible agent via its `task_id` — not by every agent running the full suite.
+
+This keeps wall-clock down: writing is parallel, compiling happens once.
+
 ## Git flow
 
 - `main` is protected: no direct pushes, PRs only, required status check **`gate`**.
