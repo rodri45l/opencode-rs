@@ -98,6 +98,37 @@ Every writer agent gets this contract:
 8. Return a concise report: files, tests (red/green), covered vs skipped + why,
    compile risks, blockers. Do not commit or push.
 
+**One writer per crate per wave.** Two agents editing the same crate clobber each
+other's `src/lib.rs` module declarations and `port-map.json` (this happened in
+wave 4 to `crates/server`). If a crate needs more than one agent's worth of work,
+split by *file group* and serialize, or give each a distinct crate. Shared files
+inside a crate (`src/lib.rs`, `port-map.json`, `Cargo.toml`) must have a single
+writer.
+
+## Fast wave protocol (many writers per crate)
+
+Waves were too slow because agents shared `src/lib.rs` / `port-map.json` and had to
+be serialised to one-per-crate. Instead:
+
+1. **Local stubs.** A red-first ported test defines the types/functions it needs
+   **inside its own `tests/<name>.rs`** as private stubs. Do **not** touch
+   `src/**`, `src/lib.rs`, `port-map.json`, or `Cargo.toml`. That makes every test
+   file an independent unit, so many agents can write into one crate at once.
+   (When the real module is later implemented, tests switch to importing it.)
+2. **Disjoint files only.** A writer owns a set of *reference paths* and writes
+   one `tests/<stem>.rs` per path. Never edit a file another writer may touch.
+3. **No cargo.** Writers run `rustfmt --edition 2021` at most (parse/format only).
+   The orchestrator fixes and compiles once. Never run cargo in parallel — this
+   box has ~6 GB RAM and would OOM.
+4. **Terse status.** Write `crates/<crate>/PORT-STATUS.<tag>.json`
+   (`{"files":N,"green":N,"red":N,"skipped":[...]}`) and return **≤10 lines** to
+   the orchestrator. Long prose reports are not read.
+5. **Inventory.** The orchestrator owns `port-map.json` and `docs/TEST-PORT.md`;
+   report any renamed stem in your status file.
+
+This allows a single wave of 10-16 writers across the large crates (server, core,
+tui, app) with no shared-file contention.
+
 ## Git flow
 
 - `main` is protected: no direct pushes, PRs only, required status check **`gate`**.

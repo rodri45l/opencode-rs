@@ -48,4 +48,19 @@ impl Ripgrep {
     ) -> CoreResult<Vec<GrepMatch>> {
         Err(CoreError::NotImplemented("ripgrep::Ripgrep::grep"))
     }
+
+    /// The line preview length before an ellipsis is appended.
+    pub const MAX_PREVIEW_CHARS: usize = 1999;
+
+    /// Whether a relative path is always excluded from search results (the `.git`
+    /// metadata directory).
+    pub fn is_ignored(_path: &str) -> CoreResult<bool> {
+        Err(CoreError::NotImplemented("ripgrep::Ripgrep::is_ignored"))
+    }
+
+    /// Truncate a matched line to [`Self::MAX_PREVIEW_CHARS`] characters and
+    /// append an ellipsis, never splitting a surrogate pair.
+    pub fn preview_line(_line: &str) -> CoreResult<String> {
+        Err(CoreError::NotImplemented("ripgrep::Ripgrep::preview_line"))
+    }
 }

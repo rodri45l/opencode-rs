@@ -1,0 +1,24 @@
+{
+  "writer": "c4",
+  "files": 3,
+  "green": 0,
+  "red": 31,
+  "tests": 31,
+  "ported_paths": [
+    "packages/core/test/tool-bash.test.ts -> c4_tool_bash.rs (9 red)",
+    "packages/core/test/tool-read.test.ts -> c4_tool_read.rs (13 red)",
+    "packages/core/test/github-copilot/copilot-chat-model.test.ts -> c4_copilot_chat_model.rs (9 red)"
+  ],
+  "renames": [],
+  "skipped_paths_covered_elsewhere": [
+    "effect/cross-spawn-spawner, effect/layer-node/*, effect/observability, process/process, util/flock, util/effect-flock -> c2_*",
+    "database-migration, git, integration, project-copy, pty/pty-session -> c3_*",
+    "session-create, session-prompt, session-projector, session-run-coordinator, session-runner, session-runner-message, session-runner-model, session-runner-recorded, session-runner-tool-registry, session-tool-progress -> concurrent session_*.rs writer"
+  ],
+  "drops": [
+    "tool-bash: tree-sitter/PowerShell parser approval reduction, BashArity prefixes, plugin shell.env, background job persistence, process-group cleanup, live AppProcess",
+    "tool-read: real PNG decode + photon resizing, live Image/FSUtil/Permission/ToolRegistry layer graph",
+    "copilot-chat-model: live fetch/ReadableStream, @ai-sdk/provider types, OpenAICompatibleChatLanguageModel; fixtures re-authored synthetically"
+  ],
+  "blockers": []
+}

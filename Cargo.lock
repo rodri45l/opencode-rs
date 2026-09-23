@@ -911,6 +911,7 @@ dependencies = [
  "opencode-core",
  "opencode-protocol",
  "opencode-schema",
+ "regex",
  "serde",
  "serde_json",
  "tokio",
@@ -926,6 +927,8 @@ name = "opencode-session-ui"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
@@ -958,6 +961,9 @@ name = "opencode-tui"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

@@ -1,0 +1,55 @@
+{
+  "wave": "session-tests-s2",
+  "crate": "crates/server",
+  "reference": "packages/opencode/test/session/** (upstream 18ef3cc)",
+  "files": 8,
+  "green": 0,
+  "red": 69,
+  "ignored": 69,
+  "runnable": 0,
+  "tests_by_file": {
+    "s2_compaction.rs": 17,
+    "s2_llm.rs": 11,
+    "s2_llm_native.rs": 7,
+    "s2_message_v2.rs": 5,
+    "s2_messages_pagination.rs": 21,
+    "s2_revert_compact.rs": 4,
+    "s2_structured_output_integration.rs": 3,
+    "s2_tools.rs": 1
+  },
+  "mappings": [
+    "session/compaction.test.ts -> tests/s2_compaction.rs",
+    "session/llm.test.ts -> tests/s2_llm.rs",
+    "session/llm-native.test.ts -> tests/s2_llm_native.rs",
+    "session/message-v2.test.ts -> tests/s2_message_v2.rs",
+    "session/messages-pagination.test.ts -> tests/s2_messages_pagination.rs",
+    "session/revert-compact.test.ts -> tests/s2_revert_compact.rs",
+    "session/structured-output-integration.test.ts -> tests/s2_structured_output_integration.rs",
+    "session/tools.test.ts -> tests/s2_tools.rs"
+  ],
+  "skipped": [
+    {
+      "path": "session/prompt.test.ts",
+      "reason": "all it.instance cases need live Session/SessionProjector/LLM-server runtime; no isolatable pure surface"
+    },
+    {
+      "path": "session/processor-effect.test.ts",
+      "reason": "all it.live cases drive the Effect processor against a live LLM stream/DB; retry classification already covered by tests/retry.rs"
+    },
+    {
+      "path": "session/snapshot-tool-race.test.ts",
+      "reason": "single it.live reproducer needs git snapshots + live prompt loop"
+    },
+    {
+      "path": "session/llm-native-recorded.test.ts",
+      "reason": "recorded fixture tool loop requires the recorded HTTP/replay runtime"
+    }
+  ],
+  "dropped_within_files": [
+    "compaction: SessionCompaction.create/prune/process (live DB + projector + LLM)",
+    "message-v2: toModelMessage/fromError already covered by tests/message_v2.rs; s2 adds latest",
+    "messages-pagination: page/stream/get/parts hydration against live session store",
+    "llm: session.llm.stream live provider HTTP"
+  ],
+  "notes": "All stubs/types local to each test file per fast-wave protocol; no shared files edited (src/**, src/lib.rs, port-map.json, Cargo.toml untouched). rustfmt --edition 2021 clean. No cargo run (writer mode)."
+}

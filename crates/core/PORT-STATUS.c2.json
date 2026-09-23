@@ -1,0 +1,32 @@
+{
+  "wave": "fast-c2",
+  "crate": "core",
+  "files": 8,
+  "green": 1,
+  "red": 102,
+  "ignored": 102,
+  "renames": {},
+  "files_detail": [
+    "c2_cross_spawn_spawner.rs",
+    "c2_effect_flock.rs",
+    "c2_flock.rs",
+    "c2_layer_node.rs",
+    "c2_layer_node_types.rs",
+    "c2_node_build.rs",
+    "c2_observability.rs",
+    "c2_process.rs"
+  ],
+  "skipped": [
+    "packages/core/test/npm.test.ts (already ported, row [x])",
+    "packages/core/test/npm-config.test.ts (already ported, row [x])",
+    "packages/core/test/util/which.test.ts (already ported, row [x])",
+    "packages/core/test/effect/keyed-mutex.test.ts (already ported, row [x])",
+    "packages/core/test/**/glob* (no matching reference files under packages/core/test)"
+  ],
+  "notes": [
+    "All 8 remaining PENDING effect/** + util/** + process/** rows ported RED-first with local stubs; no src/**, lib.rs, port-map.json or Cargo.toml touched.",
+    "Layer/Context/Effect runtime cases (layer-node, node-build, observability logger, flock, cross-spawn, process) re-derived as typed synchronous stubs; visual/type-only assertions dropped as white-box.",
+    "Type-checked with rustc --test and clippy-driver --test (both clean, zero warnings) without cargo.",
+    "c2_layer_node_types.rs keeps one un-ignored trivial type-exploration smoke test (green)."
+  ]
+}
