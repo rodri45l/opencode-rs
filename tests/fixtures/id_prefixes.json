@@ -1,0 +1,26 @@
+{
+  "source": "anomalyco/opencode packages/sdk/openapi.json patterns",
+  "prefix_count": 9,
+  "prefixes": [
+    "evt_",
+    "msg",
+    "msg_",
+    "per",
+    "prt",
+    "pty",
+    "que",
+    "ses",
+    "wrk"
+  ],
+  "sample_locations": {
+    "evt_": "/CatalogUpdated/properties/id",
+    "msg": "/AgentPart/properties/messageID",
+    "msg_": "/EventSessionNextAgentSwitched/properties/properties/properties/messageID",
+    "per": "/EventPermissionAsked/properties/properties/properties/id",
+    "prt": "/AgentPart/properties/id",
+    "pty": "/EventPtyDeleted/properties/properties/properties/id",
+    "que": "/EventQuestionAsked/properties/properties/properties/id",
+    "ses": "/AgentPart/properties/sessionID",
+    "wrk": "/EventWorkspaceStatus/properties/properties/properties/workspaceID"
+  }
+}

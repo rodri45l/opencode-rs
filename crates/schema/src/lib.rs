@@ -10,4 +10,6 @@ pub mod ids;
 
 pub use event::{DurableRef, EventEnvelope, LocationRef};
 pub use event_type::{EventType, EVENT_TYPE_COUNT};
-pub use ids::{EventId, IdError, MessageId, SessionId, WorkspaceId};
+pub use ids::{
+    EventId, IdError, MessageId, PartId, PermissionId, PtyId, QuestionId, SessionId, WorkspaceId,
+};

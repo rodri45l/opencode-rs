@@ -1,0 +1,1510 @@
+{
+  "source": "anomalyco/opencode packages/sdk/openapi.json#/paths",
+  "route_count": 188,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/agent",
+      "operation_id": "app.agents",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/agent",
+      "operation_id": "v2.agent.list",
+      "tags": [
+        "opencode HttpApi"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/command",
+      "operation_id": "v2.command.list",
+      "tags": [
+        "commands"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/credential/{credentialID}",
+      "operation_id": "v2.credential.remove",
+      "tags": [
+        "opencode HttpApi"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/credential/{credentialID}",
+      "operation_id": "v2.credential.update",
+      "tags": [
+        "opencode HttpApi"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/event",
+      "operation_id": "v2.event.subscribe",
+      "tags": [
+        "events"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/fs/find",
+      "operation_id": "v2.fs.find",
+      "tags": [
+        "filesystem"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/fs/list",
+      "operation_id": "v2.fs.list",
+      "tags": [
+        "filesystem"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/fs/read/*",
+      "operation_id": "v2.fs.read",
+      "tags": [
+        "filesystem"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "operation_id": "v2.health.get",
+      "tags": [
+        "opencode HttpApi"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/integration",
+      "operation_id": "v2.integration.list",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/integration/attempt/{attemptID}",
+      "operation_id": "v2.integration.attempt.cancel",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/integration/attempt/{attemptID}",
+      "operation_id": "v2.integration.attempt.status",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/integration/attempt/{attemptID}/complete",
+      "operation_id": "v2.integration.attempt.complete",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/integration/{integrationID}",
+      "operation_id": "v2.integration.get",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/integration/{integrationID}/connect/key",
+      "operation_id": "v2.integration.connect.key",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/integration/{integrationID}/connect/oauth",
+      "operation_id": "v2.integration.connect.oauth",
+      "tags": [
+        "integrations"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/location",
+      "operation_id": "v2.location.get",
+      "tags": [
+        "opencode HttpApi"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/model",
+      "operation_id": "v2.model.list",
+      "tags": [
+        "models"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/permission/request",
+      "operation_id": "v2.permission.request.list",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/permission/saved",
+      "operation_id": "v2.permission.saved.list",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/permission/saved/{id}",
+      "operation_id": "v2.permission.saved.remove",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider",
+      "operation_id": "v2.provider.list",
+      "tags": [
+        "providers"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/{providerID}",
+      "operation_id": "v2.provider.get",
+      "tags": [
+        "providers"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/pty",
+      "operation_id": "v2.pty.list",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/pty",
+      "operation_id": "v2.pty.create",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/pty/{ptyID}",
+      "operation_id": "v2.pty.remove",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/pty/{ptyID}",
+      "operation_id": "v2.pty.get",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/pty/{ptyID}",
+      "operation_id": "v2.pty.update",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/pty/{ptyID}/connect",
+      "operation_id": "v2.pty.connect",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/pty/{ptyID}/connect-token",
+      "operation_id": "v2.pty.connectToken",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/question/request",
+      "operation_id": "v2.question.request.list",
+      "tags": [
+        "session questions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/reference",
+      "operation_id": "v2.reference.list",
+      "tags": [
+        "reference"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session",
+      "operation_id": "v2.session.list",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session",
+      "operation_id": "v2.session.create",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/active",
+      "operation_id": "v2.session.active",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}",
+      "operation_id": "v2.session.get",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/agent",
+      "operation_id": "v2.session.switchAgent",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/compact",
+      "operation_id": "v2.session.compact",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/context",
+      "operation_id": "v2.session.context",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/event",
+      "operation_id": "v2.session.events",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/history",
+      "operation_id": "v2.session.history",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/interrupt",
+      "operation_id": "v2.session.interrupt",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/message",
+      "operation_id": "v2.session.messages",
+      "tags": [
+        "messages"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/message/{messageID}",
+      "operation_id": "v2.session.message",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/model",
+      "operation_id": "v2.session.switchModel",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/permission",
+      "operation_id": "v2.session.permission.list",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/permission",
+      "operation_id": "v2.session.permission.create",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/permission/{requestID}",
+      "operation_id": "v2.session.permission.get",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/permission/{requestID}/reply",
+      "operation_id": "v2.session.permission.reply",
+      "tags": [
+        "permissions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/prompt",
+      "operation_id": "v2.session.prompt",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/session/{sessionID}/question",
+      "operation_id": "v2.session.question.list",
+      "tags": [
+        "session questions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/question/{requestID}/reject",
+      "operation_id": "v2.session.question.reject",
+      "tags": [
+        "session questions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/question/{requestID}/reply",
+      "operation_id": "v2.session.question.reply",
+      "tags": [
+        "session questions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/revert/clear",
+      "operation_id": "v2.session.revert.clear",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/revert/commit",
+      "operation_id": "v2.session.revert.commit",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/revert/stage",
+      "operation_id": "v2.session.revert.stage",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/session/{sessionID}/wait",
+      "operation_id": "v2.session.wait",
+      "tags": [
+        "sessions"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/skill",
+      "operation_id": "v2.skill.list",
+      "tags": [
+        "skills"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/auth/{providerID}",
+      "operation_id": "auth.remove",
+      "tags": [
+        "control"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/auth/{providerID}",
+      "operation_id": "auth.set",
+      "tags": [
+        "control"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/command",
+      "operation_id": "command.list",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/config",
+      "operation_id": "config.get",
+      "tags": [
+        "config"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/config",
+      "operation_id": "config.update",
+      "tags": [
+        "config"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/config/providers",
+      "operation_id": "config.providers",
+      "tags": [
+        "config"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/event",
+      "operation_id": "event.subscribe",
+      "tags": [
+        "event"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/capabilities",
+      "operation_id": "experimental.capabilities.get",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/console",
+      "operation_id": "experimental.console.get",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/console/orgs",
+      "operation_id": "experimental.console.listOrgs",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/console/switch",
+      "operation_id": "experimental.console.switchOrg",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/control-plane/move-session",
+      "operation_id": "experimental.controlPlane.moveSession",
+      "tags": [
+        "controlPlane"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/experimental/project/{projectID}/copy",
+      "operation_id": "v2.projectCopy.remove",
+      "tags": [
+        "projectCopy"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/project/{projectID}/copy",
+      "operation_id": "v2.projectCopy.create",
+      "tags": [
+        "projectCopy"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/project/{projectID}/copy/generate-name",
+      "operation_id": "experimental.projectCopy.generateName",
+      "tags": [
+        "projectCopy"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/project/{projectID}/copy/refresh",
+      "operation_id": "v2.projectCopy.refresh",
+      "tags": [
+        "projectCopy"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/resource",
+      "operation_id": "experimental.resource.list",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/session",
+      "operation_id": "experimental.session.list",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/session/{sessionID}/background",
+      "operation_id": "experimental.session.background",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/tool",
+      "operation_id": "tool.list",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/tool/ids",
+      "operation_id": "tool.ids",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/workspace",
+      "operation_id": "experimental.workspace.list",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/workspace",
+      "operation_id": "experimental.workspace.create",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/workspace/adapter",
+      "operation_id": "experimental.workspace.adapter.list",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/workspace/status",
+      "operation_id": "experimental.workspace.status",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/workspace/sync-list",
+      "operation_id": "experimental.workspace.syncList",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/workspace/warp",
+      "operation_id": "experimental.workspace.warp",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/experimental/workspace/{id}",
+      "operation_id": "experimental.workspace.remove",
+      "tags": [
+        "workspace"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/experimental/worktree",
+      "operation_id": "worktree.remove",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/experimental/worktree",
+      "operation_id": "worktree.list",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/worktree",
+      "operation_id": "worktree.create",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/experimental/worktree/reset",
+      "operation_id": "worktree.reset",
+      "tags": [
+        "experimental"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/file",
+      "operation_id": "file.list",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/file/content",
+      "operation_id": "file.read",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/file/status",
+      "operation_id": "file.status",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/find",
+      "operation_id": "find.text",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/find/file",
+      "operation_id": "find.files",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/find/symbol",
+      "operation_id": "find.symbols",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/formatter",
+      "operation_id": "formatter.status",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/global/config",
+      "operation_id": "global.config.get",
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/global/config",
+      "operation_id": "global.config.update",
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/global/dispose",
+      "operation_id": "global.dispose",
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/global/event",
+      "operation_id": "global.event",
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/global/health",
+      "operation_id": "global.health",
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/global/upgrade",
+      "operation_id": "global.upgrade",
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/instance/dispose",
+      "operation_id": "instance.dispose",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/log",
+      "operation_id": "app.log",
+      "tags": [
+        "control"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/lsp",
+      "operation_id": "lsp.status",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/mcp",
+      "operation_id": "mcp.status",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/mcp",
+      "operation_id": "mcp.add",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/mcp/{name}/auth",
+      "operation_id": "mcp.auth.remove",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/mcp/{name}/auth",
+      "operation_id": "mcp.auth.start",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/mcp/{name}/auth/authenticate",
+      "operation_id": "mcp.auth.authenticate",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/mcp/{name}/auth/callback",
+      "operation_id": "mcp.auth.callback",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/mcp/{name}/connect",
+      "operation_id": "mcp.connect",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/mcp/{name}/disconnect",
+      "operation_id": "mcp.disconnect",
+      "tags": [
+        "mcp"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/path",
+      "operation_id": "path.get",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/permission",
+      "operation_id": "permission.list",
+      "tags": [
+        "permission"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/permission/{requestID}/reply",
+      "operation_id": "permission.reply",
+      "tags": [
+        "permission"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/project",
+      "operation_id": "project.list",
+      "tags": [
+        "project"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/project/current",
+      "operation_id": "project.current",
+      "tags": [
+        "project"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/project/git/init",
+      "operation_id": "project.initGit",
+      "tags": [
+        "project"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/project/{projectID}",
+      "operation_id": "project.update",
+      "tags": [
+        "project"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/project/{projectID}/directories",
+      "operation_id": "project.directories",
+      "tags": [
+        "project"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/provider",
+      "operation_id": "provider.list",
+      "tags": [
+        "provider"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/provider/auth",
+      "operation_id": "provider.auth",
+      "tags": [
+        "provider"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/provider/{providerID}/oauth/authorize",
+      "operation_id": "provider.oauth.authorize",
+      "tags": [
+        "provider"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/provider/{providerID}/oauth/callback",
+      "operation_id": "provider.oauth.callback",
+      "tags": [
+        "provider"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/pty",
+      "operation_id": "pty.list",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/pty",
+      "operation_id": "pty.create",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/pty/shells",
+      "operation_id": "pty.shells",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/pty/{ptyID}",
+      "operation_id": "pty.remove",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/pty/{ptyID}",
+      "operation_id": "pty.get",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/pty/{ptyID}",
+      "operation_id": "pty.update",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/pty/{ptyID}/connect",
+      "operation_id": "pty.connect",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/pty/{ptyID}/connect-token",
+      "operation_id": "pty.connectToken",
+      "tags": [
+        "pty"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/question",
+      "operation_id": "question.list",
+      "tags": [
+        "question"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/question/{requestID}/reject",
+      "operation_id": "question.reject",
+      "tags": [
+        "question"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/question/{requestID}/reply",
+      "operation_id": "question.reply",
+      "tags": [
+        "question"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session",
+      "operation_id": "session.list",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session",
+      "operation_id": "session.create",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/status",
+      "operation_id": "session.status",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/session/{sessionID}",
+      "operation_id": "session.delete",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/{sessionID}",
+      "operation_id": "session.get",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/session/{sessionID}",
+      "operation_id": "session.update",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/abort",
+      "operation_id": "session.abort",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/{sessionID}/children",
+      "operation_id": "session.children",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/command",
+      "operation_id": "session.command",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/{sessionID}/diff",
+      "operation_id": "session.diff",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/fork",
+      "operation_id": "session.fork",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/init",
+      "operation_id": "session.init",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/{sessionID}/message",
+      "operation_id": "session.messages",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/message",
+      "operation_id": "session.prompt",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/session/{sessionID}/message/{messageID}",
+      "operation_id": "session.deleteMessage",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/{sessionID}/message/{messageID}",
+      "operation_id": "session.message",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/session/{sessionID}/message/{messageID}/part/{partID}",
+      "operation_id": "part.delete",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/session/{sessionID}/message/{messageID}/part/{partID}",
+      "operation_id": "part.update",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/permissions/{permissionID}",
+      "operation_id": "permission.respond",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/prompt_async",
+      "operation_id": "session.prompt_async",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/revert",
+      "operation_id": "session.revert",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/session/{sessionID}/share",
+      "operation_id": "session.unshare",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/share",
+      "operation_id": "session.share",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/shell",
+      "operation_id": "session.shell",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/summarize",
+      "operation_id": "session.summarize",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/session/{sessionID}/todo",
+      "operation_id": "session.todo",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/session/{sessionID}/unrevert",
+      "operation_id": "session.unrevert",
+      "tags": [
+        "session"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/skill",
+      "operation_id": "app.skills",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sync/history",
+      "operation_id": "sync.history.list",
+      "tags": [
+        "sync"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sync/replay",
+      "operation_id": "sync.replay",
+      "tags": [
+        "sync"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sync/start",
+      "operation_id": "sync.start",
+      "tags": [
+        "sync"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sync/steal",
+      "operation_id": "sync.steal",
+      "tags": [
+        "sync"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/append-prompt",
+      "operation_id": "tui.appendPrompt",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/clear-prompt",
+      "operation_id": "tui.clearPrompt",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/tui/control/next",
+      "operation_id": "tui.control.next",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/control/response",
+      "operation_id": "tui.control.response",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/execute-command",
+      "operation_id": "tui.executeCommand",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/open-help",
+      "operation_id": "tui.openHelp",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/open-models",
+      "operation_id": "tui.openModels",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/open-sessions",
+      "operation_id": "tui.openSessions",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/open-themes",
+      "operation_id": "tui.openThemes",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/publish",
+      "operation_id": "tui.publish",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/select-session",
+      "operation_id": "tui.selectSession",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/show-toast",
+      "operation_id": "tui.showToast",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tui/submit-prompt",
+      "operation_id": "tui.submitPrompt",
+      "tags": [
+        "tui"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/vcs",
+      "operation_id": "vcs.get",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/vcs/apply",
+      "operation_id": "vcs.apply",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/vcs/diff",
+      "operation_id": "vcs.diff",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/vcs/diff/raw",
+      "operation_id": "vcs.diff.raw",
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/vcs/status",
+      "operation_id": "vcs.status",
+      "tags": [
+        "instance"
+      ]
+    }
+  ]
+}

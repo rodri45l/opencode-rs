@@ -157,6 +157,109 @@ impl ApiError {
 /// Convenience alias used across handlers.
 pub type ApiResult<T> = Result<T, ApiError>;
 
+/// A field on an error payload.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ErrorField {
+    /// Wire field name.
+    pub name: &'static str,
+    /// Whether the field is required.
+    pub required: bool,
+}
+
+/// The contract specification for one error variant.
+#[derive(Debug, Clone, Copy)]
+pub struct ErrorSpec {
+    /// The `_tag` discriminator.
+    pub tag: &'static str,
+    /// The HTTP status code.
+    pub status: u16,
+    /// The payload fields.
+    pub fields: &'static [ErrorField],
+}
+
+const fn field(name: &'static str, required: bool) -> ErrorField {
+    ErrorField { name, required }
+}
+
+/// The full error taxonomy, mirroring `packages/protocol/src/errors.ts`.
+///
+/// Pinned by `tests/errors_contract.rs` against `tests/fixtures/errors.json`.
+pub const ERROR_SPECS: &[ErrorSpec] = &[
+    ErrorSpec {
+        tag: "ConflictError",
+        status: 409,
+        fields: &[field("message", true), field("resource", false)],
+    },
+    ErrorSpec {
+        tag: "ForbiddenError",
+        status: 403,
+        fields: &[field("message", true)],
+    },
+    ErrorSpec {
+        tag: "InvalidCursorError",
+        status: 400,
+        fields: &[field("message", true)],
+    },
+    ErrorSpec {
+        tag: "InvalidRequestError",
+        status: 400,
+        fields: &[
+            field("message", true),
+            field("kind", false),
+            field("field", false),
+        ],
+    },
+    ErrorSpec {
+        tag: "MessageNotFoundError",
+        status: 404,
+        fields: &[
+            field("sessionID", true),
+            field("messageID", true),
+            field("message", true),
+        ],
+    },
+    ErrorSpec {
+        tag: "PermissionNotFoundError",
+        status: 404,
+        fields: &[field("requestID", true), field("message", true)],
+    },
+    ErrorSpec {
+        tag: "ProviderNotFoundError",
+        status: 404,
+        fields: &[field("providerID", true), field("message", true)],
+    },
+    ErrorSpec {
+        tag: "PtyNotFoundError",
+        status: 404,
+        fields: &[field("ptyID", true), field("message", true)],
+    },
+    ErrorSpec {
+        tag: "QuestionNotFoundError",
+        status: 404,
+        fields: &[field("requestID", true), field("message", true)],
+    },
+    ErrorSpec {
+        tag: "ServiceUnavailableError",
+        status: 503,
+        fields: &[field("message", true), field("service", false)],
+    },
+    ErrorSpec {
+        tag: "SessionNotFoundError",
+        status: 404,
+        fields: &[field("sessionID", true), field("message", true)],
+    },
+    ErrorSpec {
+        tag: "UnauthorizedError",
+        status: 401,
+        fields: &[field("message", true)],
+    },
+    ErrorSpec {
+        tag: "UnknownError",
+        status: 500,
+        fields: &[field("message", true), field("ref", false)],
+    },
+];
+
 #[cfg(test)]
 mod tests {
     use super::*;

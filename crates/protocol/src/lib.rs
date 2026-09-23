@@ -7,4 +7,5 @@
 pub mod error;
 pub mod routes;
 
-pub use error::{ApiError, ApiResult};
+pub use error::{ApiError, ApiResult, ErrorField, ErrorSpec, ERROR_SPECS};
+pub use routes::{Cursor, ImplementedRoute, Page, IMPLEMENTED_ROUTES};

@@ -86,3 +86,27 @@ prefixed_id!(
     "wrk",
     "workspace id"
 );
+prefixed_id!(
+    /// Identifier for a permission request (`per`).
+    PermissionId,
+    "per",
+    "permission id"
+);
+prefixed_id!(
+    /// Identifier for a message part (`prt`).
+    PartId,
+    "prt",
+    "part id"
+);
+prefixed_id!(
+    /// Identifier for a pseudo-terminal (`pty`).
+    PtyId,
+    "pty",
+    "pty id"
+);
+prefixed_id!(
+    /// Identifier for a question request (`que`).
+    QuestionId,
+    "que",
+    "question id"
+);

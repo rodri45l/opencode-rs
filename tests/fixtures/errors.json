@@ -1,0 +1,184 @@
+{
+  "source": "anomalyco/opencode packages/protocol/src/errors.ts",
+  "error_count": 13,
+  "errors": [
+    {
+      "tag": "ConflictError",
+      "status": 409,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        },
+        {
+          "name": "resource",
+          "required": false
+        }
+      ]
+    },
+    {
+      "tag": "ForbiddenError",
+      "status": 403,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "InvalidCursorError",
+      "status": 400,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "InvalidRequestError",
+      "status": 400,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "required": false
+        },
+        {
+          "name": "field",
+          "required": false
+        }
+      ]
+    },
+    {
+      "tag": "MessageNotFoundError",
+      "status": 404,
+      "fields": [
+        {
+          "name": "sessionID",
+          "required": true
+        },
+        {
+          "name": "messageID",
+          "required": true
+        },
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "PermissionNotFoundError",
+      "status": 404,
+      "fields": [
+        {
+          "name": "requestID",
+          "required": true
+        },
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "ProviderNotFoundError",
+      "status": 404,
+      "fields": [
+        {
+          "name": "providerID",
+          "required": true
+        },
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "PtyNotFoundError",
+      "status": 404,
+      "fields": [
+        {
+          "name": "ptyID",
+          "required": true
+        },
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "QuestionNotFoundError",
+      "status": 404,
+      "fields": [
+        {
+          "name": "requestID",
+          "required": true
+        },
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "ServiceUnavailableError",
+      "status": 503,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        },
+        {
+          "name": "service",
+          "required": false
+        }
+      ]
+    },
+    {
+      "tag": "SessionNotFoundError",
+      "status": 404,
+      "fields": [
+        {
+          "name": "sessionID",
+          "required": true
+        },
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "UnauthorizedError",
+      "status": 401,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "tag": "UnknownError",
+      "status": 500,
+      "fields": [
+        {
+          "name": "message",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

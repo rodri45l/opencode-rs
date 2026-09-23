@@ -14,6 +14,9 @@ This document lists where that behaviour is pinned and how to regenerate fixture
 | File | Produced by | Consumed by |
 |---|---|---|
 | `tests/fixtures/events.json` | `scripts/extract_contract.py` | `opencode-schema` tests |
+| `tests/fixtures/errors.json` | `scripts/extract_contract.py` | `opencode-protocol` tests |
+| `tests/fixtures/routes.json` | `scripts/extract_contract.py` | `opencode-protocol` tests |
+| `tests/fixtures/id_prefixes.json` | `scripts/extract_contract.py` | `opencode-schema` tests |
 | `tests/fixtures/UPSTREAM` | `scripts/extract_contract.py` | drift job |
 | `tests/fixtures/cassettes/*.json` | reference `http-recorder` | provider adapter tests |
 

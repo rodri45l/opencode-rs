@@ -38,3 +38,30 @@ pub struct Page<T> {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub cursor: Option<Cursor>,
 }
+
+/// A route the Rust server implements, tied to its reference `operationId`.
+#[derive(Debug, Clone, Copy)]
+pub struct ImplementedRoute {
+    pub method: &'static str,
+    pub path: &'static str,
+    pub operation_id: &'static str,
+}
+
+/// Routes implemented so far. Pinned to the contract by `tests/routes_contract.rs`.
+pub const IMPLEMENTED_ROUTES: &[ImplementedRoute] = &[
+    ImplementedRoute {
+        method: "GET",
+        path: path::HEALTH,
+        operation_id: "v2.health.get",
+    },
+    ImplementedRoute {
+        method: "GET",
+        path: path::EVENT,
+        operation_id: "v2.event.subscribe",
+    },
+    ImplementedRoute {
+        method: "GET",
+        path: path::EVENT_LEGACY,
+        operation_id: "event.subscribe",
+    },
+];
