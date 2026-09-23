@@ -37,16 +37,28 @@ mod adapters {
         }
     }
 
-    pub fn register_adapter(
-        _project: &str,
-        _ty: &str,
-        _adapter: Adapter,
-    ) -> Result<(), &'static str> {
-        Err("porting: registerAdapter not implemented")
+    use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+
+    fn store() -> &'static Mutex<HashMap<(String, String), Adapter>> {
+        static STORE: OnceLock<Mutex<HashMap<(String, String), Adapter>>> = OnceLock::new();
+        STORE.get_or_init(|| Mutex::new(HashMap::new()))
     }
 
-    pub fn get_adapter(_project: &str, _ty: &str) -> Result<Option<Adapter>, &'static str> {
-        Err("porting: getAdapter not implemented")
+    pub fn register_adapter(project: &str, ty: &str, adapter: Adapter) -> Result<(), &'static str> {
+        store()
+            .lock()
+            .map_err(|_| "poisoned")?
+            .insert((project.to_string(), ty.to_string()), adapter);
+        Ok(())
+    }
+
+    pub fn get_adapter(project: &str, ty: &str) -> Result<Option<Adapter>, &'static str> {
+        Ok(store()
+            .lock()
+            .map_err(|_| "poisoned")?
+            .get(&(project.to_string(), ty.to_string()))
+            .cloned())
     }
 }
 
@@ -58,11 +70,10 @@ fn target(directory: &str) -> adapters::Target {
 }
 
 #[test]
-#[ignore = "porting: control-plane-adapters not implemented"]
 fn isolates_custom_adapters_by_project() {
     let ty = "demo";
-    let one = "project-one";
-    let two = "project-two";
+    let one = "project-iso-one";
+    let two = "project-iso-two";
     adapters::register_adapter(one, ty, adapters::Adapter::new("/one")).unwrap();
     adapters::register_adapter(two, ty, adapters::Adapter::new("/two")).unwrap();
 
@@ -77,10 +88,9 @@ fn isolates_custom_adapters_by_project() {
 }
 
 #[test]
-#[ignore = "porting: control-plane-adapters not implemented"]
 fn latest_install_wins_within_a_project() {
     let ty = "demo";
-    let id = "project-one";
+    let id = "project-latest";
     adapters::register_adapter(id, ty, adapters::Adapter::new("/one")).unwrap();
 
     assert_eq!(

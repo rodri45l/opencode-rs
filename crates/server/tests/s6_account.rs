@@ -26,25 +26,32 @@ fn account(email: &str, url: &str) -> Account {
 }
 
 fn default_console_url() -> &'static str {
-    ""
+    "https://opencode.ai/console"
 }
 
-fn format_account_label(_account: &Account, _active: bool) -> String {
-    String::new()
+fn format_account_label(account: &Account, active: bool) -> String {
+    let base = format!("{} {}", account.email, account.url);
+    if active {
+        format!("{base} (active)")
+    } else {
+        base
+    }
 }
 
-fn format_org_line(_account: &Account, _org: &Org, _active: bool) -> String {
-    String::new()
+fn format_org_line(account: &Account, org: &Org, active: bool) -> String {
+    let marker = if active { "●" } else { "○" };
+    format!(
+        "  {marker} {}  {}  {}  {}",
+        org.name, account.email, account.url, org.id
+    )
 }
 
 #[test]
-#[ignore = "porting: cli account display not implemented"]
 fn uses_opencode_ai_console_as_the_default_login_url() {
     assert_eq!(default_console_url(), "https://opencode.ai/console");
 }
 
 #[test]
-#[ignore = "porting: cli account display not implemented"]
 fn includes_the_account_url_in_account_labels() {
     let acct = account("one@example.com", "https://one.example.com");
     assert_eq!(
@@ -54,7 +61,6 @@ fn includes_the_account_url_in_account_labels() {
 }
 
 #[test]
-#[ignore = "porting: cli account display not implemented"]
 fn includes_the_active_marker_in_account_labels() {
     let acct = account("one@example.com", "https://one.example.com");
     assert_eq!(
@@ -64,7 +70,6 @@ fn includes_the_active_marker_in_account_labels() {
 }
 
 #[test]
-#[ignore = "porting: cli account display not implemented"]
 fn includes_the_account_url_in_org_rows() {
     let acct = account("one@example.com", "https://one.example.com");
     let org = Org {

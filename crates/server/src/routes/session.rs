@@ -161,6 +161,7 @@ pub async fn list(
 /// `POST /session`.
 pub async fn create(State(state): State<AppState>, headers: HeaderMap, body: Bytes) -> Response {
     let directory = header_directory(&headers);
+    let location_directory = directory.clone();
     let input = if body.is_empty() {
         CreateSession {
             directory,
@@ -173,7 +174,17 @@ pub async fn create(State(state): State<AppState>, headers: HeaderMap, body: Byt
         }
     };
     let info = state.sessions.create(input);
-    publish(&state, EventType::SessionCreated, &info);
+    let mut event = EventEnvelope::new(
+        EventType::SessionCreated,
+        json!({ "sessionID": info.id, "info": info }),
+    );
+    if let Some(dir) = location_directory {
+        event = event.with_location(opencode_schema::LocationRef {
+            directory: dir,
+            workspace_id: None,
+        });
+    }
+    state.bus.publish(event);
     Json(info).into_response()
 }
 

@@ -7,116 +7,12 @@
 //! Re-derived: Effect async plumbing is expressed as an owned state machine with
 //! synchronous test drivers.
 
-#[allow(dead_code)]
-mod updater_controller {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: desktop updater controller not implemented";
-
-    fn stub<T>() -> PortResult<T> {
-        Err(NotImplemented(NOTE))
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum UpdaterStatus {
-        Idle,
-        Checking,
-        Downloading,
-        Ready,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct UpdaterState {
-        pub status: UpdaterStatus,
-        pub version: Option<String>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct UpdaterReadyRecord {
-        pub version: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct CheckResult {
-        pub is_update_available: bool,
-        pub version: Option<String>,
-    }
-
-    pub type CheckFn = Box<dyn Fn() -> PortResult<CheckResult>>;
-    pub type DownloadFn = Box<dyn Fn() -> PortResult<()>>;
-    pub type InstallFn = Box<dyn Fn()>;
-    pub type ReadyGetFn = Box<dyn Fn() -> Option<UpdaterReadyRecord>>;
-    pub type ReadySetFn = Box<dyn Fn(UpdaterReadyRecord)>;
-    pub type ReadyClearFn = Box<dyn Fn()>;
-    pub type StopFn = Box<dyn Fn() -> PortResult<()>>;
-
-    pub struct UpdaterBackend {
-        pub check_for_updates: CheckFn,
-        pub download_update: DownloadFn,
-        pub quit_and_install: InstallFn,
-    }
-
-    pub struct UpdaterPersistence {
-        pub get: ReadyGetFn,
-        pub set: ReadySetFn,
-        pub clear: ReadyClearFn,
-    }
-
-    pub struct UpdaterControllerConfig {
-        pub enabled: bool,
-        pub current_version: String,
-        pub backend: UpdaterBackend,
-        pub persistence: UpdaterPersistence,
-        pub stop: StopFn,
-    }
-
-    pub struct UpdaterController;
-
-    impl UpdaterController {
-        pub fn subscribe(&self, _listener: Box<dyn FnMut(&UpdaterState)>) {}
-
-        pub fn start(&self) -> PortResult<()> {
-            stub()
-        }
-
-        pub fn check(&self) -> PortResult<()> {
-            stub()
-        }
-
-        pub fn install(&self) -> PortResult<()> {
-            stub()
-        }
-
-        pub fn get_state(&self) -> PortResult<UpdaterState> {
-            stub()
-        }
-    }
-
-    pub fn create_updater_controller(_config: UpdaterControllerConfig) -> UpdaterController {
-        UpdaterController
-    }
-}
-
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use updater_controller::{
+use opencode_desktop::updater_controller::{
     create_updater_controller, CheckResult, NotImplemented, UpdaterBackend, UpdaterController,
     UpdaterControllerConfig, UpdaterPersistence, UpdaterReadyRecord, UpdaterState, UpdaterStatus,
-    NOTE,
 };
 
 struct App {
@@ -182,7 +78,6 @@ fn setup(current_version: &str, ready: Option<UpdaterReadyRecord>) -> App {
 }
 
 #[test]
-#[ignore = "porting: desktop updater controller not implemented"]
 fn checks_downloads_persists_and_publishes_one_authoritative_ready_state() {
     let app = setup("1.0.0", None);
     let states = Rc::new(RefCell::new(Vec::new()));
@@ -192,7 +87,7 @@ fn checks_downloads_persists_and_publishes_one_authoritative_ready_state() {
             states_sink.borrow_mut().push(state.clone());
         }));
 
-    app.controller.start().expect(NOTE);
+    app.controller.start().expect("start");
 
     assert_eq!(*app.calls.borrow(), vec!["check", "download"]);
     assert_eq!(
@@ -216,7 +111,7 @@ fn checks_downloads_persists_and_publishes_one_authoritative_ready_state() {
         ]
     );
     assert_eq!(
-        app.controller.get_state().expect(NOTE),
+        app.controller.get_state(),
         UpdaterState {
             status: UpdaterStatus::Ready,
             version: Some("2.0.0".to_string())
@@ -225,7 +120,6 @@ fn checks_downloads_persists_and_publishes_one_authoritative_ready_state() {
 }
 
 #[test]
-#[ignore = "porting: desktop updater controller not implemented"]
 fn revalidates_a_persisted_target_through_the_updater_cache_on_launch() {
     let app = setup(
         "1.0.0",
@@ -234,11 +128,11 @@ fn revalidates_a_persisted_target_through_the_updater_cache_on_launch() {
         }),
     );
 
-    app.controller.start().expect(NOTE);
+    app.controller.start().expect("start");
 
     assert_eq!(*app.calls.borrow(), vec!["check", "download"]);
     assert_eq!(
-        app.controller.get_state().expect(NOTE),
+        app.controller.get_state(),
         UpdaterState {
             status: UpdaterStatus::Ready,
             version: Some("2.0.0".to_string())
@@ -247,7 +141,6 @@ fn revalidates_a_persisted_target_through_the_updater_cache_on_launch() {
 }
 
 #[test]
-#[ignore = "porting: desktop updater controller not implemented"]
 fn clears_a_target_already_installed_before_checking() {
     let app = setup(
         "2.0.0",
@@ -256,14 +149,13 @@ fn clears_a_target_already_installed_before_checking() {
         }),
     );
 
-    app.controller.start().expect(NOTE);
+    app.controller.start().expect("start");
 
     assert_eq!(*app.ready.borrow(), None);
     assert_eq!(*app.calls.borrow(), vec!["check"]);
 }
 
 #[test]
-#[ignore = "porting: desktop updater controller not implemented"]
 fn coalesces_concurrent_checks() {
     let app = setup("1.0.0", None);
 
@@ -277,19 +169,18 @@ fn coalesces_concurrent_checks() {
 }
 
 #[test]
-#[ignore = "porting: desktop updater controller not implemented"]
 fn returns_to_ready_when_quit_and_install_returns_without_exiting() {
     let app = setup("1.0.0", None);
-    app.controller.start().expect(NOTE);
+    app.controller.start().expect("start");
 
-    app.controller.install().expect(NOTE);
+    app.controller.install().expect("install");
 
     assert_eq!(
         *app.calls.borrow(),
         vec!["check", "download", "stop", "install"]
     );
     assert_eq!(
-        app.controller.get_state().expect(NOTE),
+        app.controller.get_state(),
         UpdaterState {
             status: UpdaterStatus::Ready,
             version: Some("2.0.0".to_string())
@@ -298,7 +189,6 @@ fn returns_to_ready_when_quit_and_install_returns_without_exiting() {
 }
 
 #[test]
-#[ignore = "porting: desktop updater controller not implemented"]
 fn returns_to_ready_when_installation_cannot_start() {
     let failed = create_updater_controller(UpdaterControllerConfig {
         enabled: true,
@@ -318,14 +208,14 @@ fn returns_to_ready_when_installation_cannot_start() {
             set: Box::new(|_value| {}),
             clear: Box::new(|| {}),
         },
-        stop: Box::new(|| Err(NotImplemented("stop failed"))),
+        stop: Box::new(|| Err(NotImplemented("stop failed".to_string()))),
     });
 
-    failed.start().expect(NOTE);
-    let error = failed.install().expect_err(NOTE);
+    failed.start().expect("start");
+    let error = failed.install().expect_err("install");
     assert!(error.to_string().contains("stop failed"));
     assert_eq!(
-        failed.get_state().expect(NOTE),
+        failed.get_state(),
         UpdaterState {
             status: UpdaterStatus::Ready,
             version: Some("2.0.0".to_string())

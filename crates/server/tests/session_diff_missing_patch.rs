@@ -19,7 +19,6 @@ fn get(uri: &str) -> axum::http::Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: session diff route not implemented"]
 async fn ignores_legacy_session_level_diff_storage() {
     let app = router(AppState::new());
     let res = send(&app, get("/session/ses_missing_patch/diff")).await;
@@ -29,7 +28,6 @@ async fn ignores_legacy_session_level_diff_storage() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session diff route not implemented"]
 async fn returns_requested_turn_diffs() {
     let app = router(AppState::new());
     let res = send(&app, get("/session/ses_turn_diff/diff?messageID=msg_turn")).await;

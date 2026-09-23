@@ -97,7 +97,6 @@ async fn returns_a_missing_workspace_response_for_unknown_workspace_ids() {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace-routing middleware not implemented"]
 async fn keeps_control_plane_routes_local_even_when_workspace_is_selected() {
     let app = router(AppState::new());
     let res = send(&app, get("/session?workspace=wrk_local")).await;
@@ -107,7 +106,6 @@ async fn keeps_control_plane_routes_local_even_when_workspace_is_selected() {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace-routing middleware not implemented"]
 async fn keeps_workspace_control_routes_local_even_when_workspace_is_selected() {
     let app = router(AppState::new());
     let res = send(&app, get("/experimental/workspace?workspace=wrk_local")).await;
@@ -116,7 +114,6 @@ async fn keeps_workspace_control_routes_local_even_when_workspace_is_selected() 
 }
 
 #[tokio::test]
-#[ignore = "porting: instance-context middleware not implemented"]
 async fn uses_directory_query_and_header_fallback_when_no_workspace_is_selected() {
     let app = router(AppState::new());
 
@@ -140,7 +137,6 @@ async fn uses_directory_query_and_header_fallback_when_no_workspace_is_selected(
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace-routing middleware not implemented"]
 async fn routes_local_workspace_requests_through_the_workspace_route_context() {
     let app = router(AppState::new());
     let res = send(&app, get("/session?workspace=wrk_local_target")).await;

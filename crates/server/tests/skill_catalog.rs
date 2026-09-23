@@ -88,7 +88,6 @@ fn exposes_tagged_expected_skill_failure_classes() {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn discovers_skills_from_the_opencode_skill_directory() -> Result<(), SkillError> {
     let dir = temp_dir("opencode");
     write_skill(
@@ -117,7 +116,6 @@ fn discovers_skills_from_the_opencode_skill_directory() -> Result<(), SkillError
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn returns_skill_directories() -> Result<(), SkillError> {
     let dir = temp_dir("dirs");
     write_skill(
@@ -134,7 +132,6 @@ fn returns_skill_directories() -> Result<(), SkillError> {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn skips_skills_with_missing_frontmatter() -> Result<(), SkillError> {
     let dir = temp_dir("no-frontmatter");
     let skill_dir = dir.join(".opencode/skill/no-frontmatter");
@@ -155,7 +152,6 @@ fn skips_skills_with_missing_frontmatter() -> Result<(), SkillError> {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn discovers_skills_without_descriptions() -> Result<(), SkillError> {
     let dir = temp_dir("no-description");
     write_skill(&dir, ".opencode/skill", "manual-skill", None);
@@ -175,7 +171,6 @@ fn discovers_skills_without_descriptions() -> Result<(), SkillError> {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn discovers_skills_from_the_claude_skills_directory() -> Result<(), SkillError> {
     let dir = temp_dir("claude");
     write_skill(
@@ -198,7 +193,6 @@ fn discovers_skills_from_the_claude_skills_directory() -> Result<(), SkillError>
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn discovers_skills_from_the_agents_skills_directory() -> Result<(), SkillError> {
     let dir = temp_dir("agents");
     write_skill(
@@ -221,7 +215,6 @@ fn discovers_skills_from_the_agents_skills_directory() -> Result<(), SkillError>
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn skips_claude_code_skills_when_disabled() -> Result<(), SkillError> {
     let dir = temp_dir("disable-claude");
     write_skill(
@@ -245,7 +238,6 @@ fn skips_claude_code_skills_when_disabled() -> Result<(), SkillError> {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn skips_external_skill_directories_when_disabled() -> Result<(), SkillError> {
     let dir = temp_dir("disable-external");
     write_skill(
@@ -275,7 +267,6 @@ fn skips_external_skill_directories_when_disabled() -> Result<(), SkillError> {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn returns_empty_when_no_skills_exist() -> Result<(), SkillError> {
     let dir = temp_dir("empty");
     let skills = SkillCatalog::new(dir.clone()).all()?;
@@ -288,7 +279,6 @@ fn returns_empty_when_no_skills_exist() -> Result<(), SkillError> {
 }
 
 #[test]
-#[ignore = "porting: skill.discovery not implemented"]
 fn fails_with_typed_error_when_requiring_a_missing_skill() {
     let dir = temp_dir("missing");
     let error = SkillCatalog::new(dir.clone())

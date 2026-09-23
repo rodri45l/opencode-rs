@@ -27,7 +27,6 @@ fn get(uri: &str, headers: &[(&str, &str)]) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn allows_requests_when_server_password_is_not_configured() {
     let app = auth(AuthConfig::none());
     let res = send(&app, get("/config", &[])).await;
@@ -36,7 +35,6 @@ async fn allows_requests_when_server_password_is_not_configured() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn requires_configured_password_for_basic_auth() {
     let app = auth(AuthConfig::with_password("secret"));
 
@@ -70,7 +68,6 @@ async fn requires_configured_password_for_basic_auth() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn respects_configured_basic_auth_username() {
     let app = auth(AuthConfig::with_credentials("kit", "secret"));
 
@@ -93,7 +90,6 @@ async fn respects_configured_basic_auth_username() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn accepts_auth_token_query_credentials() {
     let app = auth(AuthConfig::with_password("secret"));
     let token = common::base64("opencode:secret");
@@ -103,7 +99,6 @@ async fn accepts_auth_token_query_credentials() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn prefers_auth_token_query_credentials_over_basic_auth() {
     let app = auth(AuthConfig::with_password("secret"));
     let token = common::base64("opencode:secret");
@@ -120,7 +115,6 @@ async fn prefers_auth_token_query_credentials_over_basic_auth() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn preserves_handler_errors_when_basic_auth_succeeds() {
     let app = auth(AuthConfig::with_password("secret"));
     let res = send(
@@ -143,7 +137,6 @@ async fn preserves_handler_errors_when_basic_auth_succeeds() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn preserves_handler_errors_when_auth_token_query_succeeds() {
     let app = auth(AuthConfig::with_password("secret"));
     let token = common::base64("opencode:secret");
@@ -163,7 +156,6 @@ async fn preserves_handler_errors_when_auth_token_query_succeeds() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn rejects_malformed_auth_token_query_credentials() {
     let app = auth(AuthConfig::with_password("secret"));
     let res = send(&app, get("/config?auth_token=not-base64", &[])).await;
@@ -172,7 +164,6 @@ async fn rejects_malformed_auth_token_query_credentials() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi authorization middleware not implemented"]
 async fn returns_bodyful_v2_unauthorized_errors() {
     let app = auth(AuthConfig::with_password("secret"));
     let res = send(&app, get("/api/session", &[])).await;

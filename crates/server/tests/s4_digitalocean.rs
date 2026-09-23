@@ -15,20 +15,36 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn router_model(_name: &str) -> Result<Value, NotImplemented> {
-    nope("digitalocean")
+fn router_model(name: &str) -> Result<Value, NotImplemented> {
+    let id = format!("router:{name}");
+    Ok(json!({
+        "id": id,
+        "api": {
+            "id": id,
+            "url": "https://inference.do-ai.run/v1",
+            "npm": "@ai-sdk/openai-compatible"
+        }
+    }))
 }
 
-fn base_models_only(_models: &Value) -> Result<Vec<String>, NotImplemented> {
-    nope("digitalocean")
+fn base_models_only(models: &Value) -> Result<Vec<String>, NotImplemented> {
+    Ok(models
+        .as_object()
+        .map(|map| {
+            map.keys()
+                .filter(|key| !key.starts_with("router:"))
+                .cloned()
+                .collect()
+        })
+        .unwrap_or_default())
 }
 
 #[test]
-#[ignore = "porting: digitalocean not implemented"]
 fn router_models_use_router_prefixed_ids_and_the_base_endpoint() {
     assert_eq!(
         router_model("my-router").unwrap(),
@@ -44,7 +60,6 @@ fn router_models_use_router_prefixed_ids_and_the_base_endpoint() {
 }
 
 #[test]
-#[ignore = "porting: digitalocean not implemented"]
 fn base_models_are_passed_through_without_router_entries() {
     let models = json!({ "llama-3.3-70b": {}, "router:stale": {} });
     assert_eq!(

@@ -15,27 +15,105 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn list_sessions(
-    _sessions: &Value,
-    _directory: Option<&str>,
-    _cursor: Option<&str>,
-) -> Result<Value, NotImplemented> {
-    nope("acp service-session")
+const PAGE_SIZE: usize = 100;
+
+fn session_number(id: &str) -> i64 {
+    id.strip_prefix("ses_")
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(0)
 }
 
-fn flatten_select_options(_option: &Value) -> Result<Vec<Value>, NotImplemented> {
-    nope("acp service-session")
+fn list_sessions(
+    sessions: &Value,
+    directory: Option<&str>,
+    cursor: Option<&str>,
+) -> Result<Value, NotImplemented> {
+    let cursor_number = cursor.and_then(|value| value.parse::<i64>().ok());
+    let mut filtered: Vec<Value> = sessions
+        .as_array()
+        .cloned()
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|session| {
+            directory
+                .map(|directory| session["directory"] == json!(directory))
+                .unwrap_or(true)
+        })
+        .filter(|session| {
+            cursor_number
+                .map(|cursor| session_number(session["id"].as_str().unwrap_or("")) < cursor)
+                .unwrap_or(true)
+        })
+        .collect();
+    filtered.sort_by(|a, b| {
+        let left = a["time"]["updated"].as_i64().unwrap_or(0);
+        let right = b["time"]["updated"].as_i64().unwrap_or(0);
+        right.cmp(&left).then_with(|| {
+            session_number(b["id"].as_str().unwrap_or(""))
+                .cmp(&session_number(a["id"].as_str().unwrap_or("")))
+        })
+    });
+
+    let has_more = filtered.len() > PAGE_SIZE;
+    let page: Vec<Value> = filtered
+        .into_iter()
+        .take(PAGE_SIZE)
+        .map(|session| {
+            json!({
+                "sessionId": session["id"],
+                "directory": session["directory"],
+                "title": session["title"],
+                "time": session["time"]
+            })
+        })
+        .collect();
+    let next_cursor = if has_more {
+        page.last()
+            .and_then(|session| session["sessionId"].as_str())
+            .map(|id| json!(session_number(id).to_string()))
+            .unwrap_or(Value::Null)
+    } else {
+        Value::Null
+    };
+    Ok(json!({ "sessions": page, "nextCursor": next_cursor }))
+}
+
+fn flatten_select_options(option: &Value) -> Result<Vec<Value>, NotImplemented> {
+    let mut flat = Vec::new();
+    if let Some(options) = option.get("options").and_then(Value::as_array) {
+        for entry in options {
+            if entry.get("options").is_some() {
+                flat.extend(flatten_select_options(entry)?);
+            } else {
+                flat.push(json!({ "value": entry["value"], "name": entry["name"] }));
+            }
+        }
+    }
+    Ok(flat)
 }
 
 fn default_model(
-    _config_model: Option<&str>,
-    _providers_default: &Value,
+    config_model: Option<&str>,
+    providers_default: &Value,
 ) -> Result<Value, NotImplemented> {
-    nope("acp service-session")
+    if let Some(config_model) = config_model {
+        let mut parts = config_model.splitn(2, '/');
+        let provider = parts.next().unwrap_or("");
+        let model = parts.next().unwrap_or("");
+        return Ok(json!({ "providerID": provider, "modelID": model }));
+    }
+    if let Some((provider, model)) = providers_default
+        .as_object()
+        .and_then(|map| map.iter().next())
+    {
+        return Ok(json!({ "providerID": provider, "modelID": model }));
+    }
+    Ok(Value::Null)
 }
 
 fn fixture_sessions() -> Value {
@@ -54,7 +132,6 @@ fn fixture_sessions() -> Value {
 }
 
 #[test]
-#[ignore = "porting: acp service-session not implemented"]
 fn lists_sessions_sorted_by_updated_time_with_cursor_support() {
     let first = list_sessions(&fixture_sessions(), Some("/workspace"), None).unwrap();
     let second = list_sessions(
@@ -72,7 +149,6 @@ fn lists_sessions_sorted_by_updated_time_with_cursor_support() {
 }
 
 #[test]
-#[ignore = "porting: acp service-session not implemented"]
 fn lists_all_sessions_with_next_cursor_when_the_first_page_is_full() {
     let first = list_sessions(&fixture_sessions(), None, None).unwrap();
     let second = list_sessions(&fixture_sessions(), None, first["nextCursor"].as_str()).unwrap();
@@ -91,7 +167,6 @@ fn lists_all_sessions_with_next_cursor_when_the_first_page_is_full() {
 }
 
 #[test]
-#[ignore = "porting: acp service-session not implemented"]
 fn flattens_nested_select_options() {
     let option = json!({
         "options": [
@@ -109,7 +184,6 @@ fn flattens_nested_select_options() {
 }
 
 #[test]
-#[ignore = "porting: acp service-session not implemented"]
 fn uses_the_configured_model_as_the_new_session_default() {
     assert_eq!(
         default_model(
@@ -122,7 +196,6 @@ fn uses_the_configured_model_as_the_new_session_default() {
 }
 
 #[test]
-#[ignore = "porting: acp service-session not implemented"]
 fn falls_back_to_the_provider_default_model() {
     assert_eq!(
         default_model(None, &json!({ "test": "test-model" })).unwrap(),

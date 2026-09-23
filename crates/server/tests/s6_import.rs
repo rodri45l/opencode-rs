@@ -13,16 +13,58 @@ enum ImportError {
     Json(String),
 }
 
-fn format_import_file_error(_name: &str, _err: ImportError) -> String {
-    String::new()
+fn format_import_file_error(name: &str, err: ImportError) -> String {
+    match err {
+        ImportError::NotFound => format!("File not found: {name}"),
+        ImportError::PermissionDenied => "Failed to read file: Permission denied".to_string(),
+        ImportError::Json(message) => format!("Invalid JSON in {name}: {message}"),
+    }
 }
 
-fn parse_share_url(_url: &str) -> Option<String> {
-    None
+fn parse_share_url(url: &str) -> Option<String> {
+    let (scheme, rest) = url.split_once("://")?;
+    if scheme != "http" && scheme != "https" {
+        return None;
+    }
+    let (authority, path) = rest.split_once('/')?;
+    if authority.is_empty() {
+        return None;
+    }
+    let path = path.trim_end_matches('/');
+    let segments: Vec<&str> = path.split('/').collect();
+    if segments.len() == 2 && segments[0] == "share" && !segments[1].is_empty() {
+        Some(segments[1].to_string())
+    } else {
+        None
+    }
 }
 
-fn should_attach_share_auth_headers(_url: &str, _control: &str) -> bool {
-    false
+fn origin(url: &str) -> Option<(String, String, u16)> {
+    let (scheme, rest) = url.split_once("://")?;
+    if scheme != "http" && scheme != "https" {
+        return None;
+    }
+    let authority = rest.split('/').next().unwrap_or("");
+    if authority.is_empty() {
+        return None;
+    }
+    let (host, port) = match authority.rsplit_once(':') {
+        Some((host, port)) if !host.is_empty() && port.chars().all(|c| c.is_ascii_digit()) => {
+            (host.to_string(), port.parse().ok()?)
+        }
+        _ => (
+            authority.to_string(),
+            if scheme == "https" { 443 } else { 80 },
+        ),
+    };
+    Some((scheme.to_string(), host, port))
+}
+
+fn should_attach_share_auth_headers(url: &str, control: &str) -> bool {
+    match (origin(url), origin(control)) {
+        (Some(url), Some(control)) => url == control,
+        _ => false,
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -52,12 +94,37 @@ struct TransformedShare {
     messages: Vec<TransformedMessage>,
 }
 
-fn transform_share_data(_data: &[ShareData]) -> Option<TransformedShare> {
-    None
+fn transform_share_data(data: &[ShareData]) -> Option<TransformedShare> {
+    let session = data.iter().find(|item| item.kind == ShareKind::Session)?;
+    let mut messages: Vec<TransformedMessage> = Vec::new();
+    for item in data {
+        if item.kind == ShareKind::Message && !item.id.is_empty() {
+            messages.push(TransformedMessage {
+                id: item.id.clone(),
+                parts: Vec::new(),
+            });
+        }
+    }
+    for item in data {
+        if item.kind != ShareKind::Part {
+            continue;
+        }
+        if let Some(message_id) = &item.message_id {
+            if let Some(message) = messages.iter_mut().find(|m| &m.id == message_id) {
+                message.parts.push(item.id.clone());
+            }
+        }
+    }
+    if messages.is_empty() {
+        return None;
+    }
+    Some(TransformedShare {
+        info_id: session.id.clone(),
+        messages,
+    })
 }
 
 #[test]
-#[ignore = "porting: cli import error formatting not implemented"]
 fn formats_import_file_errors() {
     assert_eq!(
         format_import_file_error("test.json", ImportError::NotFound),
@@ -77,7 +144,6 @@ fn formats_import_file_errors() {
 }
 
 #[test]
-#[ignore = "porting: cli import parseShareUrl not implemented"]
 fn parses_valid_share_urls() {
     assert_eq!(
         parse_share_url("https://opncd.ai/share/Jsj3hNIW"),
@@ -94,7 +160,6 @@ fn parses_valid_share_urls() {
 }
 
 #[test]
-#[ignore = "porting: cli import parseShareUrl not implemented"]
 fn rejects_invalid_share_urls() {
     assert_eq!(parse_share_url("https://opncd.ai/s/Jsj3hNIW"), None);
     assert_eq!(parse_share_url("https://opncd.ai/share/"), None);
@@ -103,7 +168,6 @@ fn rejects_invalid_share_urls() {
 }
 
 #[test]
-#[ignore = "porting: cli import shouldAttachShareAuthHeaders not implemented"]
 fn only_attaches_share_auth_headers_for_same_origin_urls() {
     assert!(should_attach_share_auth_headers(
         "https://control.example.com/share/abc",
@@ -151,7 +215,6 @@ fn part(id: &str, message_id: &str) -> ShareData {
 }
 
 #[test]
-#[ignore = "porting: cli import transformShareData not implemented"]
 fn transforms_share_data_to_storage_format() {
     let data = vec![
         session("sess-1"),
@@ -166,7 +229,6 @@ fn transforms_share_data_to_storage_format() {
 }
 
 #[test]
-#[ignore = "porting: cli import transformShareData not implemented"]
 fn returns_null_for_invalid_share_data() {
     assert_eq!(transform_share_data(&[]), None);
     assert_eq!(

@@ -34,7 +34,6 @@ fn assert_unknown_error_body(body: &serde_json::Value) {
 }
 
 #[tokio::test]
-#[ignore = "porting: error middleware defect mapping not implemented"]
 async fn returns_a_safe_body_for_unknown_500_defects() {
     let app = router(AppState::new());
     let res = send(&app, get("/boom")).await;
@@ -45,7 +44,6 @@ async fn returns_a_safe_body_for_unknown_500_defects() {
 }
 
 #[tokio::test]
-#[ignore = "porting: error middleware defect mapping not implemented"]
 async fn returns_a_safe_body_for_named_defects() {
     let app = router(AppState::new());
     let res = send(&app, get("/named")).await;
@@ -56,7 +54,6 @@ async fn returns_a_safe_body_for_named_defects() {
 }
 
 #[tokio::test]
-#[ignore = "porting: error middleware config defect mapping not implemented"]
 async fn returns_invalid_config_defects_as_structured_client_errors() {
     let app = router(AppState::new());
     let res = send(&app, get("/config-error")).await;
@@ -75,7 +72,6 @@ async fn returns_invalid_config_defects_as_structured_client_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: error middleware remote-auth defect mapping not implemented"]
 async fn returns_remote_auth_defects_as_structured_client_errors() {
     let app = router(AppState::new());
     let res = send(&app, get("/remote-auth-error")).await;
@@ -93,7 +89,6 @@ async fn returns_remote_auth_defects_as_structured_client_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: error middleware storage not-found mapping not implemented"]
 async fn does_not_map_storage_not_found_defects_to_404() {
     let app = router(AppState::new());
     let res = send(&app, get("/missing")).await;

@@ -14,6 +14,7 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
@@ -25,6 +26,7 @@ struct DirectorySnapshot {
     available_commands: Vec<Value>,
     available_modes: Vec<Value>,
     default_mode_id: String,
+    variants_by_model: std::collections::HashMap<String, Value>,
 }
 
 fn command(name: &str) -> Value {
@@ -92,25 +94,62 @@ fn providers(directory: &str) -> Value {
 }
 
 fn build(
-    _directory: &str,
-    _providers: &Value,
-    _modes: &Value,
-    _default_mode_id: &str,
-    _commands: &Value,
-    _default_model: Option<&Value>,
+    directory: &str,
+    providers: &Value,
+    modes: &Value,
+    default_mode_id: &str,
+    commands: &Value,
+    default_model: Option<&Value>,
 ) -> Result<DirectorySnapshot, NotImplemented> {
-    nope("acp directory")
+    let mut variants_by_model = std::collections::HashMap::new();
+    if let Some(providers) = providers.as_object() {
+        for (provider_id, provider) in providers {
+            if let Some(models) = provider.get("models").and_then(Value::as_object) {
+                for (model_id, model) in models {
+                    if let Some(variants) = model.get("variants") {
+                        variants_by_model
+                            .insert(format!("{provider_id}/{model_id}"), variants.clone());
+                    }
+                }
+            }
+        }
+    }
+    let mode_list: Vec<Value> = modes.as_array().cloned().unwrap_or_default();
+    let resolved_default = if mode_list
+        .iter()
+        .any(|mode| mode.get("id").and_then(Value::as_str) == Some(default_mode_id))
+    {
+        default_mode_id.to_string()
+    } else {
+        mode_list
+            .first()
+            .and_then(|mode| mode.get("id").and_then(Value::as_str))
+            .map(str::to_string)
+            .unwrap_or_else(|| default_mode_id.to_string())
+    };
+    Ok(DirectorySnapshot {
+        directory: directory.to_string(),
+        default_model: default_model.cloned(),
+        available_commands: commands.as_array().cloned().unwrap_or_default(),
+        available_modes: mode_list,
+        default_mode_id: resolved_default,
+        variants_by_model,
+    })
 }
 
-fn variants(
-    _snapshot: &DirectorySnapshot,
-    _model: &Value,
-) -> Result<Option<Value>, NotImplemented> {
-    nope("acp directory")
+fn variants(snapshot: &DirectorySnapshot, model: &Value) -> Result<Option<Value>, NotImplemented> {
+    let provider_id = model
+        .get("providerID")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    let model_id = model.get("modelID").and_then(Value::as_str).unwrap_or("");
+    Ok(snapshot
+        .variants_by_model
+        .get(&format!("{provider_id}/{model_id}"))
+        .cloned())
 }
 
 #[test]
-#[ignore = "porting: acp directory not implemented"]
 fn model_variant_lookup_works() {
     let snapshot = build(
         "alpha",
@@ -135,7 +174,6 @@ fn model_variant_lookup_works() {
 }
 
 #[test]
-#[ignore = "porting: acp directory not implemented"]
 fn commands_and_modes_are_included() {
     let snapshot = build(
         "alpha",
@@ -166,7 +204,6 @@ fn commands_and_modes_are_included() {
 }
 
 #[test]
-#[ignore = "porting: acp directory not implemented"]
 fn falls_back_when_the_default_mode_is_not_available() {
     let snapshot = build(
         "alpha",

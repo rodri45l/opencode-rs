@@ -5,67 +5,10 @@
 //! discarded, and a pending (loading) initialization is awaited without reading
 //! its data.
 
-#[allow(dead_code)]
-mod initialization {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub enum InitError {
-        NotImplemented(&'static str),
-        Failure {
-            message: String,
-            local_server_startup: bool,
-        },
-    }
-
-    impl fmt::Display for InitError {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.message())
-        }
-    }
-
-    impl std::error::Error for InitError {}
-
-    impl InitError {
-        pub fn message(&self) -> &str {
-            match self {
-                InitError::NotImplemented(note) => note,
-                InitError::Failure { message, .. } => message,
-            }
-        }
-
-        pub fn local_server_startup(&self) -> bool {
-            match self {
-                InitError::NotImplemented(_) => false,
-                InitError::Failure {
-                    local_server_startup,
-                    ..
-                } => *local_server_startup,
-            }
-        }
-    }
-
-    pub const NOTE: &str = "porting: desktop renderer initialization not implemented";
-
-    pub struct Invocation<D> {
-        pub error: Option<String>,
-        pub loading: bool,
-        pub produce: Option<Box<dyn FnOnce() -> D>>,
-    }
-
-    pub fn initialization_data<D>(_invocation: Invocation<D>) -> Result<D, InitError> {
-        Err(InitError::NotImplemented(NOTE))
-    }
-
-    pub fn initialization_ready<D>(_invocation: Invocation<D>) -> Result<bool, InitError> {
-        Err(InitError::NotImplemented(NOTE))
-    }
-}
-
 use std::cell::Cell;
 use std::rc::Rc;
 
-use initialization::{initialization_data, initialization_ready, Invocation, NOTE};
+use opencode_desktop::initialization::{initialization_data, initialization_ready, Invocation};
 
 fn invocation<D>(
     error: Option<&str>,
@@ -80,21 +23,19 @@ fn invocation<D>(
 }
 
 #[test]
-#[ignore = "porting: desktop renderer initialization not implemented"]
 fn throws_the_original_initialization_error_before_rendering_server_providers() {
     let failure = initialization_data(invocation::<String>(
         Some("sidecar startup failed"),
         false,
         None,
     ))
-    .expect_err(NOTE);
+    .expect_err("initialization failure");
 
     assert_eq!(failure.message(), "sidecar startup failed");
     assert!(failure.local_server_startup());
 }
 
 #[test]
-#[ignore = "porting: desktop renderer initialization not implemented"]
 fn removes_electrons_remote_invocation_wrapper_from_startup_errors() {
     let failure = initialization_data(invocation::<String>(
         Some(
@@ -103,7 +44,7 @@ fn removes_electrons_remote_invocation_wrapper_from_startup_errors() {
         false,
         None,
     ))
-    .expect_err(NOTE);
+    .expect_err("initialization failure");
 
     assert_eq!(
         failure.message(),
@@ -112,39 +53,36 @@ fn removes_electrons_remote_invocation_wrapper_from_startup_errors() {
 }
 
 #[test]
-#[ignore = "porting: desktop renderer initialization not implemented"]
 fn returns_initialized_sidecar_data() {
     let data = initialization_data(invocation(
         None,
         false,
         Some(Box::new(|| "http://127.0.0.1:1234".to_string())),
     ))
-    .expect(NOTE);
+    .expect("initialized");
     assert_eq!(data, "http://127.0.0.1:1234");
 }
 
 #[test]
-#[ignore = "porting: desktop renderer initialization not implemented"]
 fn does_not_discard_falsy_initialization_errors() {
-    let failure = initialization_data(invocation::<String>(Some(""), false, None)).expect_err(NOTE);
+    let failure =
+        initialization_data(invocation::<String>(Some(""), false, None)).expect_err("failure");
     assert_eq!(failure.message(), "");
     assert!(failure.local_server_startup());
 }
 
 #[test]
-#[ignore = "porting: desktop renderer initialization not implemented"]
 fn checks_initialization_errors_before_rendering_server_providers() {
     let failure = initialization_ready(invocation::<String>(
         Some("sidecar startup failed"),
         false,
         None,
     ))
-    .expect_err(NOTE);
+    .expect_err("initialization failure");
     assert_eq!(failure.message(), "sidecar startup failed");
 }
 
 #[test]
-#[ignore = "porting: desktop renderer initialization not implemented"]
 fn waits_for_pending_initialization_without_reading_it() {
     let reads = Rc::new(Cell::new(0usize));
     let counter = reads.clone();
@@ -157,6 +95,6 @@ fn waits_for_pending_initialization_without_reading_it() {
         })),
     ));
 
-    assert!(!pending.expect(NOTE));
+    assert!(!pending.expect("ready"));
     assert_eq!(reads.get(), 0);
 }

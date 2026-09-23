@@ -16,7 +16,6 @@ fn preflight(origin: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi cors middleware not implemented"]
 async fn allows_browser_preflight_requests_without_credentials() {
     let app = router(AppState::new());
     let res = send(&app, preflight("http://localhost:3000")).await;
@@ -33,7 +32,6 @@ async fn allows_browser_preflight_requests_without_credentials() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi cors middleware not implemented"]
 async fn adds_cors_headers_to_unauthorized_responses() {
     let app = router_with_options(
         AppState::new(),
@@ -56,7 +54,6 @@ async fn adds_cors_headers_to_unauthorized_responses() {
 }
 
 #[tokio::test]
-#[ignore = "porting: httpapi cors middleware not implemented"]
 async fn uses_custom_cors_origins_passed_to_the_server() {
     let app = router_with_options(
         AppState::new(),

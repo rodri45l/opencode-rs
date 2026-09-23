@@ -54,7 +54,6 @@ fn fetch(
 }
 
 #[test]
-#[ignore = "porting: tool.webfetch not implemented"]
 fn returns_image_responses_as_file_attachments() -> Result<(), ToolError> {
     let bytes = vec![137, 80, 78, 71, 13, 10, 26, 10];
     let result = fetch(
@@ -74,7 +73,6 @@ fn returns_image_responses_as_file_attachments() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.webfetch not implemented"]
 fn keeps_svg_as_text_output() -> Result<(), ToolError> {
     let body = b"<svg xmlns=\"http://www.w3.org/2000/svg\"><text>hello</text></svg>".to_vec();
     let result = fetch(
@@ -90,7 +88,6 @@ fn keeps_svg_as_text_output() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.webfetch not implemented"]
 fn keeps_text_responses_as_text_output() -> Result<(), ToolError> {
     let result = fetch(
         "text/plain; charset=utf-8",
@@ -105,7 +102,6 @@ fn keeps_text_responses_as_text_output() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.webfetch not implemented"]
 fn extracts_text_from_html_without_scripts_or_styles() -> Result<(), ToolError> {
     let body = b"<html><head><style>.hidden{}</style><script>alert('x')</script></head><body>Hello <b>world</b></body></html>".to_vec();
     let result = fetch(

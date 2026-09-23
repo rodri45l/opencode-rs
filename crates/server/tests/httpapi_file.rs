@@ -9,7 +9,13 @@ use common::{json, request, send};
 use opencode_server::{router, AppState};
 
 fn directory() -> String {
-    let dir = std::env::temp_dir().join("opencode-file-port");
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let unique = COUNTER.fetch_add(1, Ordering::SeqCst);
+    let dir = std::env::temp_dir().join(format!(
+        "opencode-file-port-{}-{unique}",
+        std::process::id()
+    ));
     std::fs::create_dir_all(&dir).expect("temp dir");
     std::fs::write(dir.join("hello.txt"), "hello").expect("write fixture");
     dir.to_string_lossy().into_owned()
@@ -24,7 +30,6 @@ fn get(uri: &str, dir: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: filesystem routes not implemented"]
 async fn serves_read_endpoints() {
     let dir = directory();
     let app = router(AppState::new());
@@ -48,7 +53,6 @@ async fn serves_read_endpoints() {
 }
 
 #[tokio::test]
-#[ignore = "porting: filesystem routes not implemented"]
 async fn serves_search_endpoints() {
     let dir = directory();
     std::fs::write(std::path::Path::new(&dir).join("hello.txt"), "needle").expect("write fixture");

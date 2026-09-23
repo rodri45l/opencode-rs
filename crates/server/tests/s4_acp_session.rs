@@ -48,76 +48,153 @@ fn model(provider_id: &str, model_id: &str) -> SelectedModel {
     }
 }
 
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+
+fn store() -> &'static Mutex<HashMap<String, Session>> {
+    static STORE: OnceLock<Mutex<HashMap<String, Session>>> = OnceLock::new();
+    STORE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
 fn create(
-    _id: &str,
-    _cwd: &str,
-    _mcp_servers: &Value,
-    _model: Option<SelectedModel>,
-    _variant: Option<&str>,
-    _mode_id: Option<&str>,
-    _created_at: Option<&str>,
+    id: &str,
+    cwd: &str,
+    mcp_servers: &Value,
+    model: Option<SelectedModel>,
+    variant: Option<&str>,
+    mode_id: Option<&str>,
+    created_at: Option<&str>,
 ) -> Result<Session, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+    let session = Session {
+        id: id.to_string(),
+        cwd: cwd.to_string(),
+        mcp_servers: mcp_servers.clone(),
+        model,
+        variant: variant.map(str::to_string),
+        mode_id: mode_id.map(str::to_string),
+        created_at: created_at.map(str::to_string),
+        known_parts: Vec::new(),
+    };
+    store()
+        .lock()
+        .unwrap()
+        .insert(id.to_string(), session.clone());
+    Ok(session)
 }
 
-fn get(_id: &str) -> Result<Session, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn get(id: &str) -> Result<Session, SessionError> {
+    store()
+        .lock()
+        .unwrap()
+        .get(id)
+        .cloned()
+        .ok_or_else(|| SessionError::SessionNotFound {
+            session_id: id.to_string(),
+        })
 }
 
-fn try_get(_id: &str) -> Result<Option<Session>, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn try_get(id: &str) -> Result<Option<Session>, SessionError> {
+    Ok(store().lock().unwrap().get(id).cloned())
 }
 
-fn set_model(_id: &str, _model: SelectedModel) -> Result<Session, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn set_model(id: &str, model: SelectedModel) -> Result<Session, SessionError> {
+    let mut guard = store().lock().unwrap();
+    let session = guard
+        .get_mut(id)
+        .ok_or_else(|| SessionError::SessionNotFound {
+            session_id: id.to_string(),
+        })?;
+    session.model = Some(model);
+    Ok(session.clone())
 }
 
 fn load(
-    _id: &str,
-    _cwd: &str,
-    _model: Option<SelectedModel>,
-    _variant: Option<&str>,
-    _mode_id: Option<&str>,
+    id: &str,
+    cwd: &str,
+    model: Option<SelectedModel>,
+    variant: Option<&str>,
+    mode_id: Option<&str>,
 ) -> Result<Session, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+    create(id, cwd, &json!([]), model, variant, mode_id, None)
 }
 
-fn set_variant(_id: &str, _variant: &str) -> Result<(), SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn set_variant(id: &str, variant: &str) -> Result<(), SessionError> {
+    let mut guard = store().lock().unwrap();
+    let session = guard
+        .get_mut(id)
+        .ok_or_else(|| SessionError::SessionNotFound {
+            session_id: id.to_string(),
+        })?;
+    session.variant = Some(variant.to_string());
+    Ok(())
 }
 
-fn get_variant(_id: &str) -> Result<Option<String>, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn get_variant(id: &str) -> Result<Option<String>, SessionError> {
+    Ok(get(id)?.variant)
 }
 
-fn set_mode(_id: &str, _mode: &str) -> Result<(), SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn set_mode(id: &str, mode: &str) -> Result<(), SessionError> {
+    let mut guard = store().lock().unwrap();
+    let session = guard
+        .get_mut(id)
+        .ok_or_else(|| SessionError::SessionNotFound {
+            session_id: id.to_string(),
+        })?;
+    session.mode_id = Some(mode.to_string());
+    Ok(())
 }
 
-fn get_mode(_id: &str) -> Result<Option<String>, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn get_mode(id: &str) -> Result<Option<String>, SessionError> {
+    Ok(get(id)?.mode_id)
 }
 
 fn record_part_metadata(
-    _session_id: &str,
-    _message_id: &str,
-    _part_id: &str,
-    _tool_call_id: Option<&str>,
-    _metadata: Option<Value>,
+    session_id: &str,
+    message_id: &str,
+    part_id: &str,
+    tool_call_id: Option<&str>,
+    metadata: Option<Value>,
 ) -> Result<PartMetadata, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+    let mut guard = store().lock().unwrap();
+    let session = guard
+        .get_mut(session_id)
+        .ok_or_else(|| SessionError::SessionNotFound {
+            session_id: session_id.to_string(),
+        })?;
+    let entry = PartMetadata {
+        message_id: message_id.to_string(),
+        part_id: part_id.to_string(),
+        tool_call_id: tool_call_id.map(str::to_string),
+        metadata,
+    };
+    match session
+        .known_parts
+        .iter_mut()
+        .find(|part| part.message_id == message_id && part.part_id == part_id)
+    {
+        Some(existing) => *existing = entry.clone(),
+        None => session.known_parts.push(entry.clone()),
+    }
+    Ok(entry)
 }
 
 fn get_part_metadata(
-    _session_id: &str,
-    _message_id: &str,
-    _part_id: &str,
+    session_id: &str,
+    message_id: &str,
+    part_id: &str,
 ) -> Result<Option<PartMetadata>, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+    let guard = store().lock().unwrap();
+    Ok(guard.get(session_id).and_then(|session| {
+        session
+            .known_parts
+            .iter()
+            .find(|part| part.message_id == message_id && part.part_id == part_id)
+            .cloned()
+    }))
 }
 
-fn remove(_id: &str) -> Result<Option<Session>, SessionError> {
-    Err(SessionError::NotImplemented("acp session"))
+fn remove(id: &str) -> Result<Option<Session>, SessionError> {
+    Ok(store().lock().unwrap().remove(id))
 }
 
 fn mcp_server() -> Value {
@@ -125,7 +202,6 @@ fn mcp_server() -> Value {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn creates_and_retrieves_session_state() {
     let created = create(
         "ses_1",
@@ -150,7 +226,6 @@ fn creates_and_retrieves_session_state() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn fails_required_lookups_with_typed_session_not_found() {
     let error = get("ses_missing").unwrap_err();
     match error {
@@ -160,7 +235,6 @@ fn fails_required_lookups_with_typed_session_not_found() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn try_get_lets_event_routing_ignore_unknown_sessions() {
     assert_eq!(try_get("ses_missing").unwrap(), None);
     assert_eq!(
@@ -170,7 +244,6 @@ fn try_get_lets_event_routing_ignore_unknown_sessions() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn updates_selected_model_while_preserving_session_identity_and_inputs() {
     create(
         "ses_model",
@@ -192,7 +265,6 @@ fn updates_selected_model_while_preserving_session_identity_and_inputs() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn updates_selected_variant_and_mode_independently() {
     load(
         "ses_config",
@@ -212,7 +284,6 @@ fn updates_selected_variant_and_mode_independently() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn records_known_message_part_metadata_for_delta_routing() {
     create(
         "ses_parts",
@@ -248,7 +319,6 @@ fn records_known_message_part_metadata_for_delta_routing() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn keeps_repeated_part_ids_distinct_across_messages() {
     create(
         "ses_duplicate_parts",
@@ -293,7 +363,6 @@ fn keeps_repeated_part_ids_distinct_across_messages() {
 }
 
 #[test]
-#[ignore = "porting: acp session not implemented"]
 fn removing_a_session_clears_its_known_part_metadata() {
     create(
         "ses_remove",

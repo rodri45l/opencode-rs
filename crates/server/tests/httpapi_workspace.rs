@@ -30,7 +30,6 @@ fn post_json(uri: &str, value: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace routes not implemented"]
 async fn serves_read_endpoints() {
     let app = router(AppState::new());
 
@@ -55,7 +54,6 @@ async fn serves_read_endpoints() {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace routes not implemented"]
 async fn returns_a_declared_not_found_error_when_warping_into_a_missing_workspace() {
     let app = router(AppState::new());
     let workspace_id = "wrk_missing_warp";
@@ -80,7 +78,6 @@ async fn returns_a_declared_not_found_error_when_warping_into_a_missing_workspac
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace routes not implemented"]
 async fn creates_workspace_with_the_tui_payload_shape() {
     let app = router(AppState::new());
     let res = send(

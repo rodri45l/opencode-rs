@@ -136,18 +136,101 @@ impl SkillCatalog {
 
     /// All discovered skills, including built-ins.
     pub fn all(&self) -> Result<Vec<SkillInfo>, SkillError> {
-        Err(SkillError::NotImplemented("skill::all"))
+        let mut roots: Vec<PathBuf> = vec![self.directory.join(".opencode").join("skill")];
+        if !self.disable_external_skills && !self.disable_claude_code_skills {
+            roots.push(self.directory.join(".claude").join("skills"));
+        }
+        if !self.disable_external_skills {
+            roots.push(self.directory.join(".agents").join("skills"));
+        }
+
+        let mut skills = Vec::new();
+        for root in roots {
+            let Ok(entries) = std::fs::read_dir(&root) else {
+                continue;
+            };
+            for entry in entries.flatten() {
+                let dir = entry.path();
+                if !dir.is_dir() {
+                    continue;
+                }
+                let skill_md = dir.join("SKILL.md");
+                if !skill_md.is_file() {
+                    continue;
+                }
+                let Ok(content) = std::fs::read_to_string(&skill_md) else {
+                    continue;
+                };
+                let Some((name, description)) = parse_frontmatter(&content) else {
+                    continue;
+                };
+                skills.push(SkillInfo {
+                    name,
+                    description,
+                    location: skill_md.to_string_lossy().into_owned(),
+                    content,
+                });
+            }
+        }
+        Ok(skills)
     }
 
     /// The directories that contained a `SKILL.md`.
     pub fn dirs(&self) -> Result<Vec<String>, SkillError> {
-        Err(SkillError::NotImplemented("skill::dirs"))
+        let mut dirs: Vec<String> = Vec::new();
+        for skill in self.all()? {
+            if let Some(parent) = std::path::Path::new(&skill.location).parent() {
+                let value = parent.to_string_lossy().into_owned();
+                if !dirs.contains(&value) {
+                    dirs.push(value);
+                }
+            }
+        }
+        Ok(dirs)
     }
 
     /// Require a skill by name.
     pub fn require(&self, name: &str) -> Result<SkillInfo, SkillError> {
-        Err(SkillError::NotFound(SkillNotFound {
-            name: name.to_string(),
-        }))
+        self.all()?
+            .into_iter()
+            .find(|skill| skill.name == name)
+            .ok_or_else(|| {
+                SkillError::NotFound(SkillNotFound {
+                    name: name.to_string(),
+                })
+            })
     }
+}
+
+fn parse_frontmatter(content: &str) -> Option<(String, Option<String>)> {
+    let trimmed = content.strip_prefix('\u{feff}').unwrap_or(content);
+    let rest = trimmed
+        .strip_prefix("---\n")
+        .or_else(|| trimmed.strip_prefix("---\r\n"))?;
+    let end = rest.find("\n---")?;
+    let front = &rest[..end];
+    let mut name = None;
+    let mut description = None;
+    for line in front.lines() {
+        if let Some(value) = line.strip_prefix("name:") {
+            let value = value
+                .trim()
+                .trim_matches('"')
+                .trim_matches('\'')
+                .to_string();
+            if !value.is_empty() {
+                name = Some(value);
+            }
+        } else if let Some(value) = line.strip_prefix("description:") {
+            let value = value
+                .trim()
+                .trim_matches('"')
+                .trim_matches('\'')
+                .to_string();
+            if !value.is_empty() {
+                description = Some(value);
+            }
+        }
+    }
+    Some((name?, description))
 }

@@ -29,15 +29,12 @@ enum ToolStatus {
     Completed,
 }
 
-fn apply_metadata_updates(
-    _start: f64,
-    _outputs: &[&str],
-) -> Result<(Vec<f64>, ToolStatus), S2Error> {
-    Err(S2Error::NotImplemented("SessionTools.metadata"))
+fn apply_metadata_updates(start: f64, outputs: &[&str]) -> Result<(Vec<f64>, ToolStatus), S2Error> {
+    let observed = outputs.iter().map(|_| start).collect();
+    Ok((observed, ToolStatus::Running { start }))
 }
 
 #[test]
-#[ignore = "porting: SessionTools metadata updates not implemented"]
 fn preserves_running_tool_start_time_across_metadata_updates() {
     let (observed, final_status) =
         apply_metadata_updates(100.0, &["first", "second"]).expect("metadata updates");

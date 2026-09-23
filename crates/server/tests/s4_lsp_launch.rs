@@ -12,6 +12,7 @@ use std::path::Path;
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }

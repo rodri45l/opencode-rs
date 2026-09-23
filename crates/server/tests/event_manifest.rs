@@ -8,7 +8,6 @@
 use opencode_schema::{event_manifest, session_event, session_todo};
 
 #[test]
-#[ignore = "porting: event manifest not implemented"]
 fn contains_every_latest_public_wire_type_once() {
     assert_eq!(
         event_manifest::definitions().expect("definitions").len(),
@@ -32,7 +31,6 @@ fn contains_every_latest_public_wire_type_once() {
 }
 
 #[test]
-#[ignore = "porting: event manifest not implemented"]
 fn contains_only_the_current_step_settlement_versions() {
     let durable = event_manifest::durable().expect("durable");
     assert!(!durable.contains_key("session.next.step.ended.1"));

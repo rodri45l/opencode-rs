@@ -6,6 +6,9 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+serde_json.workspace = true
+thiserror.workspace = true
+url.workspace = true
 
 [dev-dependencies]
 opencode-test-support.workspace = true

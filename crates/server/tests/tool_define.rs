@@ -25,7 +25,6 @@ fn make_tool() -> ToolSpec {
 }
 
 #[test]
-#[ignore = "porting: Tool.define not implemented"]
 fn object_defined_tool_does_not_mutate_the_original_init_object() -> Result<(), ToolError> {
     let original = make_tool();
     let original_execute = original.execute.clone();
@@ -40,7 +39,6 @@ fn object_defined_tool_does_not_mutate_the_original_init_object() -> Result<(), 
 }
 
 #[test]
-#[ignore = "porting: Tool.define not implemented"]
 fn effect_defined_tool_returns_fresh_objects() -> Result<(), ToolError> {
     let info = ToolDefinition::define("test-fn-tool", make_tool)?;
     let first = info.init()?;
@@ -51,7 +49,6 @@ fn effect_defined_tool_returns_fresh_objects() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: Tool.define not implemented"]
 fn object_defined_tool_returns_distinct_objects_per_init_call() -> Result<(), ToolError> {
     let info = ToolDefinition::define("test-copy", make_tool)?;
     let first = info.init()?;
@@ -62,7 +59,6 @@ fn object_defined_tool_returns_distinct_objects_per_init_call() -> Result<(), To
 }
 
 #[test]
-#[ignore = "porting: Tool.define not implemented"]
 fn exposes_the_tool_id() -> Result<(), ToolError> {
     let info = ToolDefinition::define("test-id", make_tool)?;
     assert_eq!(info.id(), "test-id");

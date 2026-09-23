@@ -61,6 +61,14 @@ async fn event_stream_delivers_a_published_event() {
         }
     });
 
+    // The stream opens with a `server.connected` bootstrap event; skip it.
+    let connected = tokio::time::timeout(Duration::from_secs(5), events.next())
+        .await
+        .expect("timed out waiting for server.connected")
+        .expect("stream ended")
+        .expect("client error");
+    assert_eq!(connected.name(), "server.connected");
+
     let event = tokio::time::timeout(Duration::from_secs(5), events.next())
         .await
         .expect("timed out waiting for an event")

@@ -15,7 +15,6 @@ use opencode_server::{router, AppState};
 const DIRECTORY: &str = "/tmp/opencode-httpapi-mcp-oauth-port";
 
 #[tokio::test]
-#[ignore = "porting: mcp oauth routes not implemented"]
 async fn preserves_oauth_state_when_starting_oauth() {
     let app = router(AppState::new());
     let req = common::header(

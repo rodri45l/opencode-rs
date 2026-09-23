@@ -3,51 +3,14 @@
 //! setting a subscription for a renderer disposes the previous one, and
 //! deleting disposes the current one.
 
-#[allow(dead_code)]
-mod updater_subscriptions {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: desktop updater subscriptions not implemented";
-
-    fn stub<T>() -> PortResult<T> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub struct UpdaterSubscriptions;
-
-    impl UpdaterSubscriptions {
-        pub fn set(&mut self, _renderer: u64, _dispose: Box<dyn FnMut()>) {}
-
-        pub fn delete(&mut self, _renderer: u64) {}
-    }
-
-    pub fn create_updater_subscriptions() -> PortResult<UpdaterSubscriptions> {
-        stub()
-    }
-}
-
-use updater_subscriptions::{create_updater_subscriptions, NOTE};
+use opencode_desktop::updater_subscriptions::create_updater_subscriptions;
 
 #[test]
-#[ignore = "porting: desktop updater subscriptions not implemented"]
 fn replaces_the_previous_renderer_subscription_on_reload() {
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    let mut subscriptions = create_updater_subscriptions().expect(NOTE);
+    let mut subscriptions = create_updater_subscriptions();
     let disposed = Rc::new(RefCell::new(Vec::<String>::new()));
 
     let first = Rc::clone(&disposed);

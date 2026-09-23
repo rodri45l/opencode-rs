@@ -12,12 +12,11 @@ enum PortError {
 
 type PortResult<T> = Result<T, PortError>;
 
-fn iife<T>(_f: impl FnOnce() -> T) -> PortResult<T> {
-    Err(PortError::NotImplemented("iife"))
+fn iife<T>(f: impl FnOnce() -> T) -> PortResult<T> {
+    Ok(f())
 }
 
 #[test]
-#[ignore = "porting: iife not implemented"]
 fn should_execute_function_immediately_and_return_result() {
     let mut called = false;
     let result = iife(|| {
@@ -31,7 +30,6 @@ fn should_execute_function_immediately_and_return_result() {
 }
 
 #[tokio::test]
-#[ignore = "porting: iife not implemented"]
 async fn should_work_with_async_functions() {
     let called = std::cell::Cell::new(false);
     let result = iife(|| async {
@@ -46,7 +44,6 @@ async fn should_work_with_async_functions() {
 }
 
 #[test]
-#[ignore = "porting: iife not implemented"]
 fn should_handle_functions_with_no_return_value() {
     let mut called = false;
     iife(|| {

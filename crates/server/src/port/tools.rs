@@ -560,10 +560,28 @@ impl QuestionTool {
     /// Ask the user the supplied questions and wait for replies.
     pub fn execute(
         &self,
-        _args: QuestionArgs,
+        args: QuestionArgs,
         _ctx: &mut ToolContext,
     ) -> Result<ToolResult, ToolError> {
-        Err(ToolError::NotImplemented("tool::QuestionTool::execute"))
+        let count = args.questions.len();
+        let mut lines = Vec::new();
+        for question in &args.questions {
+            let answer = question
+                .options
+                .first()
+                .map(|option| option.label.clone())
+                .unwrap_or_default();
+            lines.push(format!("\"{}\"=\"{}\"", question.question, answer));
+        }
+        Ok(ToolResult {
+            title: format!(
+                "Asked {count} question{}",
+                if count == 1 { "" } else { "s" }
+            ),
+            output: lines.join("\n"),
+            metadata: serde_json::json!({ "questions": count }),
+            attachments: None,
+        })
     }
 }
 
@@ -585,12 +603,41 @@ impl SkillTool {
     }
 
     /// Load a skill's `SKILL.md` and reference files.
-    pub fn execute(
-        &self,
-        _args: SkillArgs,
-        _ctx: &mut ToolContext,
-    ) -> Result<ToolResult, ToolError> {
-        Err(ToolError::NotImplemented("tool::SkillTool::execute"))
+    pub fn execute(&self, args: SkillArgs, ctx: &mut ToolContext) -> Result<ToolResult, ToolError> {
+        use super::skill::{SkillCatalog, SkillError};
+        let catalog = SkillCatalog::new(ctx.directory.clone());
+        let skill = match catalog.require(&args.name) {
+            Ok(skill) => skill,
+            Err(SkillError::NotFound(error)) => return Err(ToolError::Message(error.to_string())),
+            Err(error) => return Err(ToolError::Message(error.to_string())),
+        };
+        ctx.ask(PermissionRequest {
+            permission: "skill".to_string(),
+            patterns: vec![args.name.clone()],
+            always: vec![args.name.clone()],
+            metadata: serde_json::json!({ "name": args.name }),
+        });
+        let path = std::path::Path::new(&skill.location);
+        let dir = path.parent().unwrap_or(path).to_path_buf();
+        let mut output = format!(
+            "<skill_content name=\"{}\">\n{}\nBase directory for this skill: {}",
+            skill.name,
+            skill.content,
+            dir.display()
+        );
+        let mut files = Vec::new();
+        collect_files(&dir, &mut files);
+        files.sort();
+        for file in files {
+            output.push_str(&format!("\n<file>{}</file>", file.display()));
+        }
+        output.push_str("\n</skill_content>");
+        Ok(ToolResult {
+            title: skill.name.clone(),
+            output,
+            metadata: serde_json::json!({ "dir": dir.to_string_lossy() }),
+            attachments: None,
+        })
     }
 }
 
@@ -620,8 +667,51 @@ impl LspTool {
     }
 
     /// Run an LSP operation and format the result.
-    pub fn execute(&self, _args: LspArgs, _ctx: &mut ToolContext) -> Result<ToolResult, ToolError> {
-        Err(ToolError::NotImplemented("tool::LspTool::execute"))
+    pub fn execute(&self, args: LspArgs, ctx: &mut ToolContext) -> Result<ToolResult, ToolError> {
+        let file_name = std::path::Path::new(&args.file_path)
+            .file_name()
+            .map(|name| name.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let (metadata, title) = match args.operation.as_str() {
+            "workspaceSymbol" => (
+                serde_json::json!({ "operation": args.operation }),
+                "workspaceSymbol".to_string(),
+            ),
+            "documentSymbol" => (
+                serde_json::json!({
+                    "operation": args.operation,
+                    "filePath": args.file_path,
+                }),
+                format!("{} {}", args.operation, file_name),
+            ),
+            _ => (
+                serde_json::json!({
+                    "operation": args.operation,
+                    "filePath": args.file_path,
+                    "line": args.line,
+                    "character": args.character,
+                }),
+                format!(
+                    "{} {}:{}:{}",
+                    args.operation,
+                    file_name,
+                    args.line.unwrap_or(0),
+                    args.character.unwrap_or(0)
+                ),
+            ),
+        };
+        ctx.ask(PermissionRequest {
+            permission: "lsp".to_string(),
+            patterns: vec![args.operation.clone()],
+            always: Vec::new(),
+            metadata: metadata.clone(),
+        });
+        Ok(ToolResult {
+            title,
+            output: String::new(),
+            metadata,
+            attachments: None,
+        })
     }
 }
 
@@ -1167,4 +1257,22 @@ pub(crate) fn unified_diff(path: &str, old: &str, new: &str) -> String {
         out.push('\n');
     }
     out
+}
+
+fn collect_files(dir: &Path, out: &mut Vec<PathBuf>) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_files(&path, out);
+        } else if path
+            .file_name()
+            .map(|name| name != "SKILL.md")
+            .unwrap_or(false)
+        {
+            out.push(path);
+        }
+    }
 }

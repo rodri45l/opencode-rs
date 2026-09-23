@@ -18,7 +18,6 @@ fn upgrade(body: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: global upgrade route not implemented"]
 async fn upgrades_to_the_requested_version() {
     let app = router(AppState::new());
     let res = send(&app, upgrade(&serde_json::json!({ "target": "9.9.9" }))).await;
@@ -31,7 +30,6 @@ async fn upgrades_to_the_requested_version() {
 }
 
 #[tokio::test]
-#[ignore = "porting: global upgrade route not implemented"]
 async fn rejects_invalid_upgrade_payloads() {
     let app = router(AppState::new());
     let res = send(&app, upgrade(&serde_json::json!({ "target": 1 }))).await;
@@ -40,7 +38,6 @@ async fn rejects_invalid_upgrade_payloads() {
 }
 
 #[tokio::test]
-#[ignore = "porting: global upgrade route not implemented"]
 async fn rejects_invalid_upgrade_target_versions() {
     let app = router(AppState::new());
     let res = send(&app, upgrade(&serde_json::json!({ "target": "latest" }))).await;
@@ -49,7 +46,6 @@ async fn rejects_invalid_upgrade_target_versions() {
 }
 
 #[tokio::test]
-#[ignore = "porting: global upgrade route not implemented"]
 async fn rejects_unsupported_upgrade_content_types() {
     let app = router(AppState::new());
     let req = request("POST", "/global/upgrade")

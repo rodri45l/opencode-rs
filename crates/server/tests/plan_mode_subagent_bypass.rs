@@ -22,7 +22,6 @@ fn test_agent(name: &str, mode: AgentMode, permission: serde_json::Value) -> Age
 }
 
 #[test]
-#[ignore = "porting: agent.subagent-permissions not implemented"]
 fn subagent_permissions_take_precedence_over_parent_agent_restrictions() {
     let catalog = AgentCatalog::new();
     let plan_agent = catalog.get("plan").expect("plan agent");
@@ -49,7 +48,6 @@ fn subagent_permissions_take_precedence_over_parent_agent_restrictions() {
 }
 
 #[test]
-#[ignore = "porting: agent.subagent-permissions not implemented"]
 fn subagents_own_read_only_restriction_remains_effective() {
     let catalog = AgentCatalog::new();
     let explore = catalog.get("explore").expect("explore agent");
@@ -63,7 +61,6 @@ fn subagents_own_read_only_restriction_remains_effective() {
 }
 
 #[test]
-#[ignore = "porting: agent.subagent-permissions not implemented"]
 fn custom_subagent_can_explicitly_enable_edits_denied_to_its_parent_agent() {
     let catalog = AgentCatalog::with_config(json!({
         "agent": {
@@ -97,7 +94,6 @@ fn custom_subagent_can_explicitly_enable_edits_denied_to_its_parent_agent() {
 }
 
 #[test]
-#[ignore = "porting: agent.subagent-permissions not implemented"]
 fn subagent_self_permissions_are_preserved() {
     let executor = test_agent(
         "executor",
@@ -133,7 +129,6 @@ fn subagent_self_permissions_are_preserved() {
 }
 
 #[test]
-#[ignore = "porting: agent.subagent-permissions not implemented"]
 fn subagent_inherits_parent_session_deny_rules_as_hard_runtime_ceilings() {
     let executor = test_agent("executor", AgentMode::Subagent, json!({ "bash": "allow" }));
     let effective = merge(

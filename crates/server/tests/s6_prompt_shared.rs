@@ -40,42 +40,131 @@ struct MoveResult {
     cursor: usize,
 }
 
-fn create_prompt_history(_prompts: Vec<RunPrompt>) -> PromptHistory {
+fn display_width(text: &str) -> usize {
+    text.chars().map(|c| if is_wide(c) { 2 } else { 1 }).sum()
+}
+
+fn is_wide(c: char) -> bool {
+    matches!(
+        c as u32,
+        0x1100..=0x115F
+            | 0x2E80..=0xA4CF
+            | 0xAC00..=0xD7A3
+            | 0xF900..=0xFAFF
+            | 0xFE30..=0xFE4F
+            | 0xFF00..=0xFF60
+            | 0xFFE0..=0xFFE6
+            | 0x20000..=0x3FFFD
+    )
+}
+
+fn create_prompt_history(prompts: Vec<RunPrompt>) -> PromptHistory {
+    let mut items: Vec<RunPrompt> = Vec::new();
+    for prompt in prompts {
+        if prompt.text.trim().is_empty() {
+            continue;
+        }
+        if items.last().map(|last| last.text == prompt.text) == Some(true) {
+            continue;
+        }
+        items.push(prompt);
+    }
     PromptHistory {
-        items: Vec::new(),
+        items,
         index: None,
         draft: String::new(),
     }
 }
 
-fn push_prompt_history(history: PromptHistory, _prompt: RunPrompt) -> PromptHistory {
+fn push_prompt_history(mut history: PromptHistory, prompt: RunPrompt) -> PromptHistory {
+    if prompt.text.trim().is_empty() {
+        return history;
+    }
+    if history.items.last().map(|last| last.text == prompt.text) == Some(true) {
+        return history;
+    }
+    history.items.push(prompt);
     history
 }
 
 fn move_prompt_history(
-    history: PromptHistory,
-    _direction: i32,
-    _draft: &str,
-    _cursor: usize,
+    mut history: PromptHistory,
+    direction: i32,
+    draft: &str,
+    cursor: usize,
 ) -> MoveResult {
-    MoveResult {
-        state: history,
+    let noop = MoveResult {
+        state: history.clone(),
         apply: false,
         text: String::new(),
         cursor: 0,
+    };
+    if history.items.is_empty() {
+        return noop;
+    }
+    if direction == -1 && cursor != 0 {
+        return noop;
+    }
+    if direction == 1 && cursor != display_width(draft) {
+        return noop;
+    }
+    if history.index.is_none() {
+        if direction == 1 {
+            return noop;
+        }
+        let index = history.items.len() - 1;
+        history.index = Some(index);
+        history.draft = draft.to_string();
+        return MoveResult {
+            text: history.items[index].text.clone(),
+            state: history,
+            apply: true,
+            cursor: 0,
+        };
+    }
+    let index = history.index.unwrap() as i64 + direction as i64;
+    if index < 0 {
+        return noop;
+    }
+    if index as usize >= history.items.len() {
+        let text = history.draft.clone();
+        let cursor = display_width(&text);
+        history.index = None;
+        return MoveResult {
+            text,
+            state: history,
+            apply: true,
+            cursor,
+        };
+    }
+    let index = index as usize;
+    history.index = Some(index);
+    let text = history.items[index].text.clone();
+    let cursor = if direction == -1 {
+        0
+    } else {
+        display_width(&text)
+    };
+    MoveResult {
+        text,
+        state: history,
+        apply: true,
+        cursor,
     }
 }
 
-fn is_exit_command(_value: &str) -> bool {
-    false
+fn is_exit_command(value: &str) -> bool {
+    matches!(
+        value.trim().to_lowercase().as_str(),
+        "/exit" | "/quit" | ":q"
+    )
 }
 
-fn is_new_command(_value: &str) -> bool {
-    false
+fn is_new_command(value: &str) -> bool {
+    value.trim().to_lowercase() == "/new"
 }
 
 #[test]
-#[ignore = "porting: cli run prompt history not implemented"]
 fn filters_blank_prompts_and_dedupes_consecutive_history() {
     let out = create_prompt_history(vec![
         RunPrompt::new("   "),
@@ -90,7 +179,6 @@ fn filters_blank_prompts_and_dedupes_consecutive_history() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt history not implemented"]
 fn push_ignores_blanks_and_dedupes_only_the_latest_item() {
     let base = create_prompt_history(vec![RunPrompt::new("one")]);
     assert_eq!(
@@ -108,7 +196,6 @@ fn push_ignores_blanks_and_dedupes_only_the_latest_item() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt history not implemented"]
 fn moves_through_history_only_at_input_boundaries_and_restores_draft() {
     let base = create_prompt_history(vec![RunPrompt::new("one"), RunPrompt::new("two")]);
 
@@ -150,7 +237,6 @@ fn moves_through_history_only_at_input_boundaries_and_restores_draft() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt history not implemented"]
 fn uses_display_width_cursors_for_history_restoration() {
     let base = create_prompt_history(vec![RunPrompt::new("one"), RunPrompt::new("中文")]);
 
@@ -176,7 +262,6 @@ fn uses_display_width_cursors_for_history_restoration() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt history not implemented"]
 fn recognizes_exit_commands() {
     assert!(is_exit_command("/exit"));
     assert!(is_exit_command(" /Quit "));
@@ -184,7 +269,6 @@ fn recognizes_exit_commands() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt history not implemented"]
 fn recognizes_the_new_session_command() {
     assert!(is_new_command("/new"));
     assert!(is_new_command(" /NEW "));

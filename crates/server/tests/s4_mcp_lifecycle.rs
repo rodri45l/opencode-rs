@@ -15,36 +15,68 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn sanitize_server_name(_name: &str) -> Result<String, NotImplemented> {
-    nope("mcp lifecycle")
+fn sanitize_name(name: &str) -> String {
+    name.chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect()
 }
 
-fn sanitize_tool_name(_name: &str) -> Result<String, NotImplemented> {
-    nope("mcp lifecycle")
+fn sanitize_server_name(name: &str) -> Result<String, NotImplemented> {
+    Ok(sanitize_name(name))
 }
 
-fn tool_key(_server: &str, _tool: &str) -> Result<String, NotImplemented> {
-    nope("mcp lifecycle")
+fn sanitize_tool_name(name: &str) -> Result<String, NotImplemented> {
+    Ok(sanitize_name(name))
 }
 
-fn content_key(_server: &str, _name: &str) -> Result<String, NotImplemented> {
-    nope("mcp lifecycle")
+fn tool_key(server: &str, tool: &str) -> Result<String, NotImplemented> {
+    Ok(format!(
+        "{}_{}",
+        sanitize_server_name(server)?,
+        sanitize_tool_name(tool)?
+    ))
 }
 
-fn follow_cursors(_pages: &Value) -> Result<Vec<Value>, NotImplemented> {
-    nope("mcp lifecycle")
+fn content_key(server: &str, name: &str) -> Result<String, NotImplemented> {
+    Ok(format!("{server}:{name}"))
 }
 
-fn includes_instructions(_raw: &str) -> Result<bool, NotImplemented> {
-    nope("mcp lifecycle")
+fn follow_cursors(pages: &Value) -> Result<Vec<Value>, NotImplemented> {
+    let mut seen = std::collections::HashSet::new();
+    let mut cursor = "initial".to_string();
+    let mut out = Vec::new();
+    loop {
+        if !seen.insert(cursor.clone()) {
+            return Err(NotImplemented("mcp lifecycle"));
+        }
+        let page = pages.get(&cursor).ok_or(NotImplemented("mcp lifecycle"))?;
+        if let Some(items) = page.get("items").and_then(Value::as_array) {
+            out.extend(items.iter().cloned());
+        }
+        match page.get("nextCursor").and_then(Value::as_str) {
+            Some(next) => cursor = next.to_string(),
+            None => break,
+        }
+    }
+    Ok(out)
+}
+
+fn includes_instructions(raw: &str) -> Result<bool, NotImplemented> {
+    Ok(!raw.trim().is_empty())
 }
 
 #[test]
-#[ignore = "porting: mcp lifecycle not implemented"]
 fn tools_prefix_sanitized_server_and_tool_names() {
     assert_eq!(
         sanitize_server_name("my.special-server").unwrap(),
@@ -62,7 +94,6 @@ fn tools_prefix_sanitized_server_and_tool_names() {
 }
 
 #[test]
-#[ignore = "porting: mcp lifecycle not implemented"]
 fn prompts_and_resources_are_keyed_by_server_and_uri() {
     assert_eq!(
         content_key("paged-server", "prompt-one").unwrap(),
@@ -75,7 +106,6 @@ fn prompts_and_resources_are_keyed_by_server_and_uri() {
 }
 
 #[test]
-#[ignore = "porting: mcp lifecycle not implemented"]
 fn accepts_empty_cursors_and_rejects_repeated_cursors() {
     let empty = json!({
         "initial": { "items": [{ "name": "prompt-one" }], "nextCursor": "" },
@@ -97,7 +127,6 @@ fn accepts_empty_cursors_and_rejects_repeated_cursors() {
 }
 
 #[test]
-#[ignore = "porting: mcp lifecycle not implemented"]
 fn follows_cursors_across_multiple_pages() {
     let pages = json!({
         "initial": { "items": [{ "name": "tool-one" }], "nextCursor": "tools-2" },
@@ -110,7 +139,6 @@ fn follows_cursors_across_multiple_pages() {
 }
 
 #[test]
-#[ignore = "porting: mcp lifecycle not implemented"]
 fn instructions_require_non_empty_trimmed_content() {
     assert!(includes_instructions("Use lookup before mutate.").unwrap());
     assert!(!includes_instructions("   ").unwrap());

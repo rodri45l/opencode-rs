@@ -6,6 +6,8 @@
 //! host tool tree. That interpreter is not ported yet, so the API surface is
 //! defined here and every execution returns a typed [`CodeModeError`].
 
+pub mod tool_schema;
+
 use serde_json::Value;
 
 /// The category of a code-mode failure.

@@ -24,7 +24,6 @@ fn req(method: &str, uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: pty routes not implemented"]
 async fn serves_available_shell_list() {
     let app = router(AppState::new());
     let res = send(&app, req("GET", "/pty/shells")).await;
@@ -39,7 +38,6 @@ async fn serves_available_shell_list() {
 }
 
 #[tokio::test]
-#[ignore = "porting: pty routes not implemented"]
 async fn returns_404_for_missing_pty_websocket_before_upgrade() {
     let app = router(AppState::new());
     // Precondition: the PTY surface is mounted (otherwise the connect 404 is
@@ -55,7 +53,6 @@ async fn returns_404_for_missing_pty_websocket_before_upgrade() {
 }
 
 #[tokio::test]
-#[ignore = "porting: pty routes not implemented"]
 async fn returns_404_for_missing_pty_websocket_before_decoding_cursor_query() {
     let app = router(AppState::new());
     assert_eq!(
@@ -73,7 +70,6 @@ async fn returns_404_for_missing_pty_websocket_before_decoding_cursor_query() {
 }
 
 #[tokio::test]
-#[ignore = "porting: pty routes not implemented"]
 async fn returns_typed_not_found_errors_for_missing_pty_http_resources() {
     let app = router(AppState::new());
     let id = PtyId::generate();
@@ -97,7 +93,6 @@ async fn returns_typed_not_found_errors_for_missing_pty_http_resources() {
 }
 
 #[tokio::test]
-#[ignore = "porting: pty connect-token route not implemented"]
 async fn returns_typed_errors_for_pty_connect_token_failures() {
     let app = router(AppState::new());
     let id = PtyId::generate();

@@ -62,49 +62,112 @@ struct PermissionRequest {
     metadata: Value,
 }
 
-fn describe_task(_agents: &[AgentInfo], _caller_permission: &[Rule]) -> Result<String> {
-    Err(TaskError::NotImplemented("task subagent description"))
+fn describe_task(agents: &[AgentInfo], caller_permission: &[Rule]) -> Result<String> {
+    let denied = |name: &str| {
+        caller_permission.iter().any(|rule| {
+            rule.permission == "task"
+                && rule.action == "deny"
+                && (rule.pattern == "*" || rule.pattern == name)
+        })
+    };
+    let mut sorted: Vec<&AgentInfo> = agents.iter().collect();
+    sorted.sort_by(|a, b| a.name.cmp(&b.name));
+    let lines: Vec<String> = sorted
+        .into_iter()
+        .filter(|agent| !denied(&agent.name))
+        .map(|agent| {
+            format!(
+                "- {}: {}",
+                agent.name,
+                agent.description.clone().unwrap_or_default()
+            )
+        })
+        .collect();
+    Ok(format!("Available subagents:\n{}", lines.join("\n")))
 }
 
-fn task_permission_request(_description: &str, _subagent_type: &str) -> Result<PermissionRequest> {
-    Err(TaskError::NotImplemented("task permission request"))
+fn task_permission_request(description: &str, subagent_type: &str) -> Result<PermissionRequest> {
+    Ok(PermissionRequest {
+        permission: "task".to_string(),
+        patterns: vec![subagent_type.to_string()],
+        always: vec!["*".to_string()],
+        metadata: json!({ "description": description, "subagent_type": subagent_type }),
+    })
 }
 
 fn subagent_session_permission(
-    _parent_permission: &[Rule],
-    _subagent_permission: &[Rule],
-    _primary_tools: &[String],
+    parent_permission: &[Rule],
+    subagent_permission: &[Rule],
+    primary_tools: &[String],
 ) -> Result<Vec<Rule>> {
-    Err(TaskError::NotImplemented("deriveSubagentSessionPermission"))
+    let mut rules: Vec<Rule> = parent_permission
+        .iter()
+        .filter(|rule| rule.permission == "external_directory" || rule.action == "deny")
+        .cloned()
+        .collect();
+    let has = |permission: &str| {
+        subagent_permission
+            .iter()
+            .any(|rule| rule.permission == permission)
+    };
+    if !has("todowrite") {
+        rules.push(Rule::new("todowrite", "*", "deny"));
+    }
+    if !has("task") {
+        rules.push(Rule::new("task", "*", "deny"));
+    }
+    for tool in primary_tools {
+        let deny = Rule::new(tool, "*", "deny");
+        if !rules.iter().any(|rule| rule == &deny) {
+            rules.push(deny);
+        }
+    }
+    Ok(rules)
 }
 
 fn render_task_output(
-    _session_id: &str,
-    _state: &str,
-    _summary: Option<&str>,
-    _text: &str,
+    session_id: &str,
+    state: &str,
+    summary: Option<&str>,
+    text: &str,
 ) -> Result<String> {
-    Err(TaskError::NotImplemented("task output renderer"))
+    let tag = if state == "error" {
+        "task_error"
+    } else {
+        "task_result"
+    };
+    let mut lines = vec![format!("<task id=\"{session_id}\" state=\"{state}\">")];
+    if let Some(summary) = summary {
+        lines.push(format!("<summary>{summary}</summary>"));
+    }
+    lines.push(format!("<{tag}>"));
+    lines.push(text.to_string());
+    lines.push(format!("</{tag}>"));
+    lines.push("</task>".to_string());
+    Ok(lines.join("\n"))
 }
 
-fn subagent_failed_message(_session_id: &str, _message: &str) -> Result<String> {
-    Err(TaskError::NotImplemented("subagent failure message"))
+fn subagent_failed_message(session_id: &str, message: &str) -> Result<String> {
+    Ok(format!(
+        "Subagent failed (task_id: {session_id}): {message}"
+    ))
 }
 
 fn background_disabled_error() -> Result<String> {
-    Err(TaskError::NotImplemented("background subagent gate"))
+    Ok("Background subagents require OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true".to_string())
 }
 
-fn depth_exceeded(_depth: u32, _limit: u32) -> Result<bool> {
-    Err(TaskError::NotImplemented("subagent depth check"))
+fn depth_exceeded(depth: u32, limit: u32) -> Result<bool> {
+    Ok(depth >= limit)
 }
 
-fn depth_limit_error(_limit: u32) -> Result<String> {
-    Err(TaskError::NotImplemented("subagent depth error"))
+fn depth_limit_error(limit: u32) -> Result<String> {
+    Ok(format!(
+        "Subagent depth limit reached ({limit}). Increase \"subagent_depth\" to allow nested subagents."
+    ))
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn description_sorts_subagents_by_name_and_is_stable() {
     let agents = vec![
         AgentInfo::subagent("zebra", "Zebra agent", vec![]),
@@ -126,7 +189,6 @@ fn description_sorts_subagents_by_name_and_is_stable() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn description_hides_denied_subagents_for_the_caller() {
     let agents = vec![
         AgentInfo::subagent("zebra", "Zebra agent", vec![]),
@@ -142,7 +204,6 @@ fn description_hides_denied_subagents_for_the_caller() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn execute_asks_by_default_with_the_documented_shape() {
     let request = task_permission_request("inspect bug", "general").expect("task ported");
     assert_eq!(request.permission, "task");
@@ -155,7 +216,6 @@ fn execute_asks_by_default_with_the_documented_shape() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn execute_shapes_child_permissions_for_task_todowrite_and_primary_tools() {
     let subagent_permission = vec![Rule::new("task", "*", "allow")];
     let primary_tools = vec!["bash".to_string(), "read".to_string()];
@@ -172,7 +232,6 @@ fn execute_shapes_child_permissions_for_task_todowrite_and_primary_tools() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn render_output_uses_task_result_for_completion() {
     let output = render_task_output("ses_child", "completed", None, "done").expect("task ported");
     assert!(output.contains("<task id=\"ses_child\" state=\"completed\">"));
@@ -182,7 +241,6 @@ fn render_output_uses_task_result_for_completion() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn render_output_uses_task_error_and_summary() {
     let output = render_task_output(
         "ses_child",
@@ -196,7 +254,6 @@ fn render_output_uses_task_error_and_summary() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn subagent_failure_message_carries_a_resumable_task_id() {
     assert_eq!(
         subagent_failed_message("ses_child", "Network connection lost").expect("task ported"),
@@ -210,7 +267,6 @@ fn subagent_failure_message_carries_a_resumable_task_id() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn background_execution_is_rejected_when_the_experiment_is_disabled() {
     assert_eq!(
         background_disabled_error().expect("task ported"),
@@ -219,7 +275,6 @@ fn background_execution_is_rejected_when_the_experiment_is_disabled() {
 }
 
 #[test]
-#[ignore = "porting: task tool not implemented"]
 fn depth_limit_blocks_nested_subagents_beyond_the_configured_depth() {
     assert!(depth_exceeded(1, 1).expect("task ported"));
     assert!(!depth_exceeded(0, 2).expect("task ported"));

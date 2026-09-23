@@ -51,7 +51,6 @@ async fn spec() -> serde_json::Value {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn includes_plugin_facing_core_schemas() {
     let spec = spec().await;
     let schemas = spec["components"]["schemas"]
@@ -69,7 +68,6 @@ async fn includes_plugin_facing_core_schemas() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn documents_nested_legacy_global_sync_events() {
     let spec = spec().await;
     let schema = &spec["components"]["schemas"]["SyncEventSessionCreated"];
@@ -97,7 +95,6 @@ async fn documents_nested_legacy_global_sync_events() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn names_the_v2_event_union_without_the_sse_string_wrapper_collision() {
     let spec = spec().await;
     assert!(spec["components"]["schemas"]["V2Event1"].is_null());
@@ -117,7 +114,6 @@ async fn names_the_v2_event_union_without_the_sse_string_wrapper_collision() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn preserves_api_auth_responses() {
     let spec = spec().await;
     let paths = spec["paths"].as_object().expect("paths");
@@ -139,7 +135,6 @@ async fn preserves_api_auth_responses() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn documents_references_separately_from_filesystem_routes() {
     let spec = spec().await;
     for path in ["/api/fs/read/*", "/api/fs/list"] {
@@ -156,7 +151,6 @@ async fn documents_references_separately_from_filesystem_routes() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn preserves_required_request_bodies_for_v2_mutations() {
     let spec = spec().await;
     for path in [
@@ -172,7 +166,6 @@ async fn preserves_required_request_bodies_for_v2_mutations() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn documents_permission_and_question_not_found_errors() {
     let spec = spec().await;
     assert_eq!(
@@ -211,7 +204,6 @@ async fn documents_permission_and_question_not_found_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn documents_mcp_server_not_found_errors() {
     let spec = spec().await;
     for path in [
@@ -242,7 +234,6 @@ async fn documents_mcp_server_not_found_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn documents_pty_resource_and_ticket_errors() {
     let spec = spec().await;
     for (method, path) in [
@@ -283,7 +274,6 @@ async fn documents_pty_resource_and_ticket_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn documents_project_not_found_errors() {
     let spec = spec().await;
     assert_eq!(

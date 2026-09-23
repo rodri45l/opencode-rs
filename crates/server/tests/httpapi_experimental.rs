@@ -23,7 +23,6 @@ fn get(uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: experimental read-only routes not implemented"]
 async fn serves_read_only_experimental_endpoints() {
     let app = router(AppState::new());
 
@@ -63,7 +62,6 @@ async fn serves_read_only_experimental_endpoints() {
 }
 
 #[tokio::test]
-#[ignore = "porting: experimental worktree route not implemented"]
 async fn returns_declared_worktree_errors() {
     let app = router(AppState::new());
     let req = common::header(

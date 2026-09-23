@@ -32,7 +32,6 @@ fn post_raw(uri: &str, body: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: worktree routes not implemented"]
 async fn direct_worktree_create_returns_without_waiting_for_boot() {
     let app = router(AppState::new());
     let res = send(
@@ -46,7 +45,6 @@ async fn direct_worktree_create_returns_without_waiting_for_boot() {
 }
 
 #[tokio::test]
-#[ignore = "porting: worktree routes not implemented"]
 async fn direct_worktree_create_accepts_missing_content_type_and_body() {
     let app = router(AppState::new());
     let res = send(
@@ -67,7 +65,6 @@ async fn direct_worktree_create_accepts_missing_content_type_and_body() {
 }
 
 #[tokio::test]
-#[ignore = "porting: worktree routes not implemented"]
 async fn direct_worktree_create_rejects_explicit_null_payload() {
     let app = router(AppState::new());
     let res = send(
@@ -83,7 +80,6 @@ async fn direct_worktree_create_rejects_explicit_null_payload() {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace routes not implemented"]
 async fn workspace_worktree_create_does_not_hang() {
     let app = router(AppState::new());
     let res = send(

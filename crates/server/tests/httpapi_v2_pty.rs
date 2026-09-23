@@ -23,7 +23,6 @@ fn req(method: &str, uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 pty routes not implemented"]
 async fn serves_location_wrapped_pty_routes_and_retains_exited_sessions() {
     let app = router(AppState::new());
 
@@ -73,7 +72,6 @@ async fn serves_location_wrapped_pty_routes_and_retains_exited_sessions() {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 pty routes not implemented"]
 async fn rejects_connect_tokens_without_the_csrf_header_and_connects_with_a_valid_ticket() {
     let app = router(AppState::new());
     let info = PtyId::generate();

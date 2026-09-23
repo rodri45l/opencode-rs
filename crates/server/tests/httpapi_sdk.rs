@@ -31,7 +31,6 @@ fn post_json(uri: &str, value: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: global and control routes not implemented"]
 async fn uses_the_generated_sdk_for_global_and_control_routes() {
     let app = router(AppState::new());
 

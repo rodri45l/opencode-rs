@@ -9,7 +9,6 @@ use common::{json_body, request, send};
 use opencode_server::{router, AppState};
 
 #[tokio::test]
-#[ignore = "porting: control-plane routes not implemented"]
 async fn moves_a_session_through_the_root_control_plane_route() {
     let app = router(AppState::new());
     let req = json_body(

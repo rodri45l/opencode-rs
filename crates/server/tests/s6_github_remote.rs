@@ -20,14 +20,38 @@ fn remote(owner: &str, repo: &str) -> GitHubRemote {
     }
 }
 
-/// Stub for `parseGitHubRemote`. Deliberately unimplemented: all cases below are
-/// red until the real helper lands.
-fn parse_github_remote(_url: &str) -> Option<GitHubRemote> {
-    None
+/// `parseGitHubRemote`.
+fn parse_github_remote(url: &str) -> Option<GitHubRemote> {
+    let url = url.strip_prefix("git+").unwrap_or(url);
+    let (host, path) = if let Some((_, rest)) = url.split_once("://") {
+        let (authority, path) = rest.split_once('/')?;
+        let host = authority.rsplit('@').next().unwrap_or(authority);
+        (host.to_string(), path.to_string())
+    } else if let Some((authority, path)) = url.split_once(':') {
+        if !authority.contains('@') {
+            return None;
+        }
+        let host = authority.rsplit('@').next().unwrap_or(authority);
+        (host.to_string(), path.to_string())
+    } else {
+        return None;
+    };
+    if host != "github.com" {
+        return None;
+    }
+    let path = path.trim_end_matches('/');
+    let path = path.strip_suffix(".git").unwrap_or(path);
+    let segments: Vec<&str> = path.split('/').collect();
+    if segments.len() != 2 || segments.iter().any(|segment| segment.is_empty()) {
+        return None;
+    }
+    Some(GitHubRemote {
+        owner: segments[0].to_string(),
+        repo: segments[1].to_string(),
+    })
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_https_url_with_git_suffix() {
     assert_eq!(
         parse_github_remote("https://github.com/sst/opencode.git"),
@@ -36,7 +60,6 @@ fn parses_https_url_with_git_suffix() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_https_url_without_git_suffix() {
     assert_eq!(
         parse_github_remote("https://github.com/sst/opencode"),
@@ -45,7 +68,6 @@ fn parses_https_url_without_git_suffix() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_git_at_url_with_git_suffix() {
     assert_eq!(
         parse_github_remote("git@github.com:sst/opencode.git"),
@@ -54,7 +76,6 @@ fn parses_git_at_url_with_git_suffix() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_git_at_url_without_git_suffix() {
     assert_eq!(
         parse_github_remote("git@github.com:sst/opencode"),
@@ -63,7 +84,6 @@ fn parses_git_at_url_without_git_suffix() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_ssh_url_with_git_suffix() {
     assert_eq!(
         parse_github_remote("ssh://git@github.com/sst/opencode.git"),
@@ -72,7 +92,6 @@ fn parses_ssh_url_with_git_suffix() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_ssh_url_without_git_suffix() {
     assert_eq!(
         parse_github_remote("ssh://git@github.com/sst/opencode"),
@@ -81,7 +100,6 @@ fn parses_ssh_url_without_git_suffix() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_git_protocol_urls_from_package_metadata() {
     assert_eq!(
         parse_github_remote("git://github.com/facebook/react.git"),
@@ -98,13 +116,11 @@ fn parses_git_protocol_urls_from_package_metadata() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn npm_style_github_shorthand_is_null() {
     assert_eq!(parse_github_remote("github:facebook/react"), None);
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_http_url() {
     assert_eq!(
         parse_github_remote("http://github.com/owner/repo"),
@@ -113,7 +129,6 @@ fn parses_http_url() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_hyphenated_names() {
     assert_eq!(
         parse_github_remote("https://github.com/my-org/my-repo.git"),
@@ -122,7 +137,6 @@ fn parses_hyphenated_names() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_underscore_names() {
     assert_eq!(
         parse_github_remote("git@github.com:my_org/my_repo.git"),
@@ -131,7 +145,6 @@ fn parses_underscore_names() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_numeric_names() {
     assert_eq!(
         parse_github_remote("https://github.com/org123/repo456"),
@@ -140,7 +153,6 @@ fn parses_numeric_names() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn parses_dotted_repo_names() {
     assert_eq!(
         parse_github_remote("https://github.com/socketio/socket.io.git"),
@@ -161,7 +173,6 @@ fn parses_dotted_repo_names() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn returns_null_for_non_github_urls() {
     assert_eq!(
         parse_github_remote("https://gitlab.com/owner/repo.git"),
@@ -175,7 +186,6 @@ fn returns_null_for_non_github_urls() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn returns_null_for_invalid_urls() {
     assert_eq!(parse_github_remote("not-a-url"), None);
     assert_eq!(parse_github_remote(""), None);
@@ -185,7 +195,6 @@ fn returns_null_for_invalid_urls() {
 }
 
 #[test]
-#[ignore = "porting: cli github parseGitHubRemote not implemented"]
 fn returns_null_for_extra_path_segments() {
     assert_eq!(
         parse_github_remote("https://github.com/owner/repo/tree/main"),

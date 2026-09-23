@@ -40,16 +40,108 @@ impl CatalogTool {
     }
 }
 
-fn describe_catalog(_tools: &[CatalogTool], _servers: &[String]) -> Result<String> {
-    Err(CodeModeError::NotImplemented("CodeMode.describeCatalog"))
+fn render_ts(schema: Option<&Value>, depth: usize) -> String {
+    let Some(schema) = schema else {
+        return "unknown".to_string();
+    };
+    match schema.get("type").and_then(Value::as_str) {
+        Some("string") => "string".to_string(),
+        Some("number") | Some("integer") => "number".to_string(),
+        Some("boolean") => "boolean".to_string(),
+        Some("array") => format!("Array<{}>", render_ts(schema.get("items"), depth + 1)),
+        _ => {
+            let Some(properties) = schema.get("properties").and_then(Value::as_object) else {
+                return "unknown".to_string();
+            };
+            let required: Vec<&str> = schema
+                .get("required")
+                .and_then(Value::as_array)
+                .map(|items| items.iter().filter_map(Value::as_str).collect())
+                .unwrap_or_default();
+            if properties.is_empty() {
+                return "{}".to_string();
+            }
+            let pad = "  ".repeat(depth + 1);
+            let lines: Vec<String> = properties
+                .iter()
+                .map(|(name, value)| {
+                    let optional = if required.contains(&name.as_str()) {
+                        ""
+                    } else {
+                        "?"
+                    };
+                    format!(
+                        "{pad}{name}{optional}: {},",
+                        render_ts(Some(value), depth + 1)
+                    )
+                })
+                .collect();
+            format!("{{\n{}\n{}}}", lines.join("\n"), "  ".repeat(depth))
+        }
+    }
 }
 
-fn mcp_tool_name(_server: &str, _tool: &str) -> Result<String> {
-    Err(CodeModeError::NotImplemented("McpCatalog.toolName"))
+fn describe_catalog(tools: &[CatalogTool], servers: &[String]) -> Result<String> {
+    let mut sorted_servers: Vec<&String> = servers.iter().collect();
+    sorted_servers.sort_by_key(|server| std::cmp::Reverse(server.len()));
+    let mut keys: Vec<&CatalogTool> = tools.iter().collect();
+    keys.sort_by(|a, b| a.key.cmp(&b.key));
+
+    let mut groups: Vec<(String, Vec<String>)> = Vec::new();
+    for tool in keys {
+        let server = sorted_servers
+            .iter()
+            .find(|name| tool.key.starts_with(&format!("{name}_")))
+            .map(|name| name.to_string())
+            .unwrap_or_else(|| tool.key.split('_').next().unwrap_or(&tool.key).to_string());
+        let local = tool
+            .key
+            .strip_prefix(&format!("{server}_"))
+            .unwrap_or(&tool.key);
+        let signature = format!(
+            "tools.{server}.{local}(input: {}): Promise<{}>",
+            render_ts(Some(&tool.input_schema), 0),
+            render_ts(tool.output_schema.as_ref(), 0)
+        );
+        let line = format!("  - {signature} // {}", tool.description);
+        match groups.iter_mut().find(|(name, _)| name == &server) {
+            Some((_, group)) => group.push(line),
+            None => groups.push((server, vec![line])),
+        }
+    }
+    groups.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let mut lines = vec![
+        "This is a restricted JavaScript language for calling tools, not a general-purpose runtime. Inside the confined interpreter, `tools` contains the Code Mode tools listed below and internal runtime tools; surrounding agent tools are not available.".to_string(),
+        "Do not infer or normalize tool names; use only exact signatures shown below or returned by search.".to_string(),
+        String::new(),
+        "## Workflow".to_string(),
+        String::new(),
+        "1. Pick a tool from the list under `## Available tools` - each line is the exact call signature; use it as-is rather than guessing segments.".to_string(),
+        "2. Call it using the exact signature shown: `const result = await tools.<namespace>.<tool>(input)`; bracket notation and quotes are part of the path.".to_string(),
+        "3. Return only the fields you need from structured results; narrow unknown results before reading fields, and avoid returning large raw payloads.".to_string(),
+        String::new(),
+        "## Rules".to_string(),
+        String::new(),
+        "- A result typed `Promise<unknown>` may be structured data or text. Before reading fields, check that it is a non-null object and not an array; otherwise handle the returned text or primitive directly.".to_string(),
+        String::new(),
+        "## Available tools (COMPLETE list - every tool is shown below with its full call signature)".to_string(),
+        String::new(),
+    ];
+    for (namespace, group) in &groups {
+        let count = group.len();
+        let noun = if count == 1 { "tool" } else { "tools" };
+        lines.push(format!("- {namespace} ({count} {noun})"));
+        lines.extend(group.iter().cloned());
+    }
+    Ok(lines.join("\n"))
+}
+
+fn mcp_tool_name(server: &str, tool: &str) -> Result<String> {
+    Ok(format!("{server}_{tool}"))
 }
 
 #[test]
-#[ignore = "porting: code-mode catalog not implemented"]
 fn appended_catalog_inlines_real_mcp_signatures() {
     let tools = vec![
         CatalogTool::new(
@@ -97,7 +189,6 @@ fn appended_catalog_inlines_real_mcp_signatures() {
 }
 
 #[test]
-#[ignore = "porting: code-mode catalog not implemented"]
 fn mcp_tool_name_joins_server_and_tool_with_underscore() {
     assert_eq!(
         mcp_tool_name("fixtures", "get_text").expect("toolName ported"),

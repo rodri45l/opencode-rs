@@ -40,27 +40,65 @@ fn now_secs() -> i64 {
         .unwrap_or(0)
 }
 
-/// Stub for `accessTokenIsExpiring(token, skewMs)`.
-fn access_token_is_expiring(_token: Option<&str>, _skew_ms: i64) -> bool {
-    false
+fn decode_b64url(input: &str) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut buffer: u32 = 0;
+    let mut bits = 0u32;
+    for byte in input.bytes() {
+        let value = match byte {
+            b'A'..=b'Z' => byte - b'A',
+            b'a'..=b'z' => byte - b'a' + 26,
+            b'0'..=b'9' => byte - b'0' + 52,
+            b'-' => 62,
+            b'_' => 63,
+            b'=' => continue,
+            _ => return None,
+        } as u32;
+        buffer = (buffer << 6) | value;
+        bits += 6;
+        if bits >= 8 {
+            bits -= 8;
+            out.push((buffer >> bits) as u8);
+        }
+    }
+    Some(out)
+}
+
+/// `accessTokenIsExpiring(token, skewMs)`.
+fn access_token_is_expiring(token: Option<&str>, skew_ms: i64) -> bool {
+    let Some(token) = token else {
+        return false;
+    };
+    let parts: Vec<&str> = token.split('.').collect();
+    if parts.len() < 2 {
+        return false;
+    }
+    let Some(payload) = decode_b64url(parts[1]) else {
+        return false;
+    };
+    let Ok(value) = serde_json::from_slice::<serde_json::Value>(&payload) else {
+        return false;
+    };
+    let Some(exp) = value.get("exp").and_then(serde_json::Value::as_i64) else {
+        return false;
+    };
+    let skew = std::cmp::max(skew_ms, 0) / 1000;
+    exp <= now_secs() + skew
 }
 
 #[test]
-#[ignore = "porting: plugin xai accessTokenIsExpiring not implemented"]
 fn returns_true_for_an_already_expired_jwt() {
     let token = make_jwt(&format!("{{\"exp\":{}}}", now_secs() - 60));
     assert!(access_token_is_expiring(Some(&token), 0));
 }
 
 #[test]
-#[ignore = "porting: plugin xai accessTokenIsExpiring not implemented"]
 fn returns_false_for_a_fresh_jwt_outside_the_skew_window() {
     let token = make_jwt(&format!("{{\"exp\":{}}}", now_secs() + 3600));
     assert!(!access_token_is_expiring(Some(&token), 0));
 }
 
 #[test]
-#[ignore = "porting: plugin xai accessTokenIsExpiring not implemented"]
 fn honors_the_skew_window() {
     let token = make_jwt(&format!("{{\"exp\":{}}}", now_secs() + 30));
     assert!(access_token_is_expiring(Some(&token), 60_000));
@@ -68,14 +106,12 @@ fn honors_the_skew_window() {
 }
 
 #[test]
-#[ignore = "porting: plugin xai accessTokenIsExpiring not implemented"]
 fn clamps_negative_skew_to_zero_rather_than_refusing_to_refresh() {
     let token = make_jwt(&format!("{{\"exp\":{}}}", now_secs() - 1));
     assert!(access_token_is_expiring(Some(&token), -60_000));
 }
 
 #[test]
-#[ignore = "porting: plugin xai accessTokenIsExpiring not implemented"]
 fn returns_false_for_opaque_and_malformed_tokens() {
     assert!(!access_token_is_expiring(Some("opaque-token-no-dots"), 0));
     assert!(!access_token_is_expiring(Some(""), 0));

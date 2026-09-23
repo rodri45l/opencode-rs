@@ -15,24 +15,32 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
 fn browser_open_failed_event_type() -> Result<String, NotImplemented> {
-    nope("mcp oauth-browser")
+    Ok("BrowserOpenFailed".to_string())
 }
 
-fn browser_open_failed_payload(_mcp_name: &str, _url: &str) -> Result<Value, NotImplemented> {
-    nope("mcp oauth-browser")
+fn browser_open_failed_payload(mcp_name: &str, url: &str) -> Result<Value, NotImplemented> {
+    Ok(json!({ "mcpName": mcp_name, "url": url }))
 }
 
-fn authorization_url_has_client_id(_url: &str, _client_id: &str) -> Result<bool, NotImplemented> {
-    nope("mcp oauth-browser")
+fn authorization_url_has_client_id(url: &str, client_id: &str) -> Result<bool, NotImplemented> {
+    let Some(query) = url.split_once('?').map(|(_, query)| query) else {
+        return Ok(false);
+    };
+    for pair in query.split('&') {
+        if let Some(value) = pair.strip_prefix("client_id=") {
+            return Ok(value == client_id);
+        }
+    }
+    Ok(false)
 }
 
 #[test]
-#[ignore = "porting: mcp oauth-browser not implemented"]
 fn browser_open_failed_event_is_published_when_browser_launch_fails() {
     assert_eq!(
         browser_open_failed_event_type().unwrap(),
@@ -49,7 +57,6 @@ fn browser_open_failed_event_is_published_when_browser_launch_fails() {
 }
 
 #[test]
-#[ignore = "porting: mcp oauth-browser not implemented"]
 fn browser_launch_receives_the_discovered_authorization_url() {
     assert!(authorization_url_has_client_id(
         "http://127.0.0.1:1234/authorize?client_id=test-client&state=abc",

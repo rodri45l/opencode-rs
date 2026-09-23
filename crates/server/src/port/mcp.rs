@@ -216,6 +216,17 @@ pub struct RecoveryRequest {
 /// Build the request sequence used to recover from a session-bound 404:
 /// reinitialize once, then retry the original request under the replacement
 /// session.
-pub fn session_recovery_plan(_initial: &str, _replacement: &str) -> Vec<RecoveryRequest> {
-    Vec::new()
+pub fn session_recovery_plan(initial: &str, replacement: &str) -> Vec<RecoveryRequest> {
+    let request = |method: &str, session: Option<&str>| RecoveryRequest {
+        method: method.to_string(),
+        session: session.map(str::to_string),
+    };
+    vec![
+        request("initialize", None),
+        request("notifications/initialized", Some(initial)),
+        request("ping", Some(initial)),
+        request("initialize", None),
+        request("notifications/initialized", Some(replacement)),
+        request("ping", Some(replacement)),
+    ]
 }
