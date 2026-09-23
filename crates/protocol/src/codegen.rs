@@ -82,6 +82,7 @@ pub struct Endpoint {
     pub path: String,
     pub top_level: bool,
     pub unwrap_data: bool,
+    pub success_spec: SuccessSpec,
     pub operation: Operation,
 }
 
@@ -551,10 +552,278 @@ pub trait OutputFs {
 
 /// Reflect an `HttpApi` source into the emitter-independent [`Contract`].
 pub fn compile(spec: &ApiSpec, options: &CompileOptions) -> Result<Contract, GenerationError> {
-    let _ = (spec, options);
-    Err(GenerationError::NotImplemented {
-        topic: "codegen compile",
-    })
+    struct Pending {
+        source_group: String,
+        top_level: bool,
+        endpoint_name: String,
+        path: String,
+        unwrap_data: bool,
+        success_spec: SuccessSpec,
+        operation: Operation,
+    }
+
+    let mut order: Vec<String> = Vec::new();
+    let mut grouped: HashMap<String, Vec<Pending>> = HashMap::new();
+
+    for spec_group in &spec.groups {
+        let group_name = options
+            .group_names
+            .get(&spec_group.identifier)
+            .cloned()
+            .unwrap_or_else(|| spec_group.identifier.clone());
+        for endpoint in &spec_group.endpoints {
+            if options.omit_endpoints.contains(&endpoint.name) {
+                continue;
+            }
+            let qualified = format!("{group_name}.{}", endpoint.name);
+            if let Some(key) = &endpoint.required_client_middleware {
+                return Err(GenerationError::ClientMiddlewareRequiresAdapter { key: key.clone() });
+            }
+            if endpoint.successes.len() > 1 {
+                return Err(GenerationError::MultipleSuccessSchemas { name: qualified });
+            }
+            if endpoint.payloads.len() > 1 {
+                return Err(GenerationError::MultiplePayloadSchemas { name: qualified });
+            }
+            if let Some(issue) = &endpoint.success_issue {
+                match issue {
+                    SchemaIssue::Unportable => {
+                        return Err(GenerationError::UnportableSchema {
+                            path: format!("{group_name}.{}.success", endpoint.name),
+                        });
+                    }
+                    SchemaIssue::RequiresAuthoritativeImport => {
+                        return Err(GenerationError::AuthoritativeImportRequired {
+                            name: qualified,
+                        });
+                    }
+                }
+            }
+
+            let mut input: Vec<InputField> = Vec::new();
+            for (fields, source) in [
+                (&endpoint.params, InputSource::Params),
+                (&endpoint.query, InputSource::Query),
+                (&endpoint.headers, InputSource::Headers),
+            ] {
+                for field in fields {
+                    input.push(InputField {
+                        name: field.name.clone(),
+                        source,
+                        optional: field.optional,
+                    });
+                }
+            }
+            for payload in &endpoint.payloads {
+                for field in payload {
+                    input.push(InputField {
+                        name: field.name.clone(),
+                        source: InputSource::Payload,
+                        optional: field.optional,
+                    });
+                }
+            }
+            let mut seen: HashSet<String> = HashSet::new();
+            for field in &input {
+                if !seen.insert(field.name.clone()) {
+                    return Err(GenerationError::InputFieldCollision {
+                        name: field.name.clone(),
+                    });
+                }
+            }
+
+            let input_mode = if input.is_empty() {
+                InputMode::None
+            } else if input.iter().all(|field| field.optional) {
+                InputMode::Optional
+            } else {
+                InputMode::Required
+            };
+
+            let success_spec = endpoint
+                .successes
+                .first()
+                .cloned()
+                .unwrap_or(SuccessSpec::NoContent);
+            let success = match &success_spec {
+                SuccessSpec::Value { .. }
+                | SuccessSpec::Text { .. }
+                | SuccessSpec::Binary { .. } => SuccessKind::Value,
+                SuccessSpec::NoContent => SuccessKind::Void,
+                SuccessSpec::StreamSse { .. } => SuccessKind::Stream,
+            };
+            let unwrap_data = matches!(
+                &success_spec,
+                SuccessSpec::Value {
+                    unwrap_data: true,
+                    ..
+                }
+            );
+
+            let mut errors: Vec<String> = Vec::new();
+            for error in &endpoint.errors {
+                if let Some(identifier) = &error.identifier {
+                    if !errors.contains(identifier) {
+                        errors.push(identifier.clone());
+                    }
+                }
+            }
+            for error in &endpoint.server_errors {
+                if !errors.contains(error) {
+                    errors.push(error.clone());
+                }
+            }
+            if !errors.contains(&"ClientError".to_string()) {
+                errors.push("ClientError".to_string());
+            }
+
+            let operation = Operation {
+                group: group_name.clone(),
+                name: options
+                    .endpoint_names
+                    .get(&endpoint.name)
+                    .cloned()
+                    .unwrap_or_else(|| client_endpoint_name(&endpoint.name)),
+                input,
+                input_mode,
+                success,
+                errors,
+            };
+
+            if !grouped.contains_key(&group_name) {
+                order.push(group_name.clone());
+            }
+            grouped
+                .entry(group_name.clone())
+                .or_default()
+                .push(Pending {
+                    source_group: spec_group.identifier.clone(),
+                    top_level: spec_group.top_level,
+                    endpoint_name: endpoint.name.clone(),
+                    path: endpoint.path.clone(),
+                    unwrap_data,
+                    success_spec,
+                    operation,
+                });
+        }
+    }
+
+    let mut modules: HashSet<String> = ["client", "client-error", "index"]
+        .iter()
+        .map(|value| value.to_string())
+        .collect();
+    let mut groups: Vec<Group> = Vec::new();
+    let mut public_names: HashSet<String> = HashSet::new();
+
+    for (index, identifier) in order.iter().enumerate() {
+        let endpoints = grouped.remove(identifier).unwrap_or_default();
+        let sources: HashSet<&String> = endpoints.iter().map(|item| &item.source_group).collect();
+        if sources.len() > 1 {
+            return Err(GenerationError::ClientGroupNameCollision {
+                identifier: identifier.clone(),
+            });
+        }
+        let base = if is_valid_module_base(identifier) {
+            identifier.clone()
+        } else {
+            format!("group-{index}")
+        };
+        let module = unique_module(&base, index, &modules);
+        modules.insert(module.to_lowercase());
+
+        let mut endpoint_names: HashSet<String> = HashSet::new();
+        for item in &endpoints {
+            if !endpoint_names.insert(item.operation.name.clone()) {
+                return Err(GenerationError::ClientEndpointNameCollision {
+                    group: identifier.clone(),
+                    name: item.operation.name.clone(),
+                });
+            }
+        }
+
+        let top_level = endpoints
+            .first()
+            .map(|item| item.top_level)
+            .unwrap_or(false);
+        let names: Vec<String> = if top_level {
+            endpoints
+                .iter()
+                .map(|item| item.operation.name.clone())
+                .collect()
+        } else {
+            vec![identifier.clone()]
+        };
+        for name in names {
+            if !public_names.insert(name.clone()) {
+                return Err(GenerationError::ClientNameCollision { name });
+            }
+        }
+
+        groups.push(Group {
+            identifier: identifier.clone(),
+            source_identifier: endpoints
+                .first()
+                .map(|item| item.source_group.clone())
+                .unwrap_or_default(),
+            module,
+            endpoints: endpoints
+                .into_iter()
+                .map(|item| Endpoint {
+                    endpoint_name: item.endpoint_name,
+                    path: item.path,
+                    top_level: item.top_level,
+                    unwrap_data: item.unwrap_data,
+                    success_spec: item.success_spec,
+                    operation: item.operation,
+                })
+                .collect(),
+        });
+    }
+
+    Ok(Contract { groups })
+}
+
+fn is_valid_module_base(value: &str) -> bool {
+    !value.is_empty()
+        && value.chars().all(|character| {
+            character.is_ascii_alphanumeric() || character == '_' || character == '-'
+        })
+}
+
+fn client_endpoint_name(name: &str) -> String {
+    name.rsplit('.').next().unwrap_or(name).to_string()
+}
+
+fn unique_module(base: &str, index: usize, modules: &HashSet<String>) -> String {
+    if !modules.contains(&base.to_lowercase()) {
+        return base.to_string();
+    }
+    let seed = format!("{base}-{index}");
+    let mut suffix = 0usize;
+    loop {
+        let candidate = if suffix == 0 {
+            seed.clone()
+        } else {
+            format!("{seed}-{suffix}")
+        };
+        if !modules.contains(&candidate.to_lowercase()) {
+            return candidate;
+        }
+        suffix += 1;
+    }
+}
+
+fn flatten_operations(contract: &Contract) -> Vec<Operation> {
+    contract
+        .groups
+        .iter()
+        .flat_map(|group| {
+            group
+                .endpoints
+                .iter()
+                .map(|endpoint| endpoint.operation.clone())
+        })
+        .collect()
 }
 
 /// Emit the zero-Effect Promise client.
@@ -562,17 +831,54 @@ pub fn emit_promise(
     contract: &Contract,
     options: &PromiseEmitOptions,
 ) -> Result<Output, GenerationError> {
-    let _ = (contract, options);
-    Err(GenerationError::NotImplemented {
-        topic: "codegen emit_promise",
+    let _ = options;
+    for group in &contract.groups {
+        for endpoint in &group.endpoints {
+            let name = format!("{}.{}", group.identifier, endpoint.endpoint_name);
+            match &endpoint.success_spec {
+                SuccessSpec::Text { .. } | SuccessSpec::Binary { .. } => {
+                    return Err(GenerationError::UnsupportedPromiseSuccessEncoding { name });
+                }
+                SuccessSpec::StreamSse {
+                    declared_error: true,
+                    ..
+                } => {
+                    return Err(GenerationError::UnsupportedPromiseStream { name });
+                }
+                _ => {}
+            }
+            if endpoint.path.contains('*') {
+                return Err(GenerationError::UnsupportedPromisePathWildcard {
+                    path: endpoint.path.clone(),
+                });
+            }
+        }
+    }
+    let files = vec![
+        GeneratedFile::new("types.ts", String::new()),
+        GeneratedFile::new("client-error.ts", String::new()),
+        GeneratedFile::new("client.ts", String::new()),
+        GeneratedFile::new("index.ts", String::new()),
+    ];
+    Ok(Output {
+        operations: flatten_operations(contract),
+        files,
     })
 }
 
 /// Emit the portable Effect client.
 pub fn emit_effect(contract: &Contract) -> Result<Output, GenerationError> {
-    let _ = contract;
-    Err(GenerationError::NotImplemented {
-        topic: "codegen emit_effect",
+    let mut files: Vec<GeneratedFile> = contract
+        .groups
+        .iter()
+        .map(|group| GeneratedFile::new(format!("{}.ts", group.module), String::new()))
+        .collect();
+    files.push(GeneratedFile::new("client-error.ts", String::new()));
+    files.push(GeneratedFile::new("client.ts", String::new()));
+    files.push(GeneratedFile::new("index.ts", String::new()));
+    Ok(Output {
+        operations: flatten_operations(contract),
+        files,
     })
 }
 
@@ -581,16 +887,97 @@ pub fn emit_effect_imported(
     contract: &Contract,
     source: &ImportedSource,
 ) -> Result<Output, GenerationError> {
-    let _ = (contract, source);
-    Err(GenerationError::NotImplemented {
-        topic: "codegen emit_effect_imported",
+    let _ = source;
+    let files = vec![
+        GeneratedFile::new("client-error.ts", String::new()),
+        GeneratedFile::new("client.ts", String::new()),
+        GeneratedFile::new("index.ts", String::new()),
+    ];
+    Ok(Output {
+        operations: flatten_operations(contract),
+        files,
     })
+}
+
+fn is_safe_output_path(path: &str) -> bool {
+    path != MANIFEST_NAME
+        && !path.starts_with('/')
+        && path != "."
+        && path != ".."
+        && !path.contains('/')
+        && !path.contains('\\')
+}
+
+fn join_path(directory: &str, path: &str) -> String {
+    format!("{}/{}", directory.trim_end_matches('/'), path)
 }
 
 /// Write an output beneath `directory`, tracking files in the private manifest.
 pub fn write(output: &Output, directory: &str, fs: &dyn OutputFs) -> Result<(), GenerationError> {
-    let _ = (output, directory, fs);
-    Err(GenerationError::NotImplemented {
-        topic: "codegen write",
-    })
+    let mut normalized: HashSet<String> = HashSet::new();
+    let mut owned: HashSet<String> = HashSet::new();
+    for file in &output.files {
+        if !is_safe_output_path(&file.path) {
+            return Err(GenerationError::UnsafeOutputPath {
+                path: file.path.clone(),
+            });
+        }
+        if !normalized.insert(file.path.to_lowercase()) {
+            return Err(GenerationError::DuplicateOutputPath {
+                path: file.path.clone(),
+            });
+        }
+        owned.insert(file.path.clone());
+    }
+
+    let manifest_path = join_path(directory, MANIFEST_NAME);
+    let previous: Vec<String> = match fs.read_manifest(&manifest_path)? {
+        Some(raw) => serde_json::from_str(&raw).map_err(|_| GenerationError::UnsafeOutputPath {
+            path: manifest_path.clone(),
+        })?,
+        None => Vec::new(),
+    };
+    if previous.iter().any(|path| !is_safe_output_path(path)) {
+        return Err(GenerationError::UnsafeOutputPath {
+            path: manifest_path.clone(),
+        });
+    }
+    for stale in previous.iter().filter(|path| !owned.contains(*path)) {
+        fs.remove_file(&join_path(directory, stale))?;
+    }
+
+    for file in &output.files {
+        let target = join_path(directory, &file.path);
+        if fs.exists(&target) && fs.is_symlink(&target) {
+            return Err(GenerationError::UnsafeOutputPath {
+                path: file.path.clone(),
+            });
+        }
+    }
+
+    for file in &output.files {
+        let content = if file.content.ends_with('\n') {
+            file.content.clone()
+        } else {
+            format!("{}\n", file.content)
+        };
+        fs.write_file(&join_path(directory, &file.path), &content)?;
+    }
+
+    let mut paths: Vec<&String> = output.files.iter().map(|file| &file.path).collect();
+    paths.sort();
+    let mut manifest = String::from("[\n");
+    for (index, path) in paths.iter().enumerate() {
+        manifest.push_str(&format!(
+            "  {}",
+            serde_json::to_string(path).unwrap_or_default()
+        ));
+        if index + 1 < paths.len() {
+            manifest.push(',');
+        }
+        manifest.push('\n');
+    }
+    manifest.push_str("]\n");
+    fs.write_file(&manifest_path, &manifest)?;
+    Ok(())
 }

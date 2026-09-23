@@ -15,32 +15,11 @@ use serde_json::json;
 
 const NOTE: &str = "porting: session runner recorded transport not implemented";
 
-mod local {
-    use serde_json::Value;
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum PortError {
-        NotImplemented(&'static str),
-    }
-
-    /// The projected outcome of a recorded prompt.
-    #[derive(Debug, Clone, PartialEq)]
-    pub struct RecordedRun {
-        pub messages: Vec<Value>,
-        pub event_types: Vec<String>,
-    }
-
-    pub fn run_recorded_prompt() -> Result<RecordedRun, PortError> {
-        Err(PortError::NotImplemented(
-            "session runner recorded transport",
-        ))
-    }
-}
+use opencode_core::session_runner_recorded::run_recorded_prompt;
 
 #[test]
-#[ignore = "porting: session runner recorded transport not implemented"]
 fn executes_one_recorded_v2_prompt_through_the_recorded_http_transport() {
-    let run = local::run_recorded_prompt().expect(NOTE);
+    let run = run_recorded_prompt();
 
     assert_eq!(run.messages.len(), 2);
     assert_eq!(run.messages[0]["id"], json!("msg_recorded_prompt"));

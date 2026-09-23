@@ -5,65 +5,9 @@
 //! uses, and reuses only compatible pending blocks while appending code deltas.
 //! Red-first: the markdown stream projection is not implemented.
 
-#[allow(dead_code)]
-mod markdown_stream {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui markdown stream not implemented";
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    pub enum BlockMode {
-        Full,
-        Live,
-        Code,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Block {
-        pub raw: String,
-        pub src: String,
-        pub mode: BlockMode,
-        pub language: Option<String>,
-        pub complete: bool,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Projection {
-        pub text: String,
-        pub blocks: Vec<Block>,
-    }
-
-    pub fn stream(_text: &str, _streaming: bool) -> PortResult<Vec<Block>> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn project(
-        _previous: Option<&Projection>,
-        _text: &str,
-        _streaming: bool,
-    ) -> PortResult<Projection> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn can_reuse_pending_block(_previous: &Block, _next: &Block) -> PortResult<bool> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use markdown_stream::{can_reuse_pending_block, project, stream, Block, BlockMode, NOTE};
+use opencode_tui::markdown_stream::{
+    can_reuse_pending_block, project, stream, Block, BlockMode, NOTE,
+};
 
 fn full(raw: &str) -> Block {
     Block {
@@ -116,7 +60,6 @@ fn code_complete(raw: &str, src: &str, language: &str) -> Block {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn heals_incomplete_emphasis_while_streaming() {
     assert_eq!(
         stream("hello **world", true).expect(NOTE),
@@ -129,7 +72,6 @@ fn heals_incomplete_emphasis_while_streaming() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn keeps_incomplete_links_non_clickable_until_they_finish() {
     assert_eq!(
         stream("see [docs](https://example.com/gu", true).expect(NOTE),
@@ -138,7 +80,6 @@ fn keeps_incomplete_links_non_clickable_until_they_finish() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn splits_an_unfinished_trailing_code_fence_from_stable_content() {
     assert_eq!(
         stream("before\n\n```ts\nconst x = 1", true).expect(NOTE),
@@ -150,7 +91,6 @@ fn splits_an_unfinished_trailing_code_fence_from_stable_content() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn fully_parses_a_code_fence_once_it_closes() {
     assert_eq!(
         stream("before\n\n```ts\nconst x = 1\n```", true).expect(NOTE),
@@ -162,7 +102,6 @@ fn fully_parses_a_code_fence_once_it_closes() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn keeps_a_completed_code_fence_in_worker_rendered_code_mode_when_prose_follows() {
     assert_eq!(
         stream("```ts\nconst x = 1\n```\n\nafter", true).expect(NOTE),
@@ -174,7 +113,6 @@ fn keeps_a_completed_code_fence_in_worker_rendered_code_mode_when_prose_follows(
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn freezes_completed_top_level_blocks_and_only_keeps_the_tail_live() {
     assert_eq!(
         stream("# Plan\n\nFinished paragraph.\n\n- live item", true).expect(NOTE),
@@ -187,7 +125,6 @@ fn freezes_completed_top_level_blocks_and_only_keeps_the_tail_live() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn keeps_a_growing_table_together_until_a_later_block_freezes_it() {
     assert_eq!(
         stream("| a | b |\n|---|---|\n| 1 | 2 |", true).expect(NOTE),
@@ -196,7 +133,6 @@ fn keeps_a_growing_table_together_until_a_later_block_freezes_it() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn reprojects_non_prefix_replacements_from_current_content() {
     assert_eq!(
         stream("# Replacement\n\nNew body", true).expect(NOTE),
@@ -205,7 +141,6 @@ fn reprojects_non_prefix_replacements_from_current_content() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn reprojects_truncation_without_retaining_removed_blocks() {
     assert_eq!(
         stream("Only the restored prefix", true).expect(NOTE),
@@ -214,7 +149,6 @@ fn reprojects_truncation_without_retaining_removed_blocks() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn shifts_later_blocks_when_an_earlier_block_is_inserted() {
     assert_eq!(
         stream("# Inserted\n\nFirst body\n\nSecond body", true).expect(NOTE),
@@ -227,7 +161,6 @@ fn shifts_later_blocks_when_an_earlier_block_is_inserted() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn keeps_reference_style_markdown_as_one_block() {
     assert_eq!(
         stream("[docs][1]\n\n[1]: https://example.com", true).expect(NOTE),
@@ -236,7 +169,6 @@ fn keeps_reference_style_markdown_as_one_block() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn keeps_compact_and_indented_reference_definitions_with_their_uses() {
     assert_eq!(
         stream("[docs]\n\n   [docs]:/guide", true).expect(NOTE),
@@ -245,7 +177,6 @@ fn keeps_compact_and_indented_reference_definitions_with_their_uses() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn keeps_multiline_reference_definitions_with_their_uses() {
     assert_eq!(
         stream("[docs][id]\n\n[id]:\n  /guide", true).expect(NOTE),
@@ -254,7 +185,6 @@ fn keeps_multiline_reference_definitions_with_their_uses() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn uses_only_the_language_portion_of_fence_metadata() {
     assert_eq!(
         stream("```ts title=example\nconst x = 1", true).expect(NOTE),
@@ -267,7 +197,6 @@ fn uses_only_the_language_portion_of_fence_metadata() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn preserves_trailing_newlines_in_open_code_fences() {
     assert_eq!(
         stream("```ts\nconst x = 1\n", true).expect(NOTE),
@@ -276,7 +205,6 @@ fn preserves_trailing_newlines_in_open_code_fences() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn only_reuses_pending_blocks_with_compatible_identity_and_content() {
     assert!(!can_reuse_pending_block(
         &full("First\n\n"),
@@ -325,7 +253,6 @@ fn only_reuses_pending_blocks_with_compatible_identity_and_content() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn appends_plain_code_deltas_without_reprojecting_frozen_blocks() {
     let previous = project(None, "# Plan\n\n```ts\nconst one = 1\n", true).expect(NOTE);
     let next = project(
@@ -347,7 +274,6 @@ fn appends_plain_code_deltas_without_reprojecting_frozen_blocks() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn finalizes_only_the_live_tail_when_streaming_stops() {
     let live = project(None, "# Plan\n\nFinished paragraph.\n\n- final item", true).expect(NOTE);
     let final_projection = project(Some(&live), &live.text, false).expect(NOTE);
@@ -358,7 +284,6 @@ fn finalizes_only_the_live_tail_when_streaming_stops() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn catches_up_paced_text_before_finalizing() {
     let live = project(None, "# Plan\n\nFinished paragraph.\n\n- final", true).expect(NOTE);
     let final_projection = project(Some(&live), &format!("{} item", live.text), false).expect(NOTE);
@@ -369,7 +294,6 @@ fn catches_up_paced_text_before_finalizing() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn completes_an_open_code_block_when_streaming_stops() {
     let live = project(None, "```ts\nconst value = 1", true).expect(NOTE);
     let final_projection = project(Some(&live), &live.text, false).expect(NOTE);
@@ -385,7 +309,6 @@ fn completes_an_open_code_block_when_streaming_stops() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn does_not_add_a_blank_line_before_the_first_streamed_code() {
     let previous = project(None, "```ts\n", true).expect(NOTE);
     let next = project(
@@ -402,7 +325,6 @@ fn does_not_add_a_blank_line_before_the_first_streamed_code() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn closes_code_fences_split_across_provider_deltas() {
     let open = project(None, "```ts\nconst x = 1\n", true).expect(NOTE);
     let one = project(Some(&open), &format!("{}`", open.text), true).expect(NOTE);
@@ -428,7 +350,6 @@ fn closes_code_fences_split_across_provider_deltas() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown stream not implemented"]
 fn closes_tilde_fences_split_across_provider_deltas() {
     let open = project(None, "~~~ts\nconst x = 1\n", true).expect(NOTE);
     let one = project(Some(&open), &format!("{}~", open.text), true).expect(NOTE);

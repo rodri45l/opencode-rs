@@ -14,20 +14,17 @@ fn strings(values: &[&str]) -> Vec<String> {
 }
 
 #[test]
-#[ignore = "porting: shell not implemented"]
 fn normalizes_shell_names() {
     assert_eq!(Shell::name("/bin/bash").expect(NOTE), "bash");
 }
 
 #[test]
-#[ignore = "porting: shell not implemented"]
 fn detects_login_shells() {
     assert!(Shell::login("/bin/bash").expect(NOTE));
     assert!(!Shell::login("C:/tools/pwsh.exe").expect(NOTE));
 }
 
 #[test]
-#[ignore = "porting: shell not implemented"]
 fn detects_posix_shells() {
     assert!(Shell::posix("/bin/bash").expect(NOTE));
     assert!(!Shell::posix("/bin/fish").expect(NOTE));
@@ -35,7 +32,6 @@ fn detects_posix_shells() {
 }
 
 #[test]
-#[ignore = "porting: shell not implemented"]
 fn builds_command_args_per_shell_family() {
     assert_eq!(
         Shell::args("/bin/sh", "echo hi", "/tmp").expect(NOTE),

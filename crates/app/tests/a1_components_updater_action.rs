@@ -1,38 +1,9 @@
 //! Port of packages/app/src/components/updater-action.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-enum UpdaterStatus {
-    Idle,
-    Checking,
-    Downloading,
-    Ready,
-    Installing,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct UpdaterState {
-    status: UpdaterStatus,
-    version: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Action {
-    label: String,
-    run: Option<String>,
-}
-
-// Local stub (fast wave): real module lands later.
-fn updater_action(_state: Option<UpdaterState>) -> Action {
-    Action {
-        label: String::new(),
-        run: None,
-    }
-}
+use opencode_app::updater_action::{updater_action, Action, UpdaterState, UpdaterStatus};
 
 #[test]
-#[ignore = "porting: components/updater-action not implemented"]
 fn disables_update_actions_when_the_platform_has_no_updater() {
     assert_eq!(
         updater_action(None),
@@ -44,7 +15,6 @@ fn disables_update_actions_when_the_platform_has_no_updater() {
 }
 
 #[test]
-#[ignore = "porting: components/updater-action not implemented"]
 fn projects_updater_transitions_into_one_settings_action() {
     assert_eq!(
         updater_action(Some(UpdaterState {

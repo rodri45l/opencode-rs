@@ -4,54 +4,7 @@
 //! patches stay open, and shell defaults are preserved.
 //! Red-first: the part-default-open rule is not implemented.
 
-#[allow(dead_code)]
-mod part_default_open {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui part-default-open not implemented";
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct PatchFile {
-        pub file_path: String,
-        pub kind: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum PartMetadata {
-        Edit { additions: i64, deletions: i64 },
-        ApplyPatch { files: Vec<PatchFile> },
-        None,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct ToolPart {
-        pub tool: String,
-        pub metadata: PartMetadata,
-    }
-
-    pub fn part_default_open(
-        _part: &ToolPart,
-        _default_open: bool,
-        _expand_edits: bool,
-    ) -> PortResult<bool> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use part_default_open::{part_default_open, PartMetadata, PatchFile, ToolPart, NOTE};
+use opencode_tui::part_default_open::{part_default_open, PartMetadata, PatchFile, ToolPart, NOTE};
 
 fn tool(name: &str, metadata: PartMetadata) -> ToolPart {
     ToolPart {
@@ -68,7 +21,6 @@ fn patch(file_path: &str, kind: &str) -> PatchFile {
 }
 
 #[test]
-#[ignore = "porting: session-ui part-default-open not implemented"]
 fn keeps_edited_files_expanded_when_enabled() {
     assert!(part_default_open(
         &tool(
@@ -85,7 +37,6 @@ fn keeps_edited_files_expanded_when_enabled() {
 }
 
 #[test]
-#[ignore = "porting: session-ui part-default-open not implemented"]
 fn collapses_deletion_only_edits_when_enabled() {
     assert!(!part_default_open(
         &tool(
@@ -102,7 +53,6 @@ fn collapses_deletion_only_edits_when_enabled() {
 }
 
 #[test]
-#[ignore = "porting: session-ui part-default-open not implemented"]
 fn collapses_patches_containing_only_deleted_files_when_enabled() {
     let part = tool(
         "apply_patch",
@@ -114,7 +64,6 @@ fn collapses_patches_containing_only_deleted_files_when_enabled() {
 }
 
 #[test]
-#[ignore = "porting: session-ui part-default-open not implemented"]
 fn keeps_mixed_patches_expanded_when_enabled() {
     let part = tool(
         "apply_patch",
@@ -126,7 +75,6 @@ fn keeps_mixed_patches_expanded_when_enabled() {
 }
 
 #[test]
-#[ignore = "porting: session-ui part-default-open not implemented"]
 fn preserves_shell_defaults() {
     assert!(part_default_open(&tool("shell", PartMetadata::None), true, false).expect(NOTE));
 }

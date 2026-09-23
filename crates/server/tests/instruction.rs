@@ -27,7 +27,6 @@ fn write(dir: &Path, relative: &str, content: &str) -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn returns_empty_when_agents_md_is_at_project_root() -> Result<(), InstructionError> {
     let dir = temp_dir("root");
     let agents = write(&dir, "AGENTS.md", "# Root Instructions");
@@ -48,7 +47,6 @@ fn returns_empty_when_agents_md_is_at_project_root() -> Result<(), InstructionEr
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn returns_agents_md_from_subdirectory_not_in_system_paths() -> Result<(), InstructionError> {
     let dir = temp_dir("subdir");
     let agents = write(&dir, "subdir/AGENTS.md", "# Subdir Instructions");
@@ -73,7 +71,6 @@ fn returns_agents_md_from_subdirectory_not_in_system_paths() -> Result<(), Instr
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn does_not_reload_agents_md_when_reading_it_directly() -> Result<(), InstructionError> {
     let dir = temp_dir("direct");
     let agents = write(&dir, "subdir/AGENTS.md", "# Subdir Instructions");
@@ -86,7 +83,6 @@ fn does_not_reload_agents_md_when_reading_it_directly() -> Result<(), Instructio
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn does_not_reattach_same_nearby_instructions_twice_for_one_message() -> Result<(), InstructionError>
 {
     let dir = temp_dir("claim");
@@ -104,7 +100,6 @@ fn does_not_reattach_same_nearby_instructions_twice_for_one_message() -> Result<
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn clear_allows_nearby_instructions_to_be_attached_again() -> Result<(), InstructionError> {
     let dir = temp_dir("clear");
     write(&dir, "subdir/AGENTS.md", "# Subdir Instructions");
@@ -122,7 +117,6 @@ fn clear_allows_nearby_instructions_to_be_attached_again() -> Result<(), Instruc
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn skips_instructions_already_reported_by_prior_read_metadata() -> Result<(), InstructionError> {
     let dir = temp_dir("loaded");
     let agents = write(&dir, "subdir/AGENTS.md", "# Subdir Instructions");
@@ -137,7 +131,6 @@ fn skips_instructions_already_reported_by_prior_read_metadata() -> Result<(), In
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn loads_both_project_and_global_agents_md_when_both_exist() -> Result<(), InstructionError> {
     let global = temp_dir("global");
     let project = temp_dir("project");
@@ -170,7 +163,6 @@ fn loads_both_project_and_global_agents_md_when_both_exist() -> Result<(), Instr
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn skips_project_and_global_claude_md_when_disabled() -> Result<(), InstructionError> {
     let global = temp_dir("global-claude");
     let project = temp_dir("project-claude");
@@ -189,7 +181,6 @@ fn skips_project_and_global_claude_md_when_disabled() -> Result<(), InstructionE
 }
 
 #[test]
-#[ignore = "porting: session.instruction not implemented"]
 fn uses_global_config_agents_md() -> Result<(), InstructionError> {
     let global = temp_dir("global-config");
     let project = temp_dir("project-config");

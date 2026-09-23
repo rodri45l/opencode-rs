@@ -11,33 +11,9 @@
 
 use serde_json::{json, Value};
 
-#[allow(dead_code)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct NotImplemented(&'static str);
-
-fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
-    Err(NotImplemented(topic))
-}
-
-fn builtin_server(
-    _file: &str,
-    _inside_instance: bool,
-    _lsp_config: &Value,
-    _experimental_ty: bool,
-) -> Result<Option<String>, NotImplemented> {
-    nope("lsp index")
-}
-
-fn has_clients(
-    _file: &str,
-    _inside_instance: bool,
-    _lsp_config: &Value,
-) -> Result<bool, NotImplemented> {
-    nope("lsp index")
-}
+use opencode_server::lsp_index::{builtin_server, has_clients};
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn does_not_spawn_builtin_lsp_for_files_outside_instance() {
     assert_eq!(
         builtin_server("/workspace/../outside.ts", false, &json!(true), false).unwrap(),
@@ -46,7 +22,6 @@ fn does_not_spawn_builtin_lsp_for_files_outside_instance() {
 }
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn does_not_spawn_builtin_lsp_for_files_inside_instance_when_lsp_is_unset() {
     assert_eq!(
         builtin_server("/workspace/src/inside.ts", true, &Value::Null, false).unwrap(),
@@ -55,7 +30,6 @@ fn does_not_spawn_builtin_lsp_for_files_inside_instance_when_lsp_is_unset() {
 }
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn would_spawn_builtin_lsp_for_ts_when_lsp_is_true() {
     assert_eq!(
         builtin_server("/workspace/src/inside.ts", true, &json!(true), false).unwrap(),
@@ -64,7 +38,6 @@ fn would_spawn_builtin_lsp_for_ts_when_lsp_is_true() {
 }
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn keeps_builtin_lsps_when_config_object_is_provided() {
     assert_eq!(
         builtin_server(
@@ -79,7 +52,6 @@ fn keeps_builtin_lsps_when_config_object_is_provided() {
 }
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn uses_pyright_instead_of_ty_by_default() {
     assert_eq!(
         builtin_server("/workspace/src/inside.py", true, &json!(true), false).unwrap(),
@@ -88,7 +60,6 @@ fn uses_pyright_instead_of_ty_by_default() {
 }
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn uses_ty_instead_of_pyright_when_experimental_lsp_ty_is_enabled() {
     assert_eq!(
         builtin_server("/workspace/src/inside.py", true, &json!(true), true).unwrap(),
@@ -97,7 +68,6 @@ fn uses_ty_instead_of_pyright_when_experimental_lsp_ty_is_enabled() {
 }
 
 #[test]
-#[ignore = "porting: lsp index not implemented"]
 fn has_clients_matches_the_builtin_selection() {
     assert!(!has_clients("/workspace/src/inside.ts", true, &Value::Null).unwrap());
     assert!(has_clients("/workspace/src/inside.ts", true, &json!(true)).unwrap());

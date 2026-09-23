@@ -190,6 +190,12 @@ impl WriteTool {
         }
         std::fs::write(&path, &bytes).map_err(|e| ToolError::Message(e.to_string()))?;
 
+        #[cfg(unix)]
+        if !existed {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644));
+        }
+
         Ok(ToolResult {
             title: relative(&ctx.directory, &path),
             output: "Wrote file successfully".to_string(),
@@ -224,12 +230,149 @@ impl GrepTool {
     }
 
     /// Search files for `pattern`.
-    pub fn execute(
-        &self,
-        _args: GrepArgs,
-        _ctx: &mut ToolContext,
-    ) -> Result<ToolResult, ToolError> {
-        Err(ToolError::NotImplemented("tool::GrepTool::execute"))
+    pub fn execute(&self, args: GrepArgs, ctx: &mut ToolContext) -> Result<ToolResult, ToolError> {
+        if args.pattern.is_empty() {
+            return Err(ToolError::Message("pattern is required".to_string()));
+        }
+        ctx.ask(PermissionRequest {
+            permission: "grep".to_string(),
+            patterns: vec![args.pattern.clone()],
+            always: vec!["*".to_string()],
+            metadata: json!({
+                "pattern": args.pattern,
+                "path": args.path,
+                "include": args.include,
+            }),
+        });
+
+        let requested = match args.path.as_deref() {
+            Some(path) => resolve(&ctx.directory, path),
+            None => ctx.directory.clone(),
+        };
+        let requested_is_dir = requested.is_dir();
+        assert_external_directory(
+            ctx,
+            Some(&requested.to_string_lossy()),
+            &ExternalDirectoryOptions {
+                kind: Some(
+                    if requested_is_dir {
+                        "directory"
+                    } else {
+                        "file"
+                    }
+                    .to_string(),
+                ),
+                bypass: false,
+            },
+        )?;
+
+        let cwd = if requested_is_dir {
+            requested.clone()
+        } else {
+            requested
+                .parent()
+                .map(Path::to_path_buf)
+                .unwrap_or_else(|| requested.clone())
+        };
+
+        let pattern = regex::Regex::new(&args.pattern)
+            .map_err(|error| ToolError::Message(error.to_string()))?;
+        let include = args.include.as_deref();
+
+        let mut files: Vec<PathBuf> = Vec::new();
+        if requested_is_dir {
+            collect_files(&cwd, &mut files);
+            files.sort();
+        } else {
+            files.push(requested.clone());
+        }
+
+        let limit = 100;
+        let mut rows: Vec<(String, usize, String)> = Vec::new();
+        'outer: for file in files {
+            if let Some(include) = include {
+                let name = file
+                    .file_name()
+                    .map(|n| n.to_string_lossy().into_owned())
+                    .unwrap_or_default();
+                if !crate::port::glob_util::glob_match(include, &name) {
+                    continue;
+                }
+            }
+            let Ok(content) = std::fs::read_to_string(&file) else {
+                continue;
+            };
+            for (index, line) in content.lines().enumerate() {
+                if pattern.is_match(line) {
+                    rows.push((
+                        file.to_string_lossy().into_owned(),
+                        index + 1,
+                        line.to_string(),
+                    ));
+                    if rows.len() >= limit {
+                        break 'outer;
+                    }
+                }
+            }
+        }
+
+        if rows.is_empty() {
+            return Ok(ToolResult {
+                title: args.pattern,
+                output: "No files found".to_string(),
+                metadata: json!({ "matches": 0, "truncated": false }),
+                attachments: None,
+            });
+        }
+
+        let truncated = rows.len() >= limit;
+        let total = rows.len();
+        let mut output = vec![format!(
+            "Found {total} matches{}",
+            if truncated {
+                " (more matches available)"
+            } else {
+                ""
+            }
+        )];
+        let mut current = String::new();
+        for (path, line, text) in &rows {
+            if current != *path {
+                if !current.is_empty() {
+                    output.push(String::new());
+                }
+                current = path.clone();
+                output.push(format!("{path}:"));
+            }
+            output.push(format!("  Line {line}: {text}"));
+        }
+        if truncated {
+            output.push(String::new());
+            output.push(
+                "(Results truncated. Consider using a more specific path or pattern.)".to_string(),
+            );
+        }
+
+        Ok(ToolResult {
+            title: args.pattern,
+            output: output.join("\n"),
+            metadata: json!({ "matches": total, "truncated": truncated }),
+            attachments: None,
+        })
+    }
+}
+
+fn collect_files(dir: &Path, out: &mut Vec<PathBuf>) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_files(&path, out);
+        } else if path.is_file() {
+            out.push(path);
+        }
     }
 }
 

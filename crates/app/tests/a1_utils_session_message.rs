@@ -2,132 +2,11 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
-use std::collections::BTreeMap;
-
-#[derive(Clone, Debug, PartialEq)]
-struct Message {
-    id: String,
-    role: String,
-    parent_id: Option<String>,
-    agent: Option<String>,
-    model: Option<Model>,
-    cost: Option<f64>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Model {
-    provider_id: String,
-    model_id: String,
-    variant: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Part {
-    id: String,
-    part_type: String,
-    tool: Option<String>,
-}
-
-#[derive(Default)]
-struct Normalized {
-    messages: Vec<Message>,
-    parts: BTreeMap<String, Vec<Part>>,
-}
-
-// Local stub (fast wave): real module lands later.
-fn normalize_session_messages(_session_id: &str, _source: &[SourceMessage]) -> Normalized {
-    Normalized::default()
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum SourceMessage {
-    AgentSwitched {
-        id: String,
-        agent: String,
-    },
-    ModelSwitched {
-        id: String,
-        model: Model,
-    },
-    User {
-        id: String,
-        text: String,
-        file_count: usize,
-        agent_count: usize,
-    },
-    Assistant {
-        id: String,
-        agent: String,
-        model: Model,
-        content: Vec<ContentPart>,
-        cost: f64,
-    },
-    Compaction {
-        id: String,
-    },
-    Shell {
-        id: String,
-        command: String,
-        output: String,
-    },
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum ContentPart {
-    Reasoning,
-    Text,
-    Tool {
-        id: String,
-        name: String,
-        output: String,
-    },
-}
-
-fn source() -> Vec<SourceMessage> {
-    vec![
-        SourceMessage::AgentSwitched {
-            id: "msg_1".into(),
-            agent: "build".into(),
-        },
-        SourceMessage::ModelSwitched {
-            id: "msg_2".into(),
-            model: Model {
-                provider_id: "anthropic".into(),
-                model_id: "claude".into(),
-                variant: Some("high".into()),
-            },
-        },
-        SourceMessage::User {
-            id: "msg_3".into(),
-            text: "inspect @src/client.ts".into(),
-            file_count: 2,
-            agent_count: 1,
-        },
-        SourceMessage::Assistant {
-            id: "msg_4".into(),
-            agent: "build".into(),
-            model: Model {
-                provider_id: "anthropic".into(),
-                model_id: "claude".into(),
-                variant: Some("high".into()),
-            },
-            content: vec![
-                ContentPart::Reasoning,
-                ContentPart::Text,
-                ContentPart::Tool {
-                    id: "call_1".into(),
-                    name: "read".into(),
-                    output: "hello".into(),
-                },
-            ],
-            cost: 0.1,
-        },
-        SourceMessage::Compaction { id: "msg_5".into() },
-    ]
-}
+use opencode_app::session_message::{
+    normalize_session_messages, ContentPart, Model, SourceMessage,
+};
 
 #[test]
-#[ignore = "porting: utils/session-message not implemented"]
 fn projects_current_turns_into_stable_legacy_rendering_records() {
     let result = normalize_session_messages("ses_1", &source());
     assert_eq!(result.messages.len(), 2);
@@ -174,7 +53,6 @@ fn projects_current_turns_into_stable_legacy_rendering_records() {
 }
 
 #[test]
-#[ignore = "porting: utils/session-message not implemented"]
 fn does_not_invent_a_parent_for_an_assistant_only_page() {
     let source = vec![SourceMessage::Assistant {
         id: "msg_2".into(),
@@ -193,7 +71,6 @@ fn does_not_invent_a_parent_for_an_assistant_only_page() {
 }
 
 #[test]
-#[ignore = "porting: utils/session-message not implemented"]
 fn projects_a_current_shell_message_into_a_renderable_standalone_turn() {
     let source = vec![SourceMessage::Shell {
         id: "msg_shell".into(),
@@ -219,7 +96,6 @@ fn projects_a_current_shell_message_into_a_renderable_standalone_turn() {
 }
 
 #[test]
-#[ignore = "porting: utils/session-message not implemented"]
 fn adapts_current_edit_fields_for_the_legacy_edit_renderer() {
     let source = vec![
         SourceMessage::User {
@@ -254,4 +130,47 @@ fn adapts_current_edit_fields_for_the_legacy_edit_renderer() {
         part.as_ref().map(|p| p.tool.clone()),
         Some(Some("edit".to_string()))
     );
+}
+
+fn source() -> Vec<SourceMessage> {
+    vec![
+        SourceMessage::AgentSwitched {
+            id: "msg_1".into(),
+            agent: "build".into(),
+        },
+        SourceMessage::ModelSwitched {
+            id: "msg_2".into(),
+            model: Model {
+                provider_id: "anthropic".into(),
+                model_id: "claude".into(),
+                variant: Some("high".into()),
+            },
+        },
+        SourceMessage::User {
+            id: "msg_3".into(),
+            text: "inspect @src/client.ts".into(),
+            file_count: 2,
+            agent_count: 1,
+        },
+        SourceMessage::Assistant {
+            id: "msg_4".into(),
+            agent: "build".into(),
+            model: Model {
+                provider_id: "anthropic".into(),
+                model_id: "claude".into(),
+                variant: Some("high".into()),
+            },
+            content: vec![
+                ContentPart::Reasoning,
+                ContentPart::Text,
+                ContentPart::Tool {
+                    id: "call_1".into(),
+                    name: "read".into(),
+                    output: "hello".into(),
+                },
+            ],
+            cost: 0.1,
+        },
+        SourceMessage::Compaction { id: "msg_5".into() },
+    ]
 }

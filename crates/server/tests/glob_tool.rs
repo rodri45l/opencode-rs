@@ -25,7 +25,6 @@ fn context(directory: &Path) -> ToolContext {
 }
 
 #[test]
-#[ignore = "porting: tool.glob not implemented"]
 fn matches_files_from_a_directory_path() -> Result<(), ToolError> {
     let dir = temp_dir("matches");
     std::fs::write(dir.join("a.ts"), "export const a = 1\n").expect("seed");
@@ -50,7 +49,6 @@ fn matches_files_from_a_directory_path() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.glob not implemented"]
 fn rejects_exact_file_paths() {
     let dir = temp_dir("file-path");
     let file = dir.join("a.ts");

@@ -2,35 +2,9 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct Session {
-    id: String,
-    title: Option<String>,
-    slug: Option<String>,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn session_export_filename(_session: &Session) -> String {
-    String::new()
-}
-
-fn fetch_session_export(_session_id: &str, _client: &Client) -> Result<Export, String> {
-    Ok(Export {
-        info: None,
-        messages: Vec::new(),
-    })
-}
-
-struct Client;
-
-#[derive(Clone, Debug, PartialEq)]
-struct Export {
-    info: Option<Session>,
-    messages: Vec<String>,
-}
+use opencode_app::session_export::{session_export_filename, Session};
 
 #[test]
-#[ignore = "porting: utils/session-export not implemented"]
 fn generates_filename_from_title() {
     let session = Session {
         id: "ses_123".into(),
@@ -44,7 +18,6 @@ fn generates_filename_from_title() {
 }
 
 #[test]
-#[ignore = "porting: utils/session-export not implemented"]
 fn generates_filename_from_slug_when_title_missing() {
     let session = Session {
         id: "ses_123".into(),
@@ -55,7 +28,6 @@ fn generates_filename_from_slug_when_title_missing() {
 }
 
 #[test]
-#[ignore = "porting: utils/session-export not implemented"]
 fn falls_back_to_id_when_title_and_slug_are_empty() {
     let session = Session {
         id: "ses_123".into(),
@@ -65,8 +37,24 @@ fn falls_back_to_id_when_title_and_slug_are_empty() {
     assert_eq!(session_export_filename(&session), "ses_123.json");
 }
 
+// Client-backed transcript fetch stays with the runtime port.
+#[derive(Clone, Debug, PartialEq)]
+struct Export {
+    info: Option<Session>,
+    messages: Vec<String>,
+}
+
+struct Client;
+
+fn fetch_session_export(_session_id: &str, _client: &Client) -> Result<Export, String> {
+    Ok(Export {
+        info: None,
+        messages: Vec::new(),
+    })
+}
+
 #[test]
-#[ignore = "porting: utils/session-export not implemented"]
+#[ignore = "porting: session-export client fetch not implemented"]
 fn fetches_full_transcript_from_client() {
     let session = Session {
         id: "ses_1".into(),
@@ -84,7 +72,7 @@ fn fetches_full_transcript_from_client() {
 }
 
 #[test]
-#[ignore = "porting: utils/session-export not implemented"]
+#[ignore = "porting: session-export client fetch not implemented"]
 fn throws_when_session_not_found() {
     let result = fetch_session_export("ses_missing", &Client);
     assert_eq!(result, Err("Session not found: ses_missing".to_string()));

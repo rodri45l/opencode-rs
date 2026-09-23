@@ -5,72 +5,7 @@
 //! block keys are namespaced by the component owner.
 //! Red-first: the worker protocol reducer is not implemented.
 
-#[allow(dead_code)]
-mod worker_protocol {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui markdown worker protocol not implemented";
-
-    pub type Token = (String, String);
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct WorkerState {
-        pub id: i64,
-        pub generation: i64,
-        pub language: String,
-        pub stable: Vec<Token>,
-        pub unstable: Vec<Token>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct WorkerResponse {
-        pub id: i64,
-        pub key: String,
-        pub language: String,
-        pub reset: bool,
-        pub stable: Vec<Token>,
-        pub unstable: Vec<Token>,
-    }
-
-    pub fn apply_markdown_worker_response(
-        _current: Option<&WorkerState>,
-        _response: &WorkerResponse,
-    ) -> PortResult<Option<WorkerState>> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn should_release_markdown_worker_state(
-        _released: bool,
-        _current_id: i64,
-        _completed_id: i64,
-    ) -> PortResult<bool> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn markdown_block_key(
-        _owner: &str,
-        _key: Option<&str>,
-        _index: i64,
-        _kind: &str,
-    ) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use worker_protocol::{
+use opencode_tui::markdown_worker_protocol::{
     apply_markdown_worker_response, markdown_block_key, should_release_markdown_worker_state,
     WorkerResponse, WorkerState, NOTE,
 };
@@ -91,7 +26,6 @@ fn response(id: i64, reset: bool, stable: &[&str], unstable: &[&str]) -> WorkerR
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker protocol not implemented"]
 fn accumulates_stable_worker_tokens_and_replaces_the_unstable_tail() {
     let first = apply_markdown_worker_response(None, &response(1, true, &["one\n"], &["tw"]))
         .expect(NOTE)
@@ -121,7 +55,6 @@ fn accumulates_stable_worker_tokens_and_replaces_the_unstable_tail() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker protocol not implemented"]
 fn increments_generation_only_when_the_worker_resets_token_identity() {
     let first = apply_markdown_worker_response(None, &response(1, true, &["const"], &[]))
         .expect(NOTE)
@@ -141,7 +74,6 @@ fn increments_generation_only_when_the_worker_resets_token_identity() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker protocol not implemented"]
 fn ignores_stale_worker_responses_and_resets_replacement_streams() {
     let current = WorkerState {
         id: 2,
@@ -171,7 +103,6 @@ fn ignores_stale_worker_responses_and_resets_replacement_streams() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker protocol not implemented"]
 fn releases_only_the_latest_completed_worker_state() {
     assert!(should_release_markdown_worker_state(true, 4, 4).expect(NOTE));
     assert!(!should_release_markdown_worker_state(true, 5, 4).expect(NOTE));
@@ -179,7 +110,6 @@ fn releases_only_the_latest_completed_worker_state() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker protocol not implemented"]
 fn prefixes_pending_and_dispatched_block_keys_with_the_component_owner() {
     assert_eq!(
         markdown_block_key("owner", Some("message"), 2, "code").expect(NOTE),

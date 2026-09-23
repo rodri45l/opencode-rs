@@ -6,150 +6,7 @@
 //! Re-derived: Solid store/accessor plumbing is replaced by plain state values.
 //! Red-first: the prompt-input interaction machine is not implemented.
 
-#[allow(dead_code)]
-mod machine {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui prompt-input machine not implemented";
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum PromptItem {
-        Text {
-            content: String,
-            start: i64,
-            end: i64,
-        },
-        File {
-            path: String,
-            content: String,
-            start: i64,
-            end: i64,
-        },
-        Image {
-            id: String,
-            filename: String,
-            mime: String,
-        },
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct ContextItem {
-        pub key: String,
-        pub kind: String,
-        pub path: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct PromptContext {
-        pub items: Vec<ContextItem>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct PersistedState {
-        pub prompt: Vec<PromptItem>,
-        pub cursor: i64,
-        pub context: PromptContext,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Suggestion {
-        pub id: String,
-        pub kind: String,
-        pub label: String,
-        pub path: Option<String>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum Popover {
-        Closed,
-        CommandInline {
-            query: String,
-        },
-        Context {
-            query: String,
-            active_id: Option<String>,
-        },
-        CommandMenu {
-            query: String,
-        },
-    }
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    pub enum Mode {
-        Normal,
-        Shell,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct InteractionState {
-        pub popover: Popover,
-        pub mode: Mode,
-        pub focus: Option<String>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum Command {
-        SetText { value: String },
-        MentionAdd { item: Suggestion },
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum Event {
-        InputChanged {
-            value: String,
-            persist: bool,
-        },
-        KeyDown {
-            key: String,
-            ctrl: bool,
-            composing: bool,
-            ids: Vec<String>,
-            empty: bool,
-        },
-        CommandsOpen,
-        PopoverSelect {
-            item: Suggestion,
-        },
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Transition {
-        pub state: InteractionState,
-        pub commands: Vec<Command>,
-        pub handled: bool,
-    }
-
-    pub fn create_prompt_input_v2_interaction_state() -> InteractionState {
-        InteractionState {
-            popover: Popover::Closed,
-            mode: Mode::Normal,
-            focus: None,
-        }
-    }
-
-    pub fn transition_prompt_input_v2(
-        _state: InteractionState,
-        _event: Event,
-        _persisted: PersistedState,
-    ) -> PortResult<Transition> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use machine::{
+use opencode_tui::prompt_input_machine::{
     create_prompt_input_v2_interaction_state, transition_prompt_input_v2, Command, Event,
     InteractionState, Mode, PersistedState, Popover, PromptContext, PromptItem, Suggestion, NOTE,
 };
@@ -176,7 +33,6 @@ fn command() -> Suggestion {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn opens_inline_commands_only_when_slash_is_the_entire_prompt() {
     let state = create_prompt_input_v2_interaction_state();
     let open = transition_prompt_input_v2(
@@ -206,7 +62,6 @@ fn opens_inline_commands_only_when_slash_is_the_entire_prompt() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn completes_nested_slash_command_names() {
     let open = transition_prompt_input_v2(
         create_prompt_input_v2_interaction_state(),
@@ -240,7 +95,6 @@ fn completes_nested_slash_command_names() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn opens_context_completion_at_the_cursor() {
     let value = "alpha @sr omega";
     let mut input = persisted(value);
@@ -266,7 +120,6 @@ fn opens_context_completion_at_the_cursor() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn enters_shell_mode_from_an_initial_exclamation_mark() {
     let result = transition_prompt_input_v2(
         create_prompt_input_v2_interaction_state(),
@@ -285,7 +138,6 @@ fn enters_shell_mode_from_an_initial_exclamation_mark() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn leaves_shell_mode_with_escape() {
     let mut state = create_prompt_input_v2_interaction_state();
     state.mode = Mode::Shell;
@@ -307,7 +159,6 @@ fn leaves_shell_mode_with_escape() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn leaves_shell_mode_with_backspace_when_empty() {
     let mut state = create_prompt_input_v2_interaction_state();
     state.mode = Mode::Shell;
@@ -329,7 +180,6 @@ fn leaves_shell_mode_with_backspace_when_empty() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn closes_a_popover_with_ctrl_g_before_stopping_a_run() {
     let mut state = create_prompt_input_v2_interaction_state();
     state.popover = Popover::Context {
@@ -354,7 +204,6 @@ fn closes_a_popover_with_ctrl_g_before_stopping_a_run() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn opens_the_searchable_command_menu_for_a_populated_draft() {
     let result = transition_prompt_input_v2(
         create_prompt_input_v2_interaction_state(),
@@ -373,7 +222,6 @@ fn opens_the_searchable_command_menu_for_a_populated_draft() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn prepends_a_menu_command_and_preserves_existing_text_as_arguments() {
     let open = transition_prompt_input_v2(
         create_prompt_input_v2_interaction_state(),
@@ -395,7 +243,6 @@ fn prepends_a_menu_command_and_preserves_existing_text_as_arguments() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn stores_selected_context_files_as_prompt_file_parts() {
     let item = Suggestion {
         id: "src/index.ts".into(),
@@ -420,7 +267,6 @@ fn stores_selected_context_files_as_prompt_file_parts() {
 }
 
 #[test]
-#[ignore = "porting: session-ui prompt-input machine not implemented"]
 fn loops_active_popover_items_with_arrow_keys() {
     let mut state: InteractionState = create_prompt_input_v2_interaction_state();
     state.popover = Popover::Context {

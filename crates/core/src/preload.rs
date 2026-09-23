@@ -4,7 +4,7 @@
 //! `packages/core/src/preload.ts`): loading the module disables public npm
 //! security audits by exporting `NPM_CONFIG_AUDIT=false`.
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Environment applied when the core runtime is preloaded.
 #[derive(Debug, Default)]
@@ -13,6 +13,6 @@ pub struct Preload;
 impl Preload {
     /// The environment variables the preload installs.
     pub fn environment() -> CoreResult<Vec<(String, String)>> {
-        Err(CoreError::NotImplemented("preload::Preload::environment"))
+        Ok(vec![("NPM_CONFIG_AUDIT".to_string(), "false".to_string())])
     }
 }

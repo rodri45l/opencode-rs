@@ -1,36 +1,7 @@
 //! Port of packages/app/src/components/titlebar-history.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct TitlebarHistory {
-    stack: Vec<String>,
-    index: i64,
-    action: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct PathResult {
-    to: String,
-    state: TitlebarHistory,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn apply_path(_state: TitlebarHistory, _path: &str, _max: usize) -> TitlebarHistory {
-    TitlebarHistory {
-        stack: Vec::new(),
-        index: 0,
-        action: None,
-    }
-}
-
-fn back_path(_state: TitlebarHistory) -> Option<PathResult> {
-    None
-}
-
-fn forward_path(_state: TitlebarHistory) -> Option<PathResult> {
-    None
-}
+use opencode_app::titlebar_history::{apply_path, back_path, forward_path, TitlebarHistory};
 
 fn history() -> TitlebarHistory {
     TitlebarHistory {
@@ -41,7 +12,6 @@ fn history() -> TitlebarHistory {
 }
 
 #[test]
-#[ignore = "porting: components/titlebar-history not implemented"]
 fn append_and_trim_keeps_max_bounded() {
     let mut state = history();
     state = apply_path(state, "/", 3);
@@ -58,7 +28,6 @@ fn append_and_trim_keeps_max_bounded() {
 }
 
 #[test]
-#[ignore = "porting: components/titlebar-history not implemented"]
 fn back_and_forward_indexes_stay_correct_after_trimming() {
     let mut state = history();
     state = apply_path(state, "/", 3);
@@ -96,7 +65,6 @@ fn back_and_forward_indexes_stay_correct_after_trimming() {
 }
 
 #[test]
-#[ignore = "porting: components/titlebar-history not implemented"]
 fn action_driven_navigation_does_not_push_duplicate_history_entries() {
     let state = TitlebarHistory {
         stack: vec!["/".into(), "/a".into(), "/b".into()],

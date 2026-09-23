@@ -9,7 +9,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Resolved SAP AI Core SDK configuration.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -29,11 +29,24 @@ pub struct SapAICorePlugin;
 impl SapAICorePlugin {
     /// Resolve the SDK configuration from the environment and a configured key.
     pub fn resolve(
-        _env: &BTreeMap<String, String>,
-        _configured_service_key: Option<&str>,
+        env: &BTreeMap<String, String>,
+        configured_service_key: Option<&str>,
     ) -> CoreResult<ResolvedSapAICore> {
-        Err(CoreError::NotImplemented(
-            "provider_sap_ai_core::SapAICorePlugin::resolve",
-        ))
+        let service_key = env
+            .get("AICORE_SERVICE_KEY")
+            .cloned()
+            .or_else(|| configured_service_key.map(str::to_string));
+        let (deployment_id, resource_group) = match &service_key {
+            Some(_) => (
+                env.get("AICORE_DEPLOYMENT_ID").cloned(),
+                env.get("AICORE_RESOURCE_GROUP").cloned(),
+            ),
+            None => (None, None),
+        };
+        Ok(ResolvedSapAICore {
+            service_key,
+            deployment_id,
+            resource_group,
+        })
     }
 }

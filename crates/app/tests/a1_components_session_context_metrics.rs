@@ -1,56 +1,11 @@
 //! Port of packages/app/src/components/session/session-context-metrics.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
 use std::collections::BTreeMap;
 
-#[derive(Clone, Debug, PartialEq)]
-struct Message {
-    id: String,
-    role: String,
-    provider_id: String,
-    model_id: String,
-    cost: f64,
-    tokens: Option<Tokens>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Tokens {
-    input: i64,
-    output: i64,
-    reasoning: i64,
-    cache_read: i64,
-    cache_write: i64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Provider {
-    id: String,
-    name: Option<String>,
-    models: BTreeMap<String, ModelInfo>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ModelInfo {
-    name: String,
-    context_limit: i64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Context {
-    message: Message,
-    total: i64,
-    input: i64,
-    usage: Option<f64>,
-    provider_label: String,
-    model_label: String,
-    limit: Option<i64>,
-}
-
-// Local stub (fast wave): real module lands later.
-fn get_session_context(_messages: &[Message], _providers: &[Provider]) -> Option<Context> {
-    None
-}
+use opencode_app::session_context_metrics::{
+    get_session_context, Message, ModelInfo, Provider, Tokens,
+};
 
 #[allow(clippy::too_many_arguments)]
 fn assistant(
@@ -108,7 +63,6 @@ fn openai_provider() -> Provider {
 }
 
 #[test]
-#[ignore = "porting: components/session-context-metrics not implemented"]
 fn computes_token_totals_and_usage_from_latest_assistant_with_tokens() {
     let messages = vec![
         user("u1"),
@@ -134,7 +88,6 @@ fn computes_token_totals_and_usage_from_latest_assistant_with_tokens() {
 }
 
 #[test]
-#[ignore = "porting: components/session-context-metrics not implemented"]
 fn preserves_fallback_labels_and_null_usage_when_model_metadata_is_missing() {
     let messages = vec![assistant("a1", 40, 10, 0, 0, 0, 0.1, "p-1", "m-1")];
     let providers = vec![Provider {
@@ -156,7 +109,6 @@ fn preserves_fallback_labels_and_null_usage_when_model_metadata_is_missing() {
 }
 
 #[test]
-#[ignore = "porting: components/session-context-metrics not implemented"]
 fn recomputes_when_message_array_is_mutated_in_place() {
     let mut messages = vec![assistant(
         "a1", 10, 10, 10, 10, 10, 0.25, "openai", "gpt-4.1",
@@ -180,7 +132,6 @@ fn recomputes_when_message_array_is_mutated_in_place() {
 }
 
 #[test]
-#[ignore = "porting: components/session-context-metrics not implemented"]
 fn returns_undefined_when_inputs_are_undefined() {
     assert_eq!(get_session_context(&[], &[]), None);
 }

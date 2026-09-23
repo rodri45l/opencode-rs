@@ -22,7 +22,7 @@ fn scratch() -> PathBuf {
         COUNTER.fetch_add(1, Ordering::Relaxed)
     ));
     std::fs::create_dir_all(&dir).unwrap();
-    dir
+    std::fs::canonicalize(&dir).unwrap()
 }
 
 fn result(operation: &str, target: &str, resource: &str, existed: bool) -> FileMutationResult {
@@ -35,43 +35,37 @@ fn result(operation: &str, target: &str, resource: &str, existed: bool) -> FileM
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn writes_an_existing_internal_file_and_returns_a_stable_result() {
     let directory = scratch();
     let target_path = directory.join("hello.txt");
     std::fs::write(&target_path, "before").unwrap();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("hello.txt").expect(NOTE);
 
     assert_eq!(
         files.write(&target, "after").expect(NOTE),
-        result(
-            "write",
-            target.canonical.as_path().to_str().unwrap(),
-            "hello.txt",
-            true
-        )
+        result("write", target_path.to_str().unwrap(), "hello.txt", true)
     );
     assert_eq!(std::fs::read_to_string(&target_path).unwrap(), "after");
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn writes_a_prospective_internal_file_and_creates_parent_directories() {
-    scratch();
+    let directory = scratch();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("src/nested/hello.txt").expect(NOTE);
     let outcome = files.write(&target, "hello").expect(NOTE);
 
+    let expected_path = directory.join("src/nested/hello.txt");
     assert_eq!(
         outcome,
         result(
             "write",
-            target.canonical.as_path().to_str().unwrap(),
+            expected_path.to_str().unwrap(),
             "src/nested/hello.txt",
             false
         )
@@ -83,13 +77,12 @@ fn writes_a_prospective_internal_file_and_creates_parent_directories() {
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn preserves_exactly_one_bom_for_text_writes_and_normalizes_created_text() {
     let directory = scratch();
     let preserved_path = directory.join("preserved.txt");
     std::fs::write(&preserved_path, "\u{feff}before").unwrap();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let preserved = mutation.resolve("preserved.txt").expect(NOTE);
     let created = mutation.resolve("created.txt").expect(NOTE);
@@ -112,12 +105,11 @@ fn preserves_exactly_one_bom_for_text_writes_and_normalizes_created_text() {
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn rejects_create_when_a_prospective_target_appears_after_resolution() {
     let directory = scratch();
     let target_path = directory.join("appeared.txt");
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("appeared.txt").expect(NOTE);
     std::fs::write(&target_path, "winner").unwrap();
@@ -128,61 +120,48 @@ fn rejects_create_when_a_prospective_target_appears_after_resolution() {
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn creates_when_an_existing_target_disappears_after_resolution() {
     let directory = scratch();
     let target_path = directory.join("removed.txt");
     std::fs::write(&target_path, "before").unwrap();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("removed.txt").expect(NOTE);
     std::fs::remove_file(&target_path).unwrap();
 
     assert_eq!(
         files.create(&target, "after").expect(NOTE),
-        result(
-            "write",
-            target.canonical.as_path().to_str().unwrap(),
-            "removed.txt",
-            false
-        )
+        result("write", target_path.to_str().unwrap(), "removed.txt", false)
     );
     assert_eq!(std::fs::read_to_string(&target_path).unwrap(), "after");
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn removes_an_existing_internal_file() {
     let directory = scratch();
     let target_path = directory.join("remove.txt");
     std::fs::write(&target_path, "remove").unwrap();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("remove.txt").expect(NOTE);
     let outcome = files.remove(&target).expect(NOTE);
 
     assert_eq!(
         outcome,
-        result(
-            "remove",
-            target.canonical.as_path().to_str().unwrap(),
-            "remove.txt",
-            true
-        )
+        result("remove", target_path.to_str().unwrap(), "remove.txt", true)
     );
     assert!(!target_path.exists());
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn writes_an_explicitly_resolved_external_target() {
-    scratch();
+    let base = scratch();
     let outside = scratch();
     let target_path = outside.join("external.txt");
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&base);
     let files = FileMutation;
     let target = mutation.resolve(target_path.to_str().unwrap()).expect(NOTE);
     let outcome = files.write(&target, "external").expect(NOTE);
@@ -191,7 +170,7 @@ fn writes_an_explicitly_resolved_external_target() {
         outcome,
         result(
             "write",
-            target.canonical.as_path().to_str().unwrap(),
+            target_path.to_str().unwrap(),
             &target.resource,
             false
         )
@@ -200,14 +179,13 @@ fn writes_an_explicitly_resolved_external_target() {
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn removes_an_explicitly_resolved_external_target() {
-    scratch();
+    let base = scratch();
     let outside = scratch();
     let target_path = outside.join("external.txt");
     std::fs::write(&target_path, "external").unwrap();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&base);
     let files = FileMutation;
     let target = mutation.resolve(target_path.to_str().unwrap()).expect(NOTE);
     let outcome = files.remove(&target).expect(NOTE);
@@ -216,7 +194,7 @@ fn removes_an_explicitly_resolved_external_target() {
         outcome,
         result(
             "remove",
-            target.canonical.as_path().to_str().unwrap(),
+            target_path.to_str().unwrap(),
             &target.resource,
             true
         )
@@ -225,11 +203,10 @@ fn removes_an_explicitly_resolved_external_target() {
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn reports_a_missing_target_as_not_removed() {
-    scratch();
+    let directory = scratch();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("missing.txt").expect(NOTE);
 
@@ -237,7 +214,7 @@ fn reports_a_missing_target_as_not_removed() {
         files.remove(&target).expect(NOTE),
         result(
             "remove",
-            target.canonical.as_path().to_str().unwrap(),
+            directory.join("missing.txt").to_str().unwrap(),
             "missing.txt",
             false
         )
@@ -245,13 +222,12 @@ fn reports_a_missing_target_as_not_removed() {
 }
 
 #[test]
-#[ignore = "porting: file-mutation not implemented"]
 fn rejects_a_conditional_write_when_target_content_is_already_stale() {
     let directory = scratch();
     let target_path = directory.join("stale.txt");
     std::fs::write(&target_path, "current").unwrap();
 
-    let mutation = LocationMutation;
+    let mutation = LocationMutation::new(&directory);
     let files = FileMutation;
     let target = mutation.resolve("stale.txt").expect(NOTE);
 

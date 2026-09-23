@@ -4,69 +4,10 @@
 //! responses for a disposed request are ignored; disposing drops queued snapshots.
 //! Red-first: the worker transport queue is not implemented.
 
-#[allow(dead_code)]
-mod worker_transport {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui markdown worker transport not implemented";
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct WorkerRequest {
-        pub id: i64,
-        pub key: String,
-    }
-
-    pub struct WorkerTransport {
-        post: Box<dyn FnMut(&WorkerRequest)>,
-        supersede: Box<dyn FnMut(&WorkerRequest)>,
-    }
-
-    impl WorkerTransport {
-        pub fn new(
-            post: impl FnMut(&WorkerRequest) + 'static,
-            supersede: impl FnMut(&WorkerRequest) + 'static,
-        ) -> Self {
-            Self {
-                post: Box::new(post),
-                supersede: Box::new(supersede),
-            }
-        }
-
-        pub fn send(&mut self, _request: WorkerRequest) -> PortResult<()> {
-            Err(NotImplemented(NOTE))
-        }
-
-        pub fn complete(&mut self, _key: &str, _id: i64) -> PortResult<()> {
-            Err(NotImplemented(NOTE))
-        }
-
-        pub fn dispose(&mut self, _key: &str) -> PortResult<()> {
-            Err(NotImplemented(NOTE))
-        }
-
-        pub fn queued(&self) -> PortResult<usize> {
-            Err(NotImplemented(NOTE))
-        }
-    }
-}
-
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use worker_transport::{WorkerRequest, WorkerTransport, NOTE};
+use opencode_tui::markdown_worker_transport::{WorkerRequest, WorkerTransport, NOTE};
 
 fn request(id: i64, key: &str) -> WorkerRequest {
     WorkerRequest {
@@ -76,7 +17,6 @@ fn request(id: i64, key: &str) -> WorkerRequest {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker transport not implemented"]
 fn posts_one_request_and_retains_only_the_latest_queued_snapshot_per_key() {
     let posted = Rc::new(RefCell::new(Vec::new()));
     let superseded = Rc::new(RefCell::new(Vec::new()));
@@ -104,7 +44,6 @@ fn posts_one_request_and_retains_only_the_latest_queued_snapshot_per_key() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker transport not implemented"]
 fn ignores_a_disposed_request_response_after_the_key_is_reused() {
     let posted = Rc::new(RefCell::new(Vec::new()));
     let mut transport = WorkerTransport::new(
@@ -128,7 +67,6 @@ fn ignores_a_disposed_request_response_after_the_key_is_reused() {
 }
 
 #[test]
-#[ignore = "porting: session-ui markdown worker transport not implemented"]
 fn drops_queued_snapshots_when_a_key_is_disposed() {
     let superseded = Rc::new(RefCell::new(Vec::new()));
     let mut transport = WorkerTransport::new(|_request: &WorkerRequest| {}, {

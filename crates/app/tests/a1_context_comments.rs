@@ -1,59 +1,7 @@
 //! Port of packages/app/src/context/comments.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-use std::collections::BTreeMap;
-
-#[derive(Clone, Debug, PartialEq)]
-struct LineComment {
-    id: String,
-    file: String,
-    comment: String,
-    time: i64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Focus {
-    file: String,
-    id: String,
-}
-
-#[derive(Default)]
-struct CommentSession {
-    files: BTreeMap<String, Vec<LineComment>>,
-    focus: Option<Focus>,
-    active: Option<Focus>,
-}
-
-impl CommentSession {
-    // Local stubs (fast wave): real module lands later.
-    fn list(&self, _file: &str) -> Vec<LineComment> {
-        Vec::new()
-    }
-    fn all(&self) -> Vec<LineComment> {
-        Vec::new()
-    }
-    fn add(&mut self, _file: &str, _comment: &str) -> LineComment {
-        LineComment {
-            id: String::new(),
-            file: String::new(),
-            comment: String::new(),
-            time: 0,
-        }
-    }
-    fn remove(&mut self, _file: &str, _id: &str) {}
-    fn clear(&mut self) {}
-    fn update(&mut self, _file: &str, _id: &str, _comment: &str) {}
-    fn replace(&mut self, _comments: Vec<LineComment>) {}
-    fn set_focus(&mut self, _focus: Option<Focus>) {}
-    fn set_active(&mut self, _active: Option<Focus>) {}
-    fn focus(&self) -> Option<Focus> {
-        self.focus.clone()
-    }
-    fn active(&self) -> Option<Focus> {
-        self.active.clone()
-    }
-}
+use opencode_app::comments::{CommentSession, Focus, LineComment};
 
 fn line(file: &str, id: &str, time: i64) -> LineComment {
     LineComment {
@@ -73,7 +21,6 @@ fn session(files: &[(&str, Vec<LineComment>)]) -> CommentSession {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn keeps_file_list_behavior_and_aggregate_chronological_order() {
     let mut comments = session(&[
         (
@@ -117,7 +64,6 @@ fn keeps_file_list_behavior_and_aggregate_chronological_order() {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn remove_updates_file_and_aggregate_indexes_consistently() {
     let mut comments = session(&[
         (
@@ -163,7 +109,6 @@ fn remove_updates_file_and_aggregate_indexes_consistently() {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn clear_resets_file_and_aggregate_indexes_plus_focus_state() {
     let mut comments = session(&[("a.ts", vec![line("a.ts", "a1", 10)])]);
     let next = comments.add("b.ts", "next");
@@ -180,7 +125,6 @@ fn clear_resets_file_and_aggregate_indexes_plus_focus_state() {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn remove_keeps_focus_when_same_comment_id_exists_in_another_file() {
     let mut comments = session(&[
         ("a.ts", vec![line("a.ts", "shared", 10)]),
@@ -210,7 +154,6 @@ fn remove_keeps_focus_when_same_comment_id_exists_in_another_file() {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn set_focus_and_set_active_updater_callbacks_receive_current_state() {
     let mut comments = CommentSession::default();
     comments.set_focus(Some(Focus {
@@ -237,7 +180,6 @@ fn set_focus_and_set_active_updater_callbacks_receive_current_state() {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn update_changes_only_the_targeted_comment_body() {
     let mut comments = session(&[("a.ts", vec![line("a.ts", "a1", 10), line("a.ts", "a2", 20)])]);
     comments.update("a.ts", "a2", "edited");
@@ -252,7 +194,6 @@ fn update_changes_only_the_targeted_comment_body() {
 }
 
 #[test]
-#[ignore = "porting: context/comments not implemented"]
 fn replace_swaps_comment_state_and_clears_focus_state() {
     let mut comments = session(&[("a.ts", vec![line("a.ts", "a1", 10)])]);
     comments.set_focus(Some(Focus {

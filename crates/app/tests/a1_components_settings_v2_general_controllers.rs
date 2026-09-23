@@ -1,43 +1,11 @@
 //! Port of packages/app/src/components/settings-v2/general-controllers.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct ShellInfo {
-    path: String,
-    name: String,
-    acceptable: bool,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ShellOption {
-    id: String,
-    value: String,
-    name: String,
-    terminal_only: bool,
-}
-
-// Local stub (fast wave): real module lands later.
-fn create_shell_options(_shells: &[ShellInfo], _current: &str) -> Vec<ShellOption> {
-    Vec::new()
-}
-
-#[derive(Default)]
-struct SoundPreview {
-    played: Vec<String>,
-    stopped: Vec<String>,
-    pending: Option<String>,
-}
-
-impl SoundPreview {
-    // Local stubs (fast wave): real module lands later.
-    fn play(&mut self, _id: &str) {}
-    fn advance(&mut self, _ms: i64) {}
-    fn dispose(&mut self) {}
-}
+use opencode_app::general_controllers::{
+    create_shell_options, ShellInfo, ShellOption, SoundPreview,
+};
 
 #[test]
-#[ignore = "porting: components/settings-v2/general-controllers not implemented"]
 fn normalizes_shell_names_and_preserves_an_unavailable_configured_shell() {
     let shells = vec![
         ShellInfo {
@@ -94,7 +62,6 @@ fn normalizes_shell_names_and_preserves_an_unavailable_configured_shell() {
 }
 
 #[test]
-#[ignore = "porting: components/settings-v2/general-controllers not implemented"]
 fn debounces_previews_and_stops_owned_audio_on_disposal() {
     let mut preview = SoundPreview::default();
     preview.play("first");

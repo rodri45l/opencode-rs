@@ -9,128 +9,9 @@
 //! an in-memory host contract; timers and `Stream`/`Deferred` plumbing are
 //! dropped.
 
-#[allow(dead_code)]
-mod embedded {
-    use std::collections::BTreeMap;
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub enum HostError {
-        SessionNotFound,
-        MessageNotFound,
-        NotImplemented(&'static str),
-    }
-
-    impl fmt::Display for HostError {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                HostError::SessionNotFound => f.write_str("SessionNotFoundError"),
-                HostError::MessageNotFound => f.write_str("MessageNotFoundError"),
-                HostError::NotImplemented(note) => f.write_str(note),
-            }
-        }
-    }
-
-    impl std::error::Error for HostError {}
-
-    pub type PortResult<T> = Result<T, HostError>;
-
-    pub const NOTE: &str = "porting: sdk-next embedded host not implemented";
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct ModelRef {
-        pub id: String,
-        pub provider_id: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Session {
-        pub id: String,
-        pub model: Option<ModelRef>,
-        pub agent: Option<String>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct ContextMessage {
-        pub id: String,
-        pub message_type: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct PromptResult {
-        pub session_id: String,
-        pub message_id: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Event {
-        pub event_type: String,
-        pub session_id: Option<String>,
-        pub seq: Option<i64>,
-    }
-
-    pub struct OpenCodeHost;
-
-    impl OpenCodeHost {
-        pub fn create(&mut self) -> PortResult<Session> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn create_with(&mut self, _id: &str) -> PortResult<Session> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn switch_model(&mut self, _session_id: &str, _model: ModelRef) -> PortResult<()> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn switch_agent(&mut self, _session_id: &str, _agent: &str) -> PortResult<()> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn get(&self, _session_id: &str) -> PortResult<Session> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn list(&self) -> PortResult<Vec<Session>> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn active(&self) -> PortResult<BTreeMap<String, String>> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn prompt(&mut self, _session_id: &str, _text: &str) -> PortResult<PromptResult> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn context(&self, _session_id: &str) -> PortResult<Vec<ContextMessage>> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn interrupt(&mut self, _session_id: &str) -> PortResult<()> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn message(&self, _session_id: &str, _message_id: &str) -> PortResult<ContextMessage> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-
-        pub fn events(&self) -> PortResult<Vec<Event>> {
-            Err(HostError::NotImplemented(NOTE))
-        }
-    }
-
-    pub fn opencode_create() -> PortResult<OpenCodeHost> {
-        Ok(OpenCodeHost)
-    }
-
-    pub fn opencode_layer_create() -> PortResult<OpenCodeHost> {
-        Err(HostError::NotImplemented(NOTE))
-    }
-}
-
-use embedded::{opencode_create, opencode_layer_create, Event, HostError, ModelRef, NOTE};
+use opencode_sdk::embedded::{
+    opencode_create, opencode_layer_create, Event, HostError, ModelRef, NOTE,
+};
 
 fn model() -> ModelRef {
     ModelRef {
@@ -140,7 +21,6 @@ fn model() -> ModelRef {
 }
 
 #[test]
-#[ignore = "porting: sdk-next embedded host not implemented"]
 fn embedded_client_uses_the_real_router_and_handlers() {
     let mut host = opencode_create().expect(NOTE);
 
@@ -206,7 +86,7 @@ fn embedded_client_uses_the_real_router_and_handlers() {
 }
 
 #[test]
-#[ignore = "porting: sdk-next embedded host not implemented"]
+#[ignore = "porting: contract contradiction: a fresh host cannot both seed session.next.prompted for ses_embedded_events and expose only server.connected events in independent_embedded_hosts_do_not_share_live_notifications"]
 fn location_owned_runner_events_reach_the_ready_global_client() {
     let host = opencode_create().expect(NOTE);
     let events: Vec<Event> = host.events().expect(NOTE);
@@ -222,7 +102,6 @@ fn location_owned_runner_events_reach_the_ready_global_client() {
 }
 
 #[test]
-#[ignore = "porting: sdk-next embedded host not implemented"]
 fn independent_embedded_hosts_do_not_share_live_notifications() {
     let mut first = opencode_create().expect(NOTE);
     let second = opencode_create().expect(NOTE);
@@ -242,7 +121,6 @@ fn independent_embedded_hosts_do_not_share_live_notifications() {
 }
 
 #[test]
-#[ignore = "porting: sdk-next embedded host not implemented"]
 fn embedded_client_is_available_as_a_layer_service() {
     let mut host = opencode_layer_create().expect(NOTE);
     let created = host.create_with("ses_embedded_layer").expect(NOTE);

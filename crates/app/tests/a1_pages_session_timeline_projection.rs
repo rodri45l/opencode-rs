@@ -2,33 +2,7 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-enum TimelineRow {
-    AssistantPart {
-        user_message_id: String,
-        group_key: String,
-        part_ids: Vec<String>,
-    },
-    UserMessage {
-        user_message_id: String,
-    },
-}
-
-// Local stubs (fast wave): real module lands later.
-fn reuse_timeline_rows(_previous: Vec<TimelineRow>, _rows: Vec<TimelineRow>) -> Vec<TimelineRow> {
-    Vec::new()
-}
-
-fn row_key(row: &TimelineRow) -> String {
-    match row {
-        TimelineRow::AssistantPart {
-            user_message_id,
-            group_key,
-            ..
-        } => format!("assistant-part:{user_message_id}:{group_key}"),
-        TimelineRow::UserMessage { user_message_id } => format!("user-message:{user_message_id}"),
-    }
-}
+use opencode_app::timeline_projection::{reuse_timeline_rows, row_key, TimelineRow};
 
 fn context(key: &str, part_ids: &[&str], user_message_id: &str) -> TimelineRow {
     TimelineRow::AssistantPart {
@@ -144,7 +118,6 @@ fn cases() -> Vec<Case> {
 }
 
 #[test]
-#[ignore = "porting: pages/session/timeline/projection not implemented"]
 fn reuse_timeline_rows_matches_the_reference_table() {
     for case in cases() {
         let result = reuse_timeline_rows(case.previous.clone(), case.rows.clone());

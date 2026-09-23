@@ -40,7 +40,6 @@ fn run(
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn writes_content_to_new_file() -> Result<(), ToolError> {
     let dir = temp_dir("new");
     let filepath = dir.join("newfile.txt");
@@ -56,7 +55,6 @@ fn writes_content_to_new_file() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn creates_parent_directories_if_needed() -> Result<(), ToolError> {
     let dir = temp_dir("nested");
     let filepath = dir.join("nested").join("deep").join("file.txt");
@@ -70,7 +68,6 @@ fn creates_parent_directories_if_needed() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn handles_relative_paths_by_resolving_to_instance_directory() -> Result<(), ToolError> {
     let dir = temp_dir("relative");
     run(&dir, Path::new("relative.txt"), "relative content")?;
@@ -83,7 +80,6 @@ fn handles_relative_paths_by_resolving_to_instance_directory() -> Result<(), Too
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn overwrites_existing_file_content() -> Result<(), ToolError> {
     let dir = temp_dir("overwrite");
     let filepath = dir.join("existing.txt");
@@ -100,7 +96,6 @@ fn overwrites_existing_file_content() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn preserves_bom_when_overwriting_existing_files() -> Result<(), ToolError> {
     let dir = temp_dir("bom");
     let filepath = dir.join("existing.cs");
@@ -117,7 +112,6 @@ fn preserves_bom_when_overwriting_existing_files() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn returns_metadata_for_existing_files() -> Result<(), ToolError> {
     let dir = temp_dir("metadata");
     let filepath = dir.join("file.txt");
@@ -134,7 +128,6 @@ fn returns_metadata_for_existing_files() -> Result<(), ToolError> {
 
 #[cfg(unix)]
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn sets_file_permissions_when_writing_sensitive_data() -> Result<(), ToolError> {
     use std::os::unix::fs::PermissionsExt;
 
@@ -156,7 +149,6 @@ fn sets_file_permissions_when_writing_sensitive_data() -> Result<(), ToolError> 
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn writes_json_content() -> Result<(), ToolError> {
     let dir = temp_dir("json");
     let filepath = dir.join("data.json");
@@ -174,7 +166,6 @@ fn writes_json_content() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn writes_binary_safe_content() -> Result<(), ToolError> {
     let dir = temp_dir("binary");
     let filepath = dir.join("binary.bin");
@@ -187,7 +178,6 @@ fn writes_binary_safe_content() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn writes_empty_content() -> Result<(), ToolError> {
     let dir = temp_dir("empty");
     let filepath = dir.join("empty.txt");
@@ -199,7 +189,6 @@ fn writes_empty_content() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn writes_multi_line_content() -> Result<(), ToolError> {
     let dir = temp_dir("multiline");
     let filepath = dir.join("multiline.txt");
@@ -211,7 +200,6 @@ fn writes_multi_line_content() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn handles_different_line_endings() -> Result<(), ToolError> {
     let dir = temp_dir("crlf");
     let filepath = dir.join("crlf.txt");
@@ -224,7 +212,6 @@ fn handles_different_line_endings() -> Result<(), ToolError> {
 
 #[cfg(unix)]
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn fails_when_os_denies_write_access() {
     use std::os::unix::fs::PermissionsExt;
 
@@ -238,7 +225,6 @@ fn fails_when_os_denies_write_access() {
 }
 
 #[test]
-#[ignore = "porting: tool.write not implemented"]
 fn returns_relative_path_as_title() -> Result<(), ToolError> {
     let dir = temp_dir("title");
     let filepath = dir.join("src").join("components").join("Button.tsx");

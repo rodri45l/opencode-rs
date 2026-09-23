@@ -5,9 +5,9 @@
 //! variants (`high`, `max`) unless an explicit variant with the same id already
 //! exists, in which case the explicit variant is preserved.
 
-use serde_json::Value;
+use serde_json::{json, Value};
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A model variant.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -26,7 +26,21 @@ pub struct VariantPlugin;
 
 impl VariantPlugin {
     /// Apply generated variants after existing catalog variants.
-    pub fn apply(_existing: Vec<Variant>) -> CoreResult<Vec<Variant>> {
-        Err(CoreError::NotImplemented("variant::VariantPlugin::apply"))
+    pub fn apply(existing: Vec<Variant>) -> CoreResult<Vec<Variant>> {
+        let mut variants = existing;
+        for (id, body) in [
+            ("high", json!({ "reasoning_effort": "high" })),
+            ("max", json!({ "reasoning_effort": "max" })),
+        ] {
+            if variants.iter().any(|variant| variant.id == id) {
+                continue;
+            }
+            variants.push(Variant {
+                id: id.to_string(),
+                headers: json!({}),
+                body,
+            });
+        }
+        Ok(variants)
     }
 }

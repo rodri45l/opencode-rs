@@ -22,27 +22,23 @@ fn sample(pid: i64) -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: pty info schema not implemented"]
 fn accepts_pid_zero_assigned_asynchronously() {
     let info = Info::decode(&sample(0)).expect(NOTE);
     assert_eq!(info.pid, 0);
 }
 
 #[test]
-#[ignore = "porting: pty info schema not implemented"]
 fn accepts_a_positive_pid() {
     let info = Info::decode(&sample(48012)).expect(NOTE);
     assert_eq!(info.pid, 48012);
 }
 
 #[test]
-#[ignore = "porting: pty info schema not implemented"]
 fn rejects_a_negative_pid() {
     assert!(Info::decode(&sample(-1)).is_err());
 }
 
 #[test]
-#[ignore = "porting: pty info schema not implemented"]
 fn accepts_an_exit_code_for_retained_exited_sessions() {
     let mut value = sample(48012);
     value["status"] = json!("exited");

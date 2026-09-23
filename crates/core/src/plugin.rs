@@ -8,7 +8,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// An in-memory plugin registry keyed by plugin id.
 #[derive(Debug, Default)]
@@ -23,22 +23,19 @@ impl PluginRegistry {
     }
 
     /// Add or replace a plugin, applying its description.
-    pub fn add(&mut self, _id: &str, _description: &str) -> CoreResult<()> {
-        let _ = &mut self.applied;
-        Err(CoreError::NotImplemented("plugin::PluginRegistry::add"))
+    pub fn add(&mut self, id: &str, description: &str) -> CoreResult<()> {
+        self.applied.insert(id.to_string(), description.to_string());
+        Ok(())
     }
 
     /// Remove a plugin, reverting its contributions.
-    pub fn remove(&mut self, _id: &str) -> CoreResult<()> {
-        let _ = &mut self.applied;
-        Err(CoreError::NotImplemented("plugin::PluginRegistry::remove"))
+    pub fn remove(&mut self, id: &str) -> CoreResult<()> {
+        self.applied.remove(id);
+        Ok(())
     }
 
     /// The description currently applied by `id`, if any.
-    pub fn applied_description(&self, _id: &str) -> CoreResult<Option<String>> {
-        let _ = &self.applied;
-        Err(CoreError::NotImplemented(
-            "plugin::PluginRegistry::applied_description",
-        ))
+    pub fn applied_description(&self, id: &str) -> CoreResult<Option<String>> {
+        Ok(self.applied.get(id).cloned())
     }
 }

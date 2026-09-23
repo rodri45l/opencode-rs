@@ -4,23 +4,17 @@
 //! leaves safe text untouched.
 #![allow(dead_code)]
 
-// Fast-wave local stubs: `util::html` is not implemented in this crate yet.
-mod html {
-    pub fn escape_html(_input: &str) -> Result<String, &'static str> {
-        Err("porting: html::escapeHtml not implemented")
-    }
-}
+use opencode_server::html_util::escape_html;
 
 #[test]
-#[ignore = "porting: html not implemented"]
 fn escapes_html_metacharacters() {
     assert_eq!(
-        html::escape_html("</div><script>alert(1)</script><div class=\"x\">").unwrap(),
+        escape_html("</div><script>alert(1)</script><div class=\"x\">"),
         "&lt;/div&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;div class=&quot;x&quot;&gt;"
     );
-    assert_eq!(html::escape_html("a & b").unwrap(), "a &amp; b");
-    assert_eq!(html::escape_html("it's fine").unwrap(), "it&#39;s fine");
-    assert_eq!(html::escape_html("invalid_grant").unwrap(), "invalid_grant");
-    assert_eq!(html::escape_html("").unwrap(), "");
-    assert_eq!(html::escape_html("&<").unwrap(), "&amp;&lt;");
+    assert_eq!(escape_html("a & b"), "a &amp; b");
+    assert_eq!(escape_html("it's fine"), "it&#39;s fine");
+    assert_eq!(escape_html("invalid_grant"), "invalid_grant");
+    assert_eq!(escape_html(""), "");
+    assert_eq!(escape_html("&<"), "&amp;&lt;");
 }

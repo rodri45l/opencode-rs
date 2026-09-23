@@ -1,22 +1,9 @@
 //! Port of packages/app/src/utils/terminal-writer.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Default)]
-struct TerminalWriter {
-    calls: Vec<String>,
-    scheduled: Vec<bool>,
-}
-
-impl TerminalWriter {
-    // Local stubs (fast wave): real module lands later.
-    fn push(&mut self, _data: &str) {}
-    fn flush(&mut self) {}
-    fn run_scheduled(&mut self) {}
-}
+use opencode_app::terminal_writer::TerminalWriter;
 
 #[test]
-#[ignore = "porting: utils/terminal-writer not implemented"]
 fn buffers_and_flushes_once_per_schedule() {
     let mut writer = TerminalWriter::default();
     writer.push("a");
@@ -31,7 +18,6 @@ fn buffers_and_flushes_once_per_schedule() {
 }
 
 #[test]
-#[ignore = "porting: utils/terminal-writer not implemented"]
 fn flush_is_a_no_op_when_empty() {
     let mut writer = TerminalWriter::default();
     writer.flush();
@@ -39,7 +25,6 @@ fn flush_is_a_no_op_when_empty() {
 }
 
 #[test]
-#[ignore = "porting: utils/terminal-writer not implemented"]
 fn flush_waits_for_pending_write_completion() {
     let mut writer = TerminalWriter::default();
     writer.push("a");

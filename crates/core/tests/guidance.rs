@@ -28,7 +28,6 @@ fn permission(resource: &str, effect: &str) -> SkillPermission {
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn renders_described_permitted_skills() {
     let skills = [
         skill("hidden", None),
@@ -49,7 +48,6 @@ fn renders_described_permitted_skills() {
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn omits_guidance_when_the_agent_denies_all_skills() {
     let permissions = [permission("*", "deny")];
     assert_eq!(
@@ -60,7 +58,6 @@ fn omits_guidance_when_the_agent_denies_all_skills() {
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn omits_guidance_when_a_resource_denial_follows_a_global_denial() {
     let permissions = [permission("*", "deny"), permission("hidden", "deny")];
     assert_eq!(
@@ -71,7 +68,6 @@ fn omits_guidance_when_a_resource_denial_follows_a_global_denial() {
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn retains_specifically_allowed_skills_after_a_global_denial() {
     let permissions = [permission("*", "deny"), permission("effect", "allow")];
     let rendered =
@@ -81,7 +77,6 @@ fn retains_specifically_allowed_skills_after_a_global_denial() {
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn omits_guidance_when_an_allowed_skill_is_denied_again() {
     let permissions = [
         permission("*", "deny"),
@@ -96,14 +91,12 @@ fn omits_guidance_when_an_allowed_skill_is_denied_again() {
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn reports_no_skills_when_the_list_is_empty() {
     let rendered = SkillGuidance::render(&[], &[]).expect(NOTE);
     assert!(rendered.contains("No skills are currently available."));
 }
 
 #[test]
-#[ignore = "porting: skill guidance not implemented"]
 fn availability_follows_last_match_wins() {
     assert!(SkillGuidance::is_available(
         "effect",

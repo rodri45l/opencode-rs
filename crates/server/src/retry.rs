@@ -114,8 +114,182 @@ pub fn delay(attempt: usize, error: &RetryError, jitter: u32) -> u64 {
 }
 
 /// Classify an error as retryable, returning the message (and upsell) to show.
-pub fn retryable(_error: &RetryError, _provider: &str) -> Option<RetryInfo> {
+pub fn retryable(error: &RetryError, provider: &str) -> Option<RetryInfo> {
+    if is_context_overflow(error) {
+        return None;
+    }
+
+    if error.is_api_error() {
+        let status = error.status_code;
+        let retryable_message = matches_retryable(&error.message)
+            || error
+                .response_body
+                .as_deref()
+                .is_some_and(matches_retryable);
+        if !error.is_retryable && !status.is_some_and(|code| code >= 500) && !retryable_message {
+            return None;
+        }
+
+        let body = error.response_body.as_deref().unwrap_or_default();
+        if body.contains("FreeUsageLimitError") {
+            return Some(RetryInfo {
+                message: GO_UPSELL_MESSAGE.to_string(),
+                action: Some(RetryAction {
+                    reason: "free_tier_limit".to_string(),
+                    provider: provider.to_string(),
+                    title: "Free limit reached".to_string(),
+                    message: "Subscribe to OpenCode Go for reliable access to the best open-source models for $10/month.".to_string(),
+                    label: "subscribe".to_string(),
+                    link: GO_UPSELL_URL.to_string(),
+                }),
+            });
+        }
+        if body.contains("GoUsageLimitError") {
+            let parsed: Value = serde_json::from_str(body).unwrap_or(Value::Null);
+            let metadata = parsed.get("metadata");
+            let workspace = metadata
+                .and_then(|value| value.get("workspace"))
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            let limit_name = metadata
+                .and_then(|value| value.get("limitName"))
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            let retry_after = error
+                .header("retry-after")
+                .and_then(|value| value.trim().parse::<f64>().ok());
+            let reset_in = reset_in_text(retry_after);
+            let message = format!(
+                "{} reached. It will reset in {}. To continue using this model now, enable usage from your available balance",
+                if limit_name.is_empty() {
+                    "Usage limit".to_string()
+                } else {
+                    format!("{limit_name} usage limit")
+                },
+                reset_in
+            );
+            let link = format!("https://opencode.ai/workspace/{workspace}/go");
+            return Some(RetryInfo {
+                message: format!("{message} - {link}"),
+                action: Some(RetryAction {
+                    reason: "account_rate_limit".to_string(),
+                    provider: provider.to_string(),
+                    title: "Go limit reached".to_string(),
+                    message,
+                    label: "open settings".to_string(),
+                    link,
+                }),
+            });
+        }
+
+        return Some(RetryInfo {
+            message: if error.message.contains("Overloaded") {
+                "Provider is overloaded".to_string()
+            } else {
+                error.message.clone()
+            },
+            action: None,
+        });
+    }
+
+    let message = error.message.as_str();
+    let lower = message.to_lowercase();
+    if lower.contains("too_many_requests") {
+        return Some(RetryInfo {
+            message: "Too Many Requests".to_string(),
+            action: None,
+        });
+    }
+    if lower.contains("exhausted") || lower.contains("unavailable") {
+        return Some(RetryInfo {
+            message: "Provider is overloaded".to_string(),
+            action: None,
+        });
+    }
+    if matches_retryable(message) {
+        return Some(RetryInfo {
+            message: message.to_string(),
+            action: None,
+        });
+    }
     None
+}
+
+impl RetryError {
+    fn is_api_error(&self) -> bool {
+        self.is_retryable
+            || self.status_code.is_some()
+            || self.response_body.is_some()
+            || !self.response_headers.is_empty()
+    }
+}
+
+fn is_context_overflow(error: &RetryError) -> bool {
+    error.message.contains("exceeds context window")
+        || error
+            .response_body
+            .as_deref()
+            .is_some_and(|body| body.contains("context_length_exceeded"))
+}
+
+fn reset_in_text(retry_after: Option<f64>) -> String {
+    let Some(seconds) = retry_after else {
+        return String::new();
+    };
+    let seconds = seconds.max(0.0).ceil() as u64;
+    let days = seconds / 86_400;
+    let hours = (seconds % 86_400) / 3_600;
+    let minutes = ((seconds % 3_600) as f64 / 60.0).ceil() as u64;
+    let unit = |value: u64, name: &str| {
+        if value == 1 {
+            format!("{value} {name}")
+        } else {
+            format!("{value} {name}s")
+        }
+    };
+    if days > 0 {
+        if hours > 0 {
+            format!("{} {}", unit(days, "day"), unit(hours, "hour"))
+        } else {
+            unit(days, "day")
+        }
+    } else if hours > 0 {
+        if minutes > 0 {
+            format!("{} {}", unit(hours, "hour"), unit(minutes, "minute"))
+        } else {
+            unit(hours, "hour")
+        }
+    } else if minutes > 0 {
+        unit(minutes, "minute")
+    } else {
+        "less than a minute".to_string()
+    }
+}
+
+fn matches_retryable(value: &str) -> bool {
+    retry_patterns()
+        .iter()
+        .any(|pattern| pattern.is_match(value))
+}
+
+fn retry_patterns() -> &'static [regex::Regex] {
+    use std::sync::OnceLock;
+    static PATTERNS: OnceLock<Vec<regex::Regex>> = OnceLock::new();
+    PATTERNS.get_or_init(|| {
+        const SOURCES: &[&str] = &[
+            r"429|500|502|503|504|524",
+            r"rate increased too quickly|rate limit|rate-limit|rate_limit|too many requests",
+            r"overloaded|service unavailable|service_unavailable|service-unavailable|internal error|internal_error|internal server error|server error|server_error|server-error|provider returned error|provider_returned_error|provider-returned-error",
+            r"terminated|fetch failed|failed to fetch|network[-_\s]error|upstream connect|connection error|connection refused|connection lost|socket connection was closed|socket hang up|reset before headers|getaddrinfo|enotfound|eai_again|econnrefused|econnreset|etimedout",
+            r"^timeout$|\b(?:request|response|connection|network|stream|read) (?:timeout|timed out|time out)\b",
+            r"try your request again|retry your request|resource exhausted|resource_exhausted",
+            r"\btry again (?:later|in\b)|\b(?:currently|temporarily) at capacity\b",
+        ];
+        SOURCES
+            .iter()
+            .map(|source| regex::Regex::new(&format!("(?i){source}")).expect("valid pattern"))
+            .collect()
+    })
 }
 
 /// Parse an HTTP-date and return the positive millisecond delta from now.

@@ -9,91 +9,11 @@
 //! `reasoning_opaque` when there is no reasoning text; response metadata comes
 //! from the first chunk; `stream-start` carries warnings; raw chunks are
 //! included on request; and request tools are serialized in OpenAI function
-//! format. Re-derived: the live `fetch`/`ReadableStream`, `@ai-sdk/provider`
-//! types and `OpenAICompatibleChatLanguageModel` are replaced by a pure SSE
-//! chunk parser over `serde_json` values.
+//! format. Re-derived: the live runtime is replaced by a pure chunk parser in
+//! `opencode_core::copilot_chat_model`.
 
-#![allow(dead_code)]
-
-const NOTE: &str = "porting: copilot chat model stream not implemented";
-
+use opencode_core::copilot_chat_model::{CopilotChatModel, StreamPart};
 use serde_json::{json, Value};
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum StreamPart {
-    StreamStart {
-        warnings: Vec<String>,
-    },
-    ResponseMetadata {
-        id: String,
-        model_id: String,
-    },
-    ReasoningStart {
-        id: String,
-    },
-    ReasoningDelta {
-        id: String,
-        delta: String,
-    },
-    ReasoningEnd {
-        id: String,
-        reasoning_opaque: Option<String>,
-    },
-    TextStart {
-        id: String,
-    },
-    TextDelta {
-        id: String,
-        delta: String,
-    },
-    TextEnd {
-        id: String,
-    },
-    ToolInputStart {
-        id: String,
-        tool_name: String,
-    },
-    ToolCall {
-        tool_call_id: String,
-        tool_name: String,
-        input: Value,
-        reasoning_opaque: Option<String>,
-    },
-    Finish {
-        reason: String,
-        input_tokens: u64,
-        output_tokens: u64,
-        reasoning_opaque: Option<String>,
-    },
-    Raw,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum PortError {
-    NotImplemented(&'static str),
-}
-
-impl std::fmt::Display for PortError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            PortError::NotImplemented(topic) => write!(f, "not implemented: {topic}"),
-        }
-    }
-}
-
-impl std::error::Error for PortError {}
-
-pub struct CopilotChatModel;
-
-impl CopilotChatModel {
-    pub fn parse(_chunks: &[Value], _include_raw: bool) -> Result<Vec<StreamPart>, PortError> {
-        Err(PortError::NotImplemented(NOTE))
-    }
-
-    pub fn tool_request(_tools: &[Value]) -> Result<Value, PortError> {
-        Err(PortError::NotImplemented(NOTE))
-    }
-}
 
 fn text_chunk(id: &str, model: &str, content: &str, finish: Option<&str>) -> Value {
     json!({
@@ -158,11 +78,10 @@ fn find_finish(parts: &[StreamPart]) -> StreamPart {
         .iter()
         .find(|part| matches!(part, StreamPart::Finish { .. }))
         .cloned()
-        .expect(NOTE)
+        .expect("finish")
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn streams_text_deltas() {
     let parts = CopilotChatModel::parse(
         &[
@@ -171,8 +90,7 @@ fn streams_text_deltas() {
             text_chunk("chatcmpl-123", "gemini-2.0-flash-001", "!", Some("stop")),
         ],
         false,
-    )
-    .expect(NOTE);
+    );
 
     assert_eq!(
         filter_text(&parts),
@@ -202,7 +120,6 @@ fn streams_text_deltas() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn streams_reasoning_with_tool_calls_and_captures_reasoning_opaque() {
     let parts = CopilotChatModel::parse(
         &[
@@ -217,14 +134,13 @@ fn streams_reasoning_with_tool_calls_and_captures_reasoning_opaque() {
             ),
         ],
         false,
-    )
-    .expect(NOTE);
+    );
 
     let reasoning_end = parts
         .iter()
         .find(|part| matches!(part, StreamPart::ReasoningEnd { .. }))
         .cloned()
-        .expect(NOTE);
+        .expect("reasoning end");
     assert_eq!(
         reasoning_end,
         StreamPart::ReasoningEnd {
@@ -236,11 +152,11 @@ fn streams_reasoning_with_tool_calls_and_captures_reasoning_opaque() {
     let tool_start = parts
         .iter()
         .position(|part| matches!(part, StreamPart::ToolInputStart { .. }))
-        .expect(NOTE);
+        .expect("tool start");
     let reasoning_end_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::ReasoningEnd { .. }))
-        .expect(NOTE);
+        .expect("reasoning end");
     assert!(reasoning_end_index < tool_start);
 
     assert_eq!(
@@ -255,7 +171,6 @@ fn streams_reasoning_with_tool_calls_and_captures_reasoning_opaque() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn attaches_late_reasoning_opaque_to_the_finish_event() {
     let parts = CopilotChatModel::parse(
         &[
@@ -271,17 +186,16 @@ fn attaches_late_reasoning_opaque_to_the_finish_event() {
             ),
         ],
         false,
-    )
-    .expect(NOTE);
+    );
 
     let reasoning_end_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::ReasoningEnd { .. }))
-        .expect(NOTE);
+        .expect("reasoning end");
     let text_start_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::TextStart { .. }))
-        .expect(NOTE);
+        .expect("text start");
     assert!(reasoning_end_index < text_start_index);
 
     match find_finish(&parts) {
@@ -295,20 +209,19 @@ fn attaches_late_reasoning_opaque_to_the_finish_event() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn handles_reasoning_opaque_and_content_in_the_same_chunk() {
     let mut chunk = text_chunk("chatcmpl", "m", "Of course.", None);
     chunk["choices"][0]["delta"]["reasoning_opaque"] = json!("opaque-same");
-    let parts = CopilotChatModel::parse(&[reasoning_chunk("thinking"), chunk], false).expect(NOTE);
+    let parts = CopilotChatModel::parse(&[reasoning_chunk("thinking"), chunk], false);
 
     let reasoning_end_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::ReasoningEnd { .. }))
-        .expect(NOTE);
+        .expect("reasoning end");
     let text_start_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::TextStart { .. }))
-        .expect(NOTE);
+        .expect("text start");
     assert!(reasoning_end_index < text_start_index);
     assert_eq!(
         parts[reasoning_end_index],
@@ -320,7 +233,6 @@ fn handles_reasoning_opaque_and_content_in_the_same_chunk() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn emits_reasoning_end_before_tool_input_start_when_reasoning_goes_directly_to_tools() {
     let parts = CopilotChatModel::parse(
         &[
@@ -335,17 +247,16 @@ fn emits_reasoning_end_before_tool_input_start_when_reasoning_goes_directly_to_t
             ),
         ],
         false,
-    )
-    .expect(NOTE);
+    );
 
     let reasoning_end_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::ReasoningEnd { .. }))
-        .expect(NOTE);
+        .expect("reasoning end");
     let tool_start_index = parts
         .iter()
         .position(|part| matches!(part, StreamPart::ToolInputStart { .. }))
-        .expect(NOTE);
+        .expect("tool start");
     assert!(reasoning_end_index < tool_start_index);
     assert!(!parts
         .iter()
@@ -353,7 +264,6 @@ fn emits_reasoning_end_before_tool_input_start_when_reasoning_goes_directly_to_t
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn attaches_reasoning_opaque_to_tool_calls_without_reasoning_text() {
     let parts = CopilotChatModel::parse(
         &[tool_chunk(
@@ -365,8 +275,7 @@ fn attaches_reasoning_opaque_to_tool_calls_without_reasoning_text() {
             Some("tool_calls"),
         )],
         false,
-    )
-    .expect(NOTE);
+    );
 
     assert!(!parts.iter().any(|part| matches!(
         part,
@@ -378,7 +287,7 @@ fn attaches_reasoning_opaque_to_tool_calls_without_reasoning_text() {
         .iter()
         .find(|part| matches!(part, StreamPart::ToolCall { .. }))
         .cloned()
-        .expect(NOTE);
+        .expect("tool call");
     assert_eq!(
         tool_call,
         StreamPart::ToolCall {
@@ -391,7 +300,6 @@ fn attaches_reasoning_opaque_to_tool_calls_without_reasoning_text() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn includes_response_metadata_from_the_first_chunk() {
     let parts = CopilotChatModel::parse(
         &[text_chunk(
@@ -401,8 +309,7 @@ fn includes_response_metadata_from_the_first_chunk() {
             None,
         )],
         false,
-    )
-    .expect(NOTE);
+    );
     assert_eq!(
         parts[0],
         StreamPart::ResponseMetadata {
@@ -413,10 +320,8 @@ fn includes_response_metadata_from_the_first_chunk() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn emits_stream_start_with_warnings_and_raw_chunks_when_requested() {
-    let parts =
-        CopilotChatModel::parse(&[text_chunk("id", "m", "Hello", Some("stop"))], true).expect(NOTE);
+    let parts = CopilotChatModel::parse(&[text_chunk("id", "m", "Hello", Some("stop"))], true);
     assert!(parts
         .iter()
         .any(|part| matches!(part, StreamPart::StreamStart { warnings } if warnings.is_empty())));
@@ -424,7 +329,6 @@ fn emits_stream_start_with_warnings_and_raw_chunks_when_requested() {
 }
 
 #[test]
-#[ignore = "porting: copilot chat model stream not implemented"]
 fn sends_tools_in_openai_function_format() {
     assert_eq!(
         CopilotChatModel::tool_request(&[json!({
@@ -436,8 +340,7 @@ fn sends_tools_in_openai_function_format() {
                 "properties": { "location": { "type": "string" } },
                 "required": ["location"]
             }
-        })])
-        .expect(NOTE),
+        })]),
         json!({
             "tools": [{
                 "type": "function",

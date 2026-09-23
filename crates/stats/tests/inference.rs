@@ -144,7 +144,6 @@ fn maps_oversized_model_ids_to_unknown_before_aggregation() {
 }
 
 #[test]
-#[ignore = "porting: stats query builder not implemented"]
 fn emits_length_guards_in_generated_r2_sql() {
     let queries = build_stats_queries(
         "2026-09-16T00:00:00.000Z",
@@ -382,7 +381,6 @@ fn model_aggregates_use_iso_week_period_keys() {
 }
 
 #[test]
-#[ignore = "porting: stats query builder not implemented"]
 fn builds_bounded_r2_sql_queries_for_each_day_and_week() {
     let queries = build_stats_queries(
         "2026-08-10T00:00:00.000Z",
@@ -408,7 +406,6 @@ fn builds_bounded_r2_sql_queries_for_each_day_and_week() {
 }
 
 #[test]
-#[ignore = "porting: stats query builder not implemented"]
 fn aligns_periods_to_utc_calendar_boundaries() {
     let queries = build_stats_queries(
         "2026-06-17T15:56:00.000Z",
@@ -424,7 +421,6 @@ fn aligns_periods_to_utc_calendar_boundaries() {
 }
 
 #[test]
-#[ignore = "porting: stats query builder not implemented"]
 fn uses_an_exclusive_live_and_legacy_source_handoff() {
     let queries = build_stats_queries(
         "2026-08-11T00:00:00.000Z",
@@ -440,7 +436,6 @@ fn uses_an_exclusive_live_and_legacy_source_handoff() {
 }
 
 #[test]
-#[ignore = "porting: retention query builder not implemented"]
 fn builds_complete_week_over_week_retention_queries() {
     let queries = build_retention_queries(
         "2026-08-10T00:00:00.000Z",
@@ -461,7 +456,6 @@ fn builds_complete_week_over_week_retention_queries() {
 }
 
 #[test]
-#[ignore = "porting: retention query builder not implemented"]
 fn splits_a_full_retention_window_without_dropping_or_duplicating_cohorts() {
     let queries = build_retention_queries(
         "2026-07-16T19:00:00Z",

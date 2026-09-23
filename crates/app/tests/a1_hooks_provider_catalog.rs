@@ -4,18 +4,9 @@
 
 use std::collections::BTreeMap;
 
-#[derive(Clone, Debug, PartialEq)]
-struct Catalog {
-    all: BTreeMap<String, String>,
-    connected: Vec<String>,
-    default: BTreeMap<String, String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ModelRef {
-    provider_id: String,
-    model_id: String,
-}
+use opencode_app::provider_catalog::{
+    resolve_default_model, resolve_default_model_legacy, select_provider_catalog, Catalog, ModelRef,
+};
 
 fn empty_catalog() -> Catalog {
     Catalog {
@@ -37,26 +28,7 @@ fn catalog(id: &str) -> Catalog {
     }
 }
 
-// Local stubs (fast wave): real module lands later.
-fn select_provider_catalog(
-    _explicit: bool,
-    _directory: Option<&str>,
-    _ready: bool,
-    _providers: Option<Catalog>,
-    _global: Option<Catalog>,
-) -> Catalog {
-    empty_catalog()
-}
-
-fn resolve_default_model(
-    _current: Option<ModelRef>,
-    _legacy_config: Option<&str>,
-) -> Option<ModelRef> {
-    None
-}
-
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn selects_the_ready_catalog_for_an_explicit_directory() {
     let directory = catalog("directory");
     assert_eq!(
@@ -66,7 +38,6 @@ fn selects_the_ready_catalog_for_an_explicit_directory() {
 }
 
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn returns_an_empty_catalog_while_an_explicit_directory_is_unresolved() {
     assert_eq!(
         select_provider_catalog(true, None, false, None, None),
@@ -79,7 +50,6 @@ fn returns_an_empty_catalog_while_an_explicit_directory_is_unresolved() {
 }
 
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn uses_the_route_catalog_when_it_is_ready() {
     let directory = catalog("directory");
     assert_eq!(
@@ -95,7 +65,6 @@ fn uses_the_route_catalog_when_it_is_ready() {
 }
 
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn falls_back_to_the_global_catalog_for_route_consumers() {
     let global = catalog("global");
     assert_eq!(
@@ -115,7 +84,6 @@ fn falls_back_to_the_global_catalog_for_route_consumers() {
 }
 
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn uses_the_current_server_default_model() {
     assert_eq!(
         resolve_default_model(
@@ -133,13 +101,11 @@ fn uses_the_current_server_default_model() {
 }
 
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn does_not_use_legacy_config_when_the_current_server_has_no_default() {
     assert_eq!(resolve_default_model(None, Some("anthropic/claude")), None);
 }
 
 #[test]
-#[ignore = "porting: hooks/provider-catalog not implemented"]
 fn uses_config_for_legacy_servers() {
     // Distinguish "current absent" (None) from "legacy" (Some(None)).
     assert_eq!(
@@ -149,11 +115,4 @@ fn uses_config_for_legacy_servers() {
             model_id: "claude".into()
         })
     );
-}
-
-fn resolve_default_model_legacy(
-    _current: Option<Option<ModelRef>>,
-    _legacy_config: Option<&str>,
-) -> Option<ModelRef> {
-    None
 }

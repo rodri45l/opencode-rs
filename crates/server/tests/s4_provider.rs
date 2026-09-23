@@ -9,34 +9,13 @@
 //! env, auth.json, models.dev, and the live SDK (defaultModel, closest,
 //! getSmallModel, endpoint rewriting, plugin persistence, etc.).
 
-use serde_json::{json, Value};
+use serde_json::json;
 
-#[allow(dead_code)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct NotImplemented(&'static str);
-
-fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
-    Err(NotImplemented(topic))
-}
-
-fn parse_model(_input: &str) -> Result<Value, NotImplemented> {
-    nope("provider")
-}
-
-fn provider_sort(_models: &[Value]) -> Result<Vec<Value>, NotImplemented> {
-    nope("provider")
-}
-
-fn reasoning_variants(_reasoning_options: &Value, _npm: &str) -> Result<Value, NotImplemented> {
-    nope("provider")
-}
-
-fn to_public_info(_models: &Value) -> Result<Value, NotImplemented> {
-    nope("provider")
-}
+use opencode_server::provider_util::{
+    parse_model, provider_sort, reasoning_variants, to_public_info,
+};
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn parse_model_correctly_parses_provider_model_string() {
     assert_eq!(
         parse_model("anthropic/claude-sonnet-4").unwrap(),
@@ -45,7 +24,6 @@ fn parse_model_correctly_parses_provider_model_string() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn parse_model_handles_model_ids_with_slashes() {
     assert_eq!(
         parse_model("openrouter/anthropic/claude-3-opus").unwrap(),
@@ -54,7 +32,6 @@ fn parse_model_handles_model_ids_with_slashes() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn provider_sort_prioritizes_preferred_models() {
     let models = vec![
         json!({ "id": "random-model", "name": "Random" }),
@@ -72,7 +49,6 @@ fn provider_sort_prioritizes_preferred_models() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn models_dev_reasoning_options_replace_generated_variants() {
     let explicit = reasoning_variants(
         &json!([{ "type": "effort", "values": ["low"] }]),
@@ -95,7 +71,6 @@ fn models_dev_reasoning_options_replace_generated_variants() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn unsupported_reasoning_toggles_fall_back_to_generated_variants() {
     let fallback = reasoning_variants(&json!([{ "type": "toggle" }]), "@ai-sdk/openai").unwrap();
     let keys: Vec<_> = fallback.as_object().unwrap().keys().cloned().collect();
@@ -103,7 +78,6 @@ fn unsupported_reasoning_toggles_fall_back_to_generated_variants() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn reasoning_options_are_npm_aware() {
     let google = reasoning_variants(
         &json!([{ "type": "effort", "values": ["high"] }]),
@@ -124,7 +98,6 @@ fn reasoning_options_are_npm_aware() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn merge_gateway_exposes_declared_effort_variants() {
     let variants = reasoning_variants(
         &json!([{ "type": "effort", "values": ["none", "low", "medium", "high", "xhigh", "max"] }]),
@@ -145,7 +118,6 @@ fn merge_gateway_exposes_declared_effort_variants() {
 }
 
 #[test]
-#[ignore = "porting: provider not implemented"]
 fn public_provider_info_omits_invalid_models() {
     let models = json!({
         "valid": { "id": "valid", "name": "Valid", "cost": { "input": 1, "output": 1 } },

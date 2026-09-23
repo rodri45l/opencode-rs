@@ -5,35 +5,11 @@
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 
-// Local stubs (fast wave): real module lands later.
-fn ensure_session_key(
-    key: &str,
-    mut touch: impl FnMut(&str),
-    mut seed: impl FnMut(&str),
-) -> String {
-    touch(key);
-    seed(key);
-    key.to_string()
-}
-
-fn create_session_key_reader(key: &str) -> String {
-    key.to_string()
-}
-
-struct PruneInput {
-    keep: Option<String>,
-    max: usize,
-    used: BTreeMap<String, i64>,
-    view: Vec<String>,
-    tabs: Vec<String>,
-}
-
-fn prune_session_keys(_input: PruneInput) -> Vec<String> {
-    Vec::new()
-}
+use opencode_app::layout_helpers::{
+    create_session_key_reader, ensure_session_key, prune_session_keys, PruneInput,
+};
 
 #[test]
-#[ignore = "porting: context/layout not implemented"]
 fn couples_touch_and_scroll_seed_in_order() {
     let calls = RefCell::new(Vec::new());
     let result = ensure_session_key(
@@ -49,7 +25,6 @@ fn couples_touch_and_scroll_seed_in_order() {
 }
 
 #[test]
-#[ignore = "porting: context/layout not implemented"]
 fn reads_dynamic_accessor_keys_lazily() {
     let mut seen: Vec<String> = Vec::new();
     let first = create_session_key_reader("dir/one");
@@ -60,7 +35,6 @@ fn reads_dynamic_accessor_keys_lazily() {
 }
 
 #[test]
-#[ignore = "porting: context/layout not implemented"]
 fn keeps_active_key_and_drops_lowest_used_keys() {
     let mut used = BTreeMap::new();
     used.insert("k1".to_string(), 1);
@@ -79,7 +53,6 @@ fn keeps_active_key_and_drops_lowest_used_keys() {
 }
 
 #[test]
-#[ignore = "porting: context/layout not implemented"]
 fn does_not_prune_without_keep_key() {
     let mut used = BTreeMap::new();
     used.insert("k1".to_string(), 1);

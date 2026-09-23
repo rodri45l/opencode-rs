@@ -8,7 +8,7 @@
 
 use serde_json::{json, Value};
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A legacy session API error.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,17 +21,16 @@ pub struct ApiError {
 
 impl ApiError {
     /// Construct an error.
-    pub fn new(_message: &str, _is_retryable: bool) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented(
-            "legacy_event_schema::ApiError::new",
-        ))
+    pub fn new(message: &str, is_retryable: bool) -> CoreResult<Self> {
+        Ok(Self {
+            message: message.to_string(),
+            is_retryable,
+        })
     }
 
     /// Serialize to the canonical object shape.
     pub fn to_object(&self) -> CoreResult<Value> {
-        Err(CoreError::NotImplemented(
-            "legacy_event_schema::ApiError::to_object",
-        ))
+        Ok(api_error_object(&self.message, self.is_retryable))
     }
 }
 

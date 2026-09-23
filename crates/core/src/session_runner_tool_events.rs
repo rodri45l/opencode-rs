@@ -7,9 +7,9 @@
 //! failed event and no success event, step finish records a settlement without
 //! publishing a step ended event.
 
-use serde_json::Value;
+use serde_json::{json, Value};
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A tool success payload.
 #[derive(Debug, Clone, PartialEq)]
@@ -64,12 +64,6 @@ impl LlmEventPublisher {
 
     /// Events published so far.
     pub fn published(&self) -> Vec<PublishedEvent> {
-        let _ = (
-            &self.session_id,
-            &self.agent,
-            &self.model_id,
-            &self.provider_id,
-        );
         self.events.clone()
     }
 
@@ -79,44 +73,105 @@ impl LlmEventPublisher {
     }
 
     /// Publish a tool call.
-    pub fn publish_tool_call(&mut self, _id: &str, _name: &str, _input: Value) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "session_runner_tool_events::LlmEventPublisher::publish_tool_call",
-        ))
+    pub fn publish_tool_call(&mut self, id: &str, name: &str, input: Value) -> CoreResult<()> {
+        self.events.push(PublishedEvent {
+            event_type: "session.next.tool.called.1".into(),
+            data: json!({
+                "sessionID": self.session_id,
+                "callID": id,
+                "tool": name,
+                "input": input,
+                "provider": { "executed": false },
+            }),
+        });
+        Ok(())
     }
 
     /// Publish a tool success.
-    pub fn publish_tool_result(&mut self, _id: &str, _spec: ToolResultSpec) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "session_runner_tool_events::LlmEventPublisher::publish_tool_result",
-        ))
+    pub fn publish_tool_result(&mut self, id: &str, spec: ToolResultSpec) -> CoreResult<()> {
+        let mut data = serde_json::Map::new();
+        data.insert("sessionID".into(), json!(self.session_id));
+        data.insert("callID".into(), json!(id));
+        data.insert("structured".into(), spec.structured);
+        data.insert("content".into(), spec.content);
+        data.insert("outputPaths".into(), json!([]));
+        data.insert(
+            "provider".into(),
+            json!({ "executed": spec.provider_executed }),
+        );
+        if spec.provider_executed {
+            if let Some(result) = spec.result {
+                data.insert("result".into(), result);
+            }
+        }
+        self.events.push(PublishedEvent {
+            event_type: "session.next.tool.success.1".into(),
+            data: Value::Object(data),
+        });
+        Ok(())
     }
 
     /// Publish a tool failure.
-    pub fn publish_tool_failure(&mut self, _id: &str, _error: Value) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "session_runner_tool_events::LlmEventPublisher::publish_tool_failure",
-        ))
+    pub fn publish_tool_failure(&mut self, id: &str, error: Value) -> CoreResult<()> {
+        self.events.push(PublishedEvent {
+            event_type: "session.next.tool.failed.1".into(),
+            data: json!({
+                "sessionID": self.session_id,
+                "callID": id,
+                "error": error,
+                "provider": { "executed": false },
+            }),
+        });
+        Ok(())
     }
 
     /// Publish a step start.
-    pub fn publish_step_start(&mut self, _index: u32) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "session_runner_tool_events::LlmEventPublisher::publish_step_start",
-        ))
+    pub fn publish_step_start(&mut self, index: u32) -> CoreResult<()> {
+        self.events.push(PublishedEvent {
+            event_type: "session.next.step.started.2".into(),
+            data: json!({
+                "sessionID": self.session_id,
+                "agent": self.agent,
+                "modelID": self.model_id,
+                "providerID": self.provider_id,
+                "step": index,
+            }),
+        });
+        Ok(())
     }
 
     /// Publish a step finish, recording the settlement.
-    pub fn publish_step_finish(&mut self, _index: u32, _reason: &str) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "session_runner_tool_events::LlmEventPublisher::publish_step_finish",
-        ))
+    pub fn publish_step_finish(&mut self, _index: u32, reason: &str) -> CoreResult<()> {
+        if self.step_settlement.is_some() {
+            return Err(crate::CoreError::Invalid(
+                "duplicate step finish".to_string(),
+            ));
+        }
+        self.step_settlement = Some(json!({
+            "finish": reason,
+            "tokens": { "input": 0, "output": 0, "reasoning": 0, "cache": { "read": 0, "write": 0 } },
+        }));
+        Ok(())
     }
 
     /// Decode a durable tool success payload, including legacy `result`.
-    pub fn decode_success_data(_value: &Value) -> CoreResult<Value> {
-        Err(CoreError::NotImplemented(
-            "session_runner_tool_events::LlmEventPublisher::decode_success_data",
-        ))
+    pub fn decode_success_data(value: &Value) -> CoreResult<Value> {
+        let mut decoded = serde_json::Map::new();
+        if let Some(call_id) = value.get("callID") {
+            decoded.insert("callID".into(), call_id.clone());
+        }
+        if let Some(structured) = value.get("structured") {
+            decoded.insert("structured".into(), structured.clone());
+        }
+        if let Some(content) = value.get("content") {
+            decoded.insert("content".into(), content.clone());
+        }
+        if let Some(result) = value.get("result") {
+            decoded.insert("result".into(), result.clone());
+        }
+        if let Some(provider) = value.get("provider") {
+            decoded.insert("provider".into(), provider.clone());
+        }
+        Ok(Value::Object(decoded))
     }
 }

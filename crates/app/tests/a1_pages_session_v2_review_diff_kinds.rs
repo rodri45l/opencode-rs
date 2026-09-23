@@ -1,34 +1,10 @@
 //! Port of packages/app/src/pages/session/v2/review-diff-kinds.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-use std::collections::BTreeMap;
-
-#[derive(Clone, Debug, PartialEq)]
-struct ReviewDiff {
-    file: String,
-    additions: i64,
-    deletions: i64,
-    status: Option<String>,
-    patch: Option<String>,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn review_diff_kinds(_diffs: &[ReviewDiff]) -> BTreeMap<String, String> {
-    BTreeMap::new()
-}
-
-fn filter_review_files(_files: &[&str], _query: &str) -> Vec<String> {
-    Vec::new()
-}
-
-fn review_diff_needs_load(_diff: &ReviewDiff) -> bool {
-    false
-}
-
-fn review_diff_directory(_root: &str, _file: &str) -> String {
-    String::new()
-}
+use opencode_app::review_diff_kinds::{
+    filter_review_files, review_diff_directory, review_diff_kinds, review_diff_needs_load,
+    ReviewDiff,
+};
 
 fn diff(file: &str, additions: i64, deletions: i64, status: &str) -> ReviewDiff {
     ReviewDiff {
@@ -41,7 +17,6 @@ fn diff(file: &str, additions: i64, deletions: i64, status: &str) -> ReviewDiff 
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn maps_file_and_directory_kinds() {
     let kinds = review_diff_kinds(&[
         diff("src/a.ts", 1, 0, "added"),
@@ -53,7 +28,6 @@ fn maps_file_and_directory_kinds() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn normalizes_file_and_directory_paths() {
     let kinds = review_diff_kinds(&[diff("\\src//lib/a.ts/", 1, 1, "modified")]);
     assert_eq!(kinds.get("src/lib/a.ts"), Some(&"mix".to_string()));
@@ -61,7 +35,6 @@ fn normalizes_file_and_directory_paths() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn filters_by_path_substring() {
     let files = ["src/a.ts", "src/b.ts", "lib/c.ts"];
     assert_eq!(
@@ -79,7 +52,6 @@ fn filters_by_path_substring() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn loads_changed_files_whose_aggregate_patch_has_no_hunks() {
     let mut review = diff("src/a.ts", 1, 0, "modified");
     review.patch = Some("diff --git a/src/a.ts b/src/a.ts\n--- a/src/a.ts\n+++ b/src/a.ts".into());
@@ -87,7 +59,6 @@ fn loads_changed_files_whose_aggregate_patch_has_no_hunks() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn keeps_complete_patches_and_empty_changes() {
     let mut complete = diff("src/a.ts", 1, 0, "modified");
     complete.patch = Some("@@ -0,0 +1 @@\n+value".into());
@@ -98,7 +69,6 @@ fn keeps_complete_patches_and_empty_changes() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn scopes_nested_files_to_their_parent_directory() {
     assert_eq!(
         review_diff_directory("/repo", "src/lib/a.ts"),
@@ -111,7 +81,6 @@ fn scopes_nested_files_to_their_parent_directory() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/v2/review-diff-kinds not implemented"]
 fn does_not_rescope_root_files() {
     assert_eq!(review_diff_directory("/repo/", "README.md"), "/repo");
     assert_eq!(review_diff_directory("/", "README.md"), "/");

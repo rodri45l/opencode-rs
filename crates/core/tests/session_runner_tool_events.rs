@@ -26,7 +26,6 @@ fn publisher() -> LlmEventPublisher {
 }
 
 #[test]
-#[ignore = "porting: session runner tool events not implemented"]
 fn local_tool_success_serializes_media_once_and_reconstructs() {
     let mut publisher = publisher();
     publisher
@@ -56,7 +55,6 @@ fn local_tool_success_serializes_media_once_and_reconstructs() {
 }
 
 #[test]
-#[ignore = "porting: session runner tool events not implemented"]
 fn provider_executed_success_retains_its_compatibility_result() {
     let mut publisher = publisher();
     publisher
@@ -83,7 +81,6 @@ fn provider_executed_success_retains_its_compatibility_result() {
 }
 
 #[test]
-#[ignore = "porting: session runner tool events not implemented"]
 fn binary_failure_emits_no_success_event() {
     let mut publisher = publisher();
     publisher
@@ -106,7 +103,6 @@ fn binary_failure_emits_no_success_event() {
 }
 
 #[test]
-#[ignore = "porting: session runner tool events not implemented"]
 fn legacy_success_data_with_result_still_decodes() {
     let decoded = LlmEventPublisher::decode_success_data(&json!({
         "callID": "call-old",
@@ -120,7 +116,6 @@ fn legacy_success_data_with_result_still_decodes() {
 }
 
 #[test]
-#[ignore = "porting: session runner tool events not implemented"]
 fn step_finish_records_settlement_without_publishing_step_ended() {
     let mut publisher = publisher();
     publisher.publish_step_start(0).expect(NOTE);

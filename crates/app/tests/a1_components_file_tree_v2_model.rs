@@ -2,40 +2,9 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct FileNode {
-    path: String,
-    node_type: String,
-    original_path: String,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Row {
-    node: FileNode,
-    level: usize,
-}
-
-#[derive(Default)]
-struct FileTreeModel {
-    total: usize,
-    rows: Vec<Row>,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn build_file_tree_v2_model(_paths: &[&str]) -> FileTreeModel {
-    FileTreeModel::default()
-}
-
-fn flatten_file_tree_v2(_model: &FileTreeModel, _expanded: impl Fn(&str) -> bool) -> Vec<Row> {
-    Vec::new()
-}
-
-fn flatten_live_file_tree_v2(
-    _children: impl Fn(&str) -> Vec<FileNode>,
-    _expanded: impl Fn(&str) -> bool,
-) -> Vec<Row> {
-    Vec::new()
-}
+use opencode_app::file_tree_v2_model::{
+    build_file_tree_v2_model, flatten_file_tree_v2, flatten_live_file_tree_v2, FileNode,
+};
 
 fn file_node(name: &str, path: &str, node_type: &str) -> FileNode {
     FileNode {
@@ -46,7 +15,6 @@ fn file_node(name: &str, path: &str, node_type: &str) -> FileNode {
 }
 
 #[test]
-#[ignore = "porting: components/file-tree-v2-model not implemented"]
 fn builds_a_sorted_tree_and_flattens_expanded_directories() {
     let model = build_file_tree_v2_model(&[
         "src/z.ts",
@@ -75,7 +43,6 @@ fn builds_a_sorted_tree_and_flattens_expanded_directories() {
 }
 
 #[test]
-#[ignore = "porting: components/file-tree-v2-model not implemented"]
 fn skips_children_of_collapsed_directories() {
     let model = build_file_tree_v2_model(&["src/lib/a.ts", "src/z.ts"]);
     assert_eq!(
@@ -92,7 +59,6 @@ fn skips_children_of_collapsed_directories() {
 }
 
 #[test]
-#[ignore = "porting: components/file-tree-v2-model not implemented"]
 fn normalizes_duplicate_and_messy_paths() {
     let model = build_file_tree_v2_model(&["src\\lib\\a.ts", "src/lib/a.ts", "/src//lib/b.ts/"]);
     let rows = flatten_file_tree_v2(&model, |_| true);
@@ -116,7 +82,6 @@ fn normalizes_duplicate_and_messy_paths() {
 }
 
 #[test]
-#[ignore = "porting: components/file-tree-v2-model not implemented"]
 fn handles_deeply_nested_paths() {
     let file = format!(
         "{}/leaf.ts",
@@ -130,7 +95,6 @@ fn handles_deeply_nested_paths() {
 }
 
 #[test]
-#[ignore = "porting: components/file-tree-v2-model not implemented"]
 fn flattens_live_children_using_original_paths_for_nested_lookups() {
     let mut nodes: std::collections::BTreeMap<String, Vec<FileNode>> =
         std::collections::BTreeMap::new();

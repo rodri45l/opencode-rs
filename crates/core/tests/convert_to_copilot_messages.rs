@@ -18,7 +18,6 @@ fn convert(messages: serde_json::Value) -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn converts_system_message_content_to_string() {
     assert_eq!(
         convert(json!([
@@ -31,7 +30,6 @@ fn converts_system_message_content_to_string() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn converts_a_text_only_user_message_to_string_content() {
     assert_eq!(
         convert(json!([{ "role": "user", "content": [{ "type": "text", "text": "Hello" }] }])),
@@ -40,7 +38,6 @@ fn converts_a_text_only_user_message_to_string_content() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn converts_user_image_parts() {
     assert_eq!(
         convert(json!([
@@ -65,7 +62,6 @@ fn converts_user_image_parts() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn handles_url_based_images() {
     assert_eq!(
         convert(json!([
@@ -84,7 +80,6 @@ fn handles_url_based_images() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn handles_multiple_text_parts_without_flattening() {
     assert_eq!(
         convert(json!([
@@ -103,7 +98,6 @@ fn handles_multiple_text_parts_without_flattening() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn converts_assistant_text_messages() {
     assert_eq!(
         convert(
@@ -114,7 +108,6 @@ fn converts_assistant_text_messages() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn handles_assistant_tool_calls_with_null_content() {
     assert_eq!(
         convert(json!([
@@ -140,7 +133,6 @@ fn handles_assistant_tool_calls_with_null_content() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn converts_text_tool_results() {
     assert_eq!(
         convert(json!([
@@ -156,7 +148,6 @@ fn converts_text_tool_results() {
 }
 
 #[test]
-#[ignore = "porting: copilot message conversion not implemented"]
 fn includes_reasoning_opaque_from_provider_options() {
     assert_eq!(
         convert(json!([

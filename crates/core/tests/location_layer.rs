@@ -12,7 +12,6 @@ use serde_json::json;
 const NOTE: &str = "porting: location service map not implemented";
 
 #[test]
-#[ignore = "porting: location service map not implemented"]
 fn reuses_cached_services_for_constructed_and_decoded_refs() {
     let constructed = LocationRef::new("/tmp/location");
     let decoded = LocationRef::decode(&json!({ "directory": "/tmp/location" })).expect(NOTE);
@@ -28,14 +27,16 @@ fn reuses_cached_services_for_constructed_and_decoded_refs() {
 }
 
 #[test]
-#[ignore = "porting: location service map not implemented"]
 fn isolates_location_state_while_sharing_policy() {
     let blocked = LocationRef::new("/tmp/blocked");
     let allowed = LocationRef::new("/tmp/allowed");
 
     let mut locations = LocationServiceMap::new();
     locations
-        .add_policy(json!({ "effect": "deny", "action": "provider.use", "resource": "test" }))
+        .add_policy(
+            &blocked,
+            json!({ "effect": "deny", "action": "provider.use", "resource": "test" }),
+        )
         .expect(NOTE);
     locations
         .configure(&blocked, vec!["test".into()])

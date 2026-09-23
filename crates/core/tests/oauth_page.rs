@@ -9,7 +9,6 @@ use opencode_core::oauth_page::OauthCallbackPage;
 const NOTE: &str = "porting: oauth callback page not implemented";
 
 #[test]
-#[ignore = "porting: oauth callback page not implemented"]
 fn escapes_bootstrap_options_embedded_in_the_inline_script() {
     let html = OauthCallbackPage::bootstrap(
         "xAI</script><script>alert(\"provider\")</script>",

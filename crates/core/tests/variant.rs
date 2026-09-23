@@ -15,7 +15,6 @@ fn ids(variants: &[Variant]) -> Vec<&str> {
 }
 
 #[test]
-#[ignore = "porting: variant plugin not implemented"]
 fn adds_glm_52_variants_after_catalog_sources() {
     let variants = VariantPlugin::apply(vec![]).expect(NOTE);
     assert_eq!(ids(&variants), vec!["high", "max"]);
@@ -24,7 +23,6 @@ fn adds_glm_52_variants_after_catalog_sources() {
 }
 
 #[test]
-#[ignore = "porting: variant plugin not implemented"]
 fn keeps_explicit_variants_over_generated_defaults() {
     let variants = VariantPlugin::apply(vec![Variant {
         id: "high".into(),

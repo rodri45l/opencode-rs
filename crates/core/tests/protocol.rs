@@ -10,7 +10,6 @@ use serde_json::json;
 const NOTE: &str = "porting: pty protocol not implemented";
 
 #[test]
-#[ignore = "porting: pty protocol not implemented"]
 fn drops_invalid_binary_input_frames_and_decodes_valid_ones() {
     assert_eq!(
         PtyProtocol::decode_input_str("ready").expect(NOTE),
@@ -27,7 +26,6 @@ fn drops_invalid_binary_input_frames_and_decodes_valid_ones() {
 }
 
 #[test]
-#[ignore = "porting: pty protocol not implemented"]
 fn encodes_the_cursor_as_a_zero_prefixed_json_control_frame() {
     let frame = PtyProtocol::meta_frame(42).expect(NOTE);
     assert_eq!(frame[0], 0);
@@ -37,7 +35,6 @@ fn encodes_the_cursor_as_a_zero_prefixed_json_control_frame() {
 }
 
 #[test]
-#[ignore = "porting: pty protocol not implemented"]
 fn splits_replay_into_bounded_frames() {
     assert_eq!(PtyProtocol::chunks("").expect(NOTE), Vec::<String>::new());
     assert_eq!(

@@ -5,6 +5,9 @@
 //! plain values), prompt equality is structural, a skill directory source keys as
 //! `directory:<path>`, and workspace ids ascend with a `wrk_` prefix.
 
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use serde_json::Value;
 
 use crate::{CoreError, CoreResult};
@@ -18,20 +21,24 @@ pub struct Prompt {
 
 impl Prompt {
     /// Construct a prompt.
-    pub fn make(_text: impl Into<String>) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented("shared_schema::Prompt::make"))
+    pub fn make(text: impl Into<String>) -> CoreResult<Self> {
+        Ok(Self { text: text.into() })
     }
 
     /// Construct a prompt from a user message.
-    pub fn from_user_message(_text: impl Into<String>) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented(
-            "shared_schema::Prompt::from_user_message",
-        ))
+    pub fn from_user_message(text: impl Into<String>) -> CoreResult<Self> {
+        Self::make(text)
     }
 
     /// Decode a prompt from plain data.
-    pub fn decode(_value: &Value) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented("shared_schema::Prompt::decode"))
+    pub fn decode(value: &Value) -> CoreResult<Self> {
+        let text = value
+            .get("text")
+            .and_then(Value::as_str)
+            .ok_or_else(|| CoreError::Invalid("prompt missing text".into()))?;
+        Ok(Self {
+            text: text.to_string(),
+        })
     }
 }
 
@@ -46,10 +53,19 @@ pub struct AssistantText {
 
 impl AssistantText {
     /// Decode an assistant text part from plain data.
-    pub fn decode(_value: &Value) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented(
-            "shared_schema::AssistantText::decode",
-        ))
+    pub fn decode(value: &Value) -> CoreResult<Self> {
+        let id = value
+            .get("id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| CoreError::Invalid("assistant text missing id".into()))?;
+        let text = value
+            .get("text")
+            .and_then(Value::as_str)
+            .ok_or_else(|| CoreError::Invalid("assistant text missing text".into()))?;
+        Ok(Self {
+            id: id.to_string(),
+            text: text.to_string(),
+        })
     }
 }
 
@@ -59,8 +75,18 @@ pub struct SkillSource;
 
 impl SkillSource {
     /// The stable key for a skill source value.
-    pub fn key(_source: &Value) -> CoreResult<String> {
-        Err(CoreError::NotImplemented("shared_schema::SkillSource::key"))
+    pub fn key(source: &Value) -> CoreResult<String> {
+        let kind = source
+            .get("type")
+            .and_then(Value::as_str)
+            .ok_or_else(|| CoreError::Invalid("skill source missing type".into()))?;
+        let location = source
+            .get("path")
+            .or_else(|| source.get("url"))
+            .or_else(|| source.get("id"))
+            .and_then(Value::as_str)
+            .ok_or_else(|| CoreError::Invalid("skill source missing location".into()))?;
+        Ok(format!("{kind}:{location}"))
     }
 }
 
@@ -68,11 +94,19 @@ impl SkillSource {
 #[derive(Debug, Default)]
 pub struct WorkspaceId;
 
+static WORKSPACE_COUNTER: AtomicU64 = AtomicU64::new(0);
+
 impl WorkspaceId {
     /// An ascending workspace id derived from a seed.
-    pub fn ascending(_seed: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "shared_schema::WorkspaceId::ascending",
-        ))
+    pub fn ascending(seed: &str) -> CoreResult<String> {
+        let counter = WORKSPACE_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let millis = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|duration| duration.as_millis() as u64)
+            .unwrap_or(0);
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        std::hash::Hash::hash(seed, &mut hasher);
+        let seed_hash = std::hash::Hasher::finish(&hasher);
+        Ok(format!("wrk_{millis:013x}{seed_hash:08x}{counter:08x}"))
     }
 }

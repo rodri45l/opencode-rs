@@ -133,7 +133,6 @@ impl Keymap {
 }
 
 #[test]
-#[ignore = "porting: tui keymap alias/mode resolution not implemented"]
 fn legacy_page_key_aliases_compile_as_page_keys() {
     assert_eq!(binding_sequences("pgup"), vec![vec!["pageup".to_string()]]);
     assert_eq!(
@@ -147,7 +146,6 @@ fn legacy_page_key_aliases_compile_as_page_keys() {
 }
 
 #[test]
-#[ignore = "porting: tui keymap alias/mode resolution not implemented"]
 fn mode_less_bindings_stay_active_when_opencode_mode_changes() {
     let mut keymap = Keymap::new(gather_counts(GLOBAL_COMMANDS), gather_counts(BASE_COMMANDS));
 

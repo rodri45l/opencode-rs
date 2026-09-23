@@ -1,28 +1,9 @@
 //! Port of packages/app/src/utils/server-protocol.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Protocol {
-    V1,
-    V2,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct HealthResponse {
-    healthy: bool,
-    version: Option<String>,
-    pid: Option<i64>,
-    status: u16,
-}
-
-// Local stub (fast wave): real module lands later.
-fn detect_server_protocol(_global_health: HealthResponse, _api_health: HealthResponse) -> Protocol {
-    Protocol::V1
-}
+use opencode_app::server_protocol::{detect_server_protocol, HealthResponse, Protocol};
 
 #[test]
-#[ignore = "porting: utils/server-protocol not implemented"]
 fn prefers_the_legacy_health_endpoint_when_both_api_generations_exist() {
     let global = HealthResponse {
         healthy: true,
@@ -40,7 +21,6 @@ fn prefers_the_legacy_health_endpoint_when_both_api_generations_exist() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-protocol not implemented"]
 fn recognizes_v2_health_by_its_process_identifier() {
     let global = HealthResponse {
         healthy: false,
@@ -58,7 +38,6 @@ fn recognizes_v2_health_by_its_process_identifier() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-protocol not implemented"]
 fn recognizes_the_transitional_v1_api_health_response() {
     let global = HealthResponse {
         healthy: false,

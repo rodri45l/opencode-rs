@@ -2,121 +2,12 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
-use std::collections::BTreeMap;
-
-#[derive(Clone, Debug, PartialEq)]
-struct Agent {
-    name: String,
-    description: Option<String>,
-    mode: Option<String>,
-    hidden: bool,
-    temperature: Option<f64>,
-    top_p: Option<f64>,
-    color: Option<String>,
-    permission: Vec<Permission>,
-    model: Option<ModelRef>,
-    variant: Option<String>,
-    prompt: Option<String>,
-    steps: Option<i64>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Permission {
-    permission: String,
-    pattern: String,
-    action: String,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ModelRef {
-    provider_id: String,
-    model_id: String,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct PermissionRequest {
-    id: String,
-    session_id: String,
-    permission: String,
-    patterns: Vec<String>,
-    always: Vec<String>,
-    metadata_path: Option<String>,
-    tool_message_id: Option<String>,
-    tool_call_id: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Provider {
-    id: String,
-    name: String,
-    models: BTreeMap<String, ModelInfo>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ModelInfo {
-    id: String,
-    provider_id: String,
-    toolcall: bool,
-    attachment: bool,
-    cost_input: f64,
-    cost_output: f64,
-    variants: Vec<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ProviderList {
-    connected: Vec<String>,
-    default_model: Option<ModelRef>,
-    default: BTreeMap<String, String>,
-    all: BTreeMap<String, Provider>,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn normalize_agent_list(_input: Vec<Agent>) -> Vec<Agent> {
-    Vec::new()
-}
-
-fn normalize_permission_request(_input: PermissionRequest) -> PermissionRequest {
-    PermissionRequest {
-        id: String::new(),
-        session_id: String::new(),
-        permission: String::new(),
-        patterns: Vec::new(),
-        always: Vec::new(),
-        metadata_path: None,
-        tool_message_id: None,
-        tool_call_id: None,
-    }
-}
-
-fn normalize_provider_list(
-    _providers: Vec<(String, String)>,
-    _models: Vec<ModelInfo>,
-    _default: Option<ModelRef>,
-) -> ProviderList {
-    ProviderList {
-        connected: Vec::new(),
-        default_model: None,
-        default: BTreeMap::new(),
-        all: BTreeMap::new(),
-    }
-}
-
-fn directory_key(path: &str) -> String {
-    let replaced = if path.contains('\\') && !path.starts_with('/') {
-        path.replace('\\', "/")
-    } else {
-        path.to_string()
-    };
-    if replaced.len() > 1 {
-        replaced.trim_end_matches('/').to_string()
-    } else {
-        replaced
-    }
-}
+use opencode_app::global_sync_utils::{
+    directory_key, normalize_agent_list, normalize_permission_request, normalize_provider_list,
+    Agent, ModelInfo, ModelRef, Permission, PermissionRequest,
+};
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn adapts_current_agents_to_the_app_agent_shape() {
     let input = vec![Agent {
         name: "build".into(),
@@ -166,7 +57,6 @@ fn adapts_current_agents_to_the_app_agent_shape() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn adapts_the_current_permission_request_to_app_state() {
     let input = PermissionRequest {
         id: "permission-1".into(),
@@ -182,7 +72,6 @@ fn adapts_the_current_permission_request_to_app_state() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn groups_current_models_into_the_app_provider_catalog() {
     let providers = vec![("openai".to_string(), "OpenAI".to_string())];
     let models = vec![
@@ -235,7 +124,6 @@ fn groups_current_models_into_the_app_provider_catalog() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn preserves_an_empty_current_default() {
     assert_eq!(
         normalize_provider_list(Vec::new(), Vec::new(), None).default_model,
@@ -244,7 +132,6 @@ fn preserves_an_empty_current_default() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn directory_key_normalizes_slashes() {
     assert_eq!(
         directory_key("C:\\Repos\\sst\\opencode"),
@@ -257,13 +144,11 @@ fn directory_key_normalizes_slashes() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn directory_key_preserves_backslashes_in_posix_paths() {
     assert_eq!(directory_key("/tmp/foo\\bar"), "/tmp/foo\\bar");
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/utils not implemented"]
 fn directory_key_trims_trailing_slashes_without_breaking_roots() {
     assert_eq!(
         directory_key("C:/Repos/sst/opencode/"),

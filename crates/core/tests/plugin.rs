@@ -11,7 +11,6 @@ use opencode_core::plugin::PluginRegistry;
 const NOTE: &str = "porting: plugin registry not implemented";
 
 #[test]
-#[ignore = "porting: plugin registry not implemented"]
 fn adds_replaces_and_removes_plugins() {
     let mut registry = PluginRegistry::new();
 

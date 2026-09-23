@@ -2,42 +2,12 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
+use opencode_app::tabs::{
+    migrate_tabs, next_tab_after_close, push_closed_tab, remove_closed_tabs, take_closed_tab,
+    ClosedTab, RawTab, Tab,
+};
+
 const SERVER: &str = "local\nhttp://localhost:4096";
-
-#[derive(Clone, Debug, PartialEq)]
-enum Tab {
-    Session {
-        server: String,
-        session_id: String,
-    },
-    Draft {
-        draft_id: String,
-        server: String,
-        directory: String,
-    },
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum RawTab {
-    Session {
-        server: Option<String>,
-        session_id: String,
-        dir_base64: Option<String>,
-    },
-    Unknown,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct ClosedTab {
-    tab: Tab,
-    index: i64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct TakeResult {
-    entry: Option<ClosedTab>,
-    stack: Vec<ClosedTab>,
-}
 
 fn session_tab(session_id: &str) -> Tab {
     Tab::Session {
@@ -46,36 +16,7 @@ fn session_tab(session_id: &str) -> Tab {
     }
 }
 
-// Local stubs (fast wave): real module lands later.
-fn migrate_tabs(_tabs: Option<Vec<Option<RawTab>>>, _fallback: &str) -> Vec<Tab> {
-    Vec::new()
-}
-
-fn push_closed_tab(_stack: Vec<ClosedTab>, _tab: Tab, _index: i64) -> Vec<ClosedTab> {
-    Vec::new()
-}
-
-fn take_closed_tab(_stack: Vec<ClosedTab>, _open: &[Tab]) -> TakeResult {
-    TakeResult {
-        entry: None,
-        stack: Vec::new(),
-    }
-}
-
-fn remove_closed_tabs(
-    _stack: Vec<ClosedTab>,
-    _server: &str,
-    _session_ids: &[&str],
-) -> Vec<ClosedTab> {
-    Vec::new()
-}
-
-fn next_tab_after_close(_tabs: &[Tab], _index: usize, _navigate: bool) -> Option<Option<Tab>> {
-    None
-}
-
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn drops_null_and_malformed_persisted_tabs() {
     let input = vec![
         None,
@@ -95,7 +36,6 @@ fn drops_null_and_malformed_persisted_tabs() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn adds_the_fallback_server_to_valid_legacy_tabs() {
     let input = vec![Some(RawTab::Session {
         server: None,
@@ -106,14 +46,12 @@ fn adds_the_fallback_server_to_valid_legacy_tabs() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn replaces_invalid_top_level_persisted_data() {
     assert_eq!(migrate_tabs(None, SERVER), Vec::<Tab>::new());
     assert_eq!(migrate_tabs(Some(Vec::new()), SERVER), Vec::<Tab>::new());
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn records_session_tabs_with_their_index() {
     let stack = push_closed_tab(Vec::new(), session_tab("a"), 2);
     assert_eq!(
@@ -126,7 +64,6 @@ fn records_session_tabs_with_their_index() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn ignores_draft_tabs() {
     let draft = Tab::Draft {
         draft_id: "d1".into(),
@@ -140,7 +77,6 @@ fn ignores_draft_tabs() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn caps_the_stack_size() {
     let mut stack = Vec::new();
     for i in 0..30 {
@@ -164,7 +100,6 @@ fn caps_the_stack_size() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn pops_the_most_recently_closed_tab() {
     let stack = vec![
         ClosedTab {
@@ -188,7 +123,6 @@ fn pops_the_most_recently_closed_tab() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn skips_entries_whose_tab_is_already_open() {
     let stack = vec![
         ClosedTab {
@@ -206,7 +140,6 @@ fn skips_entries_whose_tab_is_already_open() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn returns_no_entry_when_everything_is_open_or_empty() {
     assert_eq!(take_closed_tab(Vec::new(), &[]).entry, None);
     let result = take_closed_tab(
@@ -221,7 +154,6 @@ fn returns_no_entry_when_everything_is_open_or_empty() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn purges_removed_sessions() {
     let stack = vec![
         ClosedTab {
@@ -243,7 +175,6 @@ fn purges_removed_sessions() {
 }
 
 #[test]
-#[ignore = "porting: context/tabs not implemented"]
 fn does_not_navigate_when_a_background_tab_closes() {
     let tabs = vec![session_tab("a"), session_tab("b"), session_tab("c")];
     assert_eq!(next_tab_after_close(&tabs, 1, false), None);
