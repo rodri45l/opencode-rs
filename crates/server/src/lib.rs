@@ -4,11 +4,21 @@
 //! assembled here and is intentionally the only place that knows the full path
 //! surface.
 
+pub mod agent;
 pub mod auth;
 pub mod error;
 pub mod options;
+pub mod permission;
+pub mod proxy_util;
+pub mod retry;
 pub mod routes;
+pub mod session;
 pub mod state;
+pub mod structured_output;
+pub mod system_prompt;
+pub mod tools;
+pub mod truncate;
+pub mod websearch;
 
 pub use auth::AuthConfig;
 pub use error::ApiErrorResponse;
