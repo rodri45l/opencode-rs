@@ -1,0 +1,10 @@
+//! HTTP protocol surface: route groups, payloads, and the error taxonomy.
+//!
+//! Mirrors `packages/protocol` in the reference implementation. The error wire
+//! shape is an internally tagged object with a `_tag` discriminator, e.g.
+//! `{ "_tag": "SessionNotFoundError", "sessionID": "ses_...", "message": "..." }`.
+
+pub mod error;
+pub mod routes;
+
+pub use error::{ApiError, ApiResult};

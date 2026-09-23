@@ -1,0 +1,47 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/schema",
+  "crates/protocol",
+  "crates/core",
+  "crates/llm",
+  "crates/server",
+  "crates/client",
+  "crates/cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/example/opencode-rs"
+rust-version = "1.82"
+
+[workspace.dependencies]
+opencode-schema = { path = "crates/schema" }
+opencode-protocol = { path = "crates/protocol" }
+opencode-core = { path = "crates/core" }
+opencode-llm = { path = "crates/llm" }
+opencode-server = { path = "crates/server" }
+opencode-client = { path = "crates/client" }
+
+anyhow = "1"
+async-stream = "0.3"
+axum = { version = "0.8", features = ["macros"] }
+clap = { version = "4", features = ["derive"] }
+futures = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["trace", "cors"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v7", "serde"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

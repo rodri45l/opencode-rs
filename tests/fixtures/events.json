@@ -1,0 +1,448 @@
+{
+  "source": "anomalyco/opencode packages/sdk/openapi.json#/components/schemas/V2Event",
+  "openapi_version": "3.1.0",
+  "event_count": 88,
+  "durable_count": 0,
+  "events": [
+    {
+      "type": "catalog.updated",
+      "schema": "CatalogUpdated",
+      "durable": false
+    },
+    {
+      "type": "command.executed",
+      "schema": "CommandExecuted",
+      "durable": false
+    },
+    {
+      "type": "file.edited",
+      "schema": "FileEdited",
+      "durable": false
+    },
+    {
+      "type": "file.watcher.updated",
+      "schema": "FileWatcherUpdated",
+      "durable": false
+    },
+    {
+      "type": "global.disposed",
+      "schema": "GlobalDisposed",
+      "durable": false
+    },
+    {
+      "type": "installation.update-available",
+      "schema": "InstallationUpdate-available",
+      "durable": false
+    },
+    {
+      "type": "installation.updated",
+      "schema": "InstallationUpdated",
+      "durable": false
+    },
+    {
+      "type": "integration.connection.updated",
+      "schema": "IntegrationConnectionUpdated",
+      "durable": false
+    },
+    {
+      "type": "integration.updated",
+      "schema": "IntegrationUpdated",
+      "durable": false
+    },
+    {
+      "type": "lsp.updated",
+      "schema": "LspUpdated",
+      "durable": false
+    },
+    {
+      "type": "mcp.browser.open.failed",
+      "schema": "McpBrowserOpenFailed",
+      "durable": false
+    },
+    {
+      "type": "mcp.tools.changed",
+      "schema": "McpToolsChanged",
+      "durable": false
+    },
+    {
+      "type": "message.part.delta",
+      "schema": "MessagePartDelta",
+      "durable": false
+    },
+    {
+      "type": "message.part.removed",
+      "schema": "MessagePartRemoved",
+      "durable": false
+    },
+    {
+      "type": "message.part.updated",
+      "schema": "MessagePartUpdated",
+      "durable": false
+    },
+    {
+      "type": "message.removed",
+      "schema": "MessageRemoved",
+      "durable": false
+    },
+    {
+      "type": "message.updated",
+      "schema": "MessageUpdated",
+      "durable": false
+    },
+    {
+      "type": "models-dev.refreshed",
+      "schema": "Models-devRefreshed",
+      "durable": false
+    },
+    {
+      "type": "permission.asked",
+      "schema": "PermissionAsked",
+      "durable": false
+    },
+    {
+      "type": "permission.replied",
+      "schema": "PermissionReplied",
+      "durable": false
+    },
+    {
+      "type": "permission.v2.asked",
+      "schema": "PermissionV2Asked",
+      "durable": false
+    },
+    {
+      "type": "permission.v2.replied",
+      "schema": "PermissionV2Replied",
+      "durable": false
+    },
+    {
+      "type": "plugin.added",
+      "schema": "PluginAdded",
+      "durable": false
+    },
+    {
+      "type": "project.directories.updated",
+      "schema": "ProjectDirectoriesUpdated",
+      "durable": false
+    },
+    {
+      "type": "project.updated",
+      "schema": "ProjectUpdated",
+      "durable": false
+    },
+    {
+      "type": "pty.created",
+      "schema": "PtyCreated",
+      "durable": false
+    },
+    {
+      "type": "pty.deleted",
+      "schema": "PtyDeleted",
+      "durable": false
+    },
+    {
+      "type": "pty.exited",
+      "schema": "PtyExited",
+      "durable": false
+    },
+    {
+      "type": "pty.updated",
+      "schema": "PtyUpdated",
+      "durable": false
+    },
+    {
+      "type": "question.asked",
+      "schema": "QuestionAsked",
+      "durable": false
+    },
+    {
+      "type": "question.rejected",
+      "schema": "question.rejected",
+      "durable": false
+    },
+    {
+      "type": "question.replied",
+      "schema": "question.replied",
+      "durable": false
+    },
+    {
+      "type": "question.v2.asked",
+      "schema": "QuestionV2Asked",
+      "durable": false
+    },
+    {
+      "type": "question.v2.rejected",
+      "schema": "QuestionV2Rejected",
+      "durable": false
+    },
+    {
+      "type": "question.v2.replied",
+      "schema": "QuestionV2Replied",
+      "durable": false
+    },
+    {
+      "type": "reference.updated",
+      "schema": "ReferenceUpdated",
+      "durable": false
+    },
+    {
+      "type": "server.connected",
+      "schema": "ServerConnected",
+      "durable": false
+    },
+    {
+      "type": "session.compacted",
+      "schema": "SessionCompacted",
+      "durable": false
+    },
+    {
+      "type": "session.created",
+      "schema": "SessionCreated",
+      "durable": false
+    },
+    {
+      "type": "session.deleted",
+      "schema": "SessionDeleted",
+      "durable": false
+    },
+    {
+      "type": "session.diff",
+      "schema": "SessionDiff",
+      "durable": false
+    },
+    {
+      "type": "session.error",
+      "schema": "SessionError",
+      "durable": false
+    },
+    {
+      "type": "session.idle",
+      "schema": "SessionIdle",
+      "durable": false
+    },
+    {
+      "type": "session.next.agent.switched",
+      "schema": "SessionNextAgentSwitched",
+      "durable": false
+    },
+    {
+      "type": "session.next.compaction.delta",
+      "schema": "SessionNextCompactionDelta",
+      "durable": false
+    },
+    {
+      "type": "session.next.compaction.ended",
+      "schema": "SessionNextCompactionEnded",
+      "durable": false
+    },
+    {
+      "type": "session.next.compaction.started",
+      "schema": "SessionNextCompactionStarted",
+      "durable": false
+    },
+    {
+      "type": "session.next.context.updated",
+      "schema": "SessionNextContextUpdated",
+      "durable": false
+    },
+    {
+      "type": "session.next.model.switched",
+      "schema": "SessionNextModelSwitched",
+      "durable": false
+    },
+    {
+      "type": "session.next.moved",
+      "schema": "SessionNextMoved",
+      "durable": false
+    },
+    {
+      "type": "session.next.prompt.admitted",
+      "schema": "SessionNextPromptAdmitted",
+      "durable": false
+    },
+    {
+      "type": "session.next.prompted",
+      "schema": "SessionNextPrompted",
+      "durable": false
+    },
+    {
+      "type": "session.next.reasoning.delta",
+      "schema": "SessionNextReasoningDelta",
+      "durable": false
+    },
+    {
+      "type": "session.next.reasoning.ended",
+      "schema": "SessionNextReasoningEnded",
+      "durable": false
+    },
+    {
+      "type": "session.next.reasoning.started",
+      "schema": "SessionNextReasoningStarted",
+      "durable": false
+    },
+    {
+      "type": "session.next.retried",
+      "schema": "SessionNextRetried",
+      "durable": false
+    },
+    {
+      "type": "session.next.revert.cleared",
+      "schema": "SessionNextRevertCleared",
+      "durable": false
+    },
+    {
+      "type": "session.next.revert.committed",
+      "schema": "SessionNextRevertCommitted",
+      "durable": false
+    },
+    {
+      "type": "session.next.revert.staged",
+      "schema": "SessionNextRevertStaged",
+      "durable": false
+    },
+    {
+      "type": "session.next.shell.ended",
+      "schema": "SessionNextShellEnded",
+      "durable": false
+    },
+    {
+      "type": "session.next.shell.started",
+      "schema": "SessionNextShellStarted",
+      "durable": false
+    },
+    {
+      "type": "session.next.step.ended",
+      "schema": "SessionNextStepEnded",
+      "durable": false
+    },
+    {
+      "type": "session.next.step.failed",
+      "schema": "SessionNextStepFailed",
+      "durable": false
+    },
+    {
+      "type": "session.next.step.started",
+      "schema": "SessionNextStepStarted",
+      "durable": false
+    },
+    {
+      "type": "session.next.synthetic",
+      "schema": "SessionNextSynthetic",
+      "durable": false
+    },
+    {
+      "type": "session.next.text.delta",
+      "schema": "SessionNextTextDelta",
+      "durable": false
+    },
+    {
+      "type": "session.next.text.ended",
+      "schema": "SessionNextTextEnded",
+      "durable": false
+    },
+    {
+      "type": "session.next.text.started",
+      "schema": "SessionNextTextStarted",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.called",
+      "schema": "SessionNextToolCalled",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.failed",
+      "schema": "SessionNextToolFailed",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.input.delta",
+      "schema": "SessionNextToolInputDelta",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.input.ended",
+      "schema": "SessionNextToolInputEnded",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.input.started",
+      "schema": "SessionNextToolInputStarted",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.progress",
+      "schema": "SessionNextToolProgress",
+      "durable": false
+    },
+    {
+      "type": "session.next.tool.success",
+      "schema": "SessionNextToolSuccess",
+      "durable": false
+    },
+    {
+      "type": "session.status",
+      "schema": "session.status",
+      "durable": false
+    },
+    {
+      "type": "session.updated",
+      "schema": "SessionUpdated",
+      "durable": false
+    },
+    {
+      "type": "todo.updated",
+      "schema": "TodoUpdated",
+      "durable": false
+    },
+    {
+      "type": "tui.command.execute",
+      "schema": "TuiCommandExecute",
+      "durable": false
+    },
+    {
+      "type": "tui.prompt.append",
+      "schema": "TuiPromptAppend",
+      "durable": false
+    },
+    {
+      "type": "tui.session.select",
+      "schema": "TuiSessionSelect",
+      "durable": false
+    },
+    {
+      "type": "tui.toast.show",
+      "schema": "TuiToastShow",
+      "durable": false
+    },
+    {
+      "type": "vcs.branch.updated",
+      "schema": "VcsBranchUpdated",
+      "durable": false
+    },
+    {
+      "type": "workspace.failed",
+      "schema": "WorkspaceFailed",
+      "durable": false
+    },
+    {
+      "type": "workspace.ready",
+      "schema": "WorkspaceReady",
+      "durable": false
+    },
+    {
+      "type": "workspace.status",
+      "schema": "WorkspaceStatus",
+      "durable": false
+    },
+    {
+      "type": "worktree.failed",
+      "schema": "WorktreeFailed",
+      "durable": false
+    },
+    {
+      "type": "worktree.ready",
+      "schema": "WorktreeReady",
+      "durable": false
+    }
+  ]
+}

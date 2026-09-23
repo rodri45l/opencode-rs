@@ -1,0 +1,21 @@
+[package]
+name = "opencode-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "opencode-rs"
+path = "src/main.rs"
+
+[dependencies]
+opencode-client.workspace = true
+opencode-server.workspace = true
+
+anyhow.workspace = true
+axum.workspace = true
+clap.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
