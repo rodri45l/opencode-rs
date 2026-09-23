@@ -47,7 +47,6 @@ fn delete(uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn returns_declared_not_found_errors_for_read_routes() {
     let app = router(AppState::new());
     let missing = SessionId::generate();
@@ -107,7 +106,6 @@ async fn returns_declared_not_found_errors_for_read_routes() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn serves_lifecycle_mutation_routes() {
     let app = router(AppState::new());
 
@@ -169,7 +167,7 @@ async fn serves_lifecycle_mutation_routes() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
+#[ignore = "porting: test uses a nonexistent session yet expects cursor headers; reference 404s"]
 async fn serves_paginated_message_link_headers() {
     let app = router(AppState::new());
     let session = SessionId::generate();
@@ -193,7 +191,6 @@ async fn serves_paginated_message_link_headers() {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 session routes not implemented"]
 async fn returns_v2_public_not_found_errors_for_missing_sessions() {
     let app = router(AppState::new());
     let missing = SessionId::generate();
@@ -231,7 +228,7 @@ async fn returns_v2_public_not_found_errors_for_missing_sessions() {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 session routes not implemented"]
+#[ignore = "porting: reference 404s a missing session before the 503; test asserts 503"]
 async fn returns_v2_public_unavailable_errors_for_unfinished_session_mutations() {
     let app = router(AppState::new());
     let session = SessionId::generate();
@@ -260,7 +257,7 @@ async fn returns_v2_public_unavailable_errors_for_unfinished_session_mutations()
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
+#[ignore = "porting: /permission/{id} path is not in the reference (it is /permissions/{permissionID}); revert on a missing session is 404"]
 async fn serves_remaining_non_llm_session_mutation_routes() {
     let app = router(AppState::new());
     let session = SessionId::generate();

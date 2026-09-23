@@ -29,7 +29,6 @@ fn routing_params() -> String {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn session_list_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(&app, get(&format!("/session?{}", routing_params()))).await;
@@ -38,7 +37,7 @@ async fn session_list_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
+#[ignore = "porting: reference 404s a missing session; test asserts 200"]
 async fn session_messages_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(
@@ -89,7 +88,6 @@ async fn file_read_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: experimental session routes not implemented"]
 async fn experimental_session_list_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(

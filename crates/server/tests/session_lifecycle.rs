@@ -9,7 +9,6 @@ use opencode_server::port::session::{SessionError, SessionStore};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: session.fork not implemented"]
 fn persists_metadata_and_copies_it_on_fork_by_default() -> Result<(), SessionError> {
     let mut store = SessionStore::new();
     let meta = json!({ "source": "sdk", "trace": { "id": "abc" } });
@@ -23,7 +22,6 @@ fn persists_metadata_and_copies_it_on_fork_by_default() -> Result<(), SessionErr
 }
 
 #[test]
-#[ignore = "porting: session.fork not implemented"]
 fn omits_metadata_when_not_provided() -> Result<(), SessionError> {
     let mut store = SessionStore::new();
     let created = store.create("empty-meta", None);

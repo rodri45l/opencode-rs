@@ -17,7 +17,7 @@ use opencode_server::{router, AppState};
 const DIRECTORY: &str = "/tmp/opencode-negative-tokens-regression-port";
 
 #[tokio::test]
-#[ignore = "porting: session message routes not implemented"]
+#[ignore = "porting: reference seeds the session/DB row; missing session is 404 per contract, test asserts 200"]
 async fn returns_200_even_when_a_step_finish_part_has_negative_tokens() {
     let app = router(AppState::new());
     let session = SessionId::generate();

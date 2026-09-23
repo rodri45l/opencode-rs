@@ -72,7 +72,6 @@ async fn query_schema_rejection_returns_named_error_shaped_json() {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 session routes not implemented"]
 async fn v2_query_schema_rejection_returns_invalid_request_error_json() {
     let app = router(AppState::new());
     let res = send(&app, get("/api/session?limit=0")).await;

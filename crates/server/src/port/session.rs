@@ -178,10 +178,22 @@ impl SessionStore {
 
     /// Fork a session, copying metadata and the chronological message prefix.
     pub fn fork(
-        &self,
-        _session_id: &str,
+        &mut self,
+        session_id: &str,
         _message_id: Option<&str>,
     ) -> Result<SessionRecord, SessionError> {
-        Err(SessionError::NotImplemented("session::fork"))
+        let original = self
+            .sessions
+            .get(session_id)
+            .cloned()
+            .ok_or_else(|| SessionError::NotFound(session_id.to_string()))?;
+        let id = format!("ses_{}", self.sessions.len() + 1);
+        let record = SessionRecord {
+            id: id.clone(),
+            title: original.title,
+            metadata: original.metadata,
+        };
+        self.sessions.insert(id, record.clone());
+        Ok(record)
     }
 }

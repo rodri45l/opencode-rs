@@ -906,6 +906,7 @@ name = "opencode-server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "base64",
  "futures",
  "opencode-client",
  "opencode-core",

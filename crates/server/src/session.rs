@@ -109,6 +109,9 @@ pub struct SessionInfo {
     pub title: String,
     /// Schema version.
     pub version: String,
+    /// Free-form session metadata, omitted when absent.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Value>,
     /// Timestamps.
     pub time: SessionTime,
     /// Session permission, omitted when absent.
@@ -150,6 +153,94 @@ pub fn encode_info(info: &SessionInfo) -> Value {
 /// Encode a global session to its wire JSON.
 pub fn encode_global(info: &GlobalSessionInfo) -> Value {
     serde_json::to_value(info).expect("global session serializes")
+}
+
+/// Message timestamps.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MessageTime {
+    /// Creation time.
+    pub created: i64,
+    /// Completion time, omitted while in flight.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub completed: Option<i64>,
+}
+
+/// A session message (minimum viable wire shape).
+///
+/// The reference models this as a union of user/assistant variants with many
+/// optional fields; the Rust port keeps the identity fields typed and carries
+/// the rest through untyped until their phases land.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Message {
+    /// Message id.
+    pub id: String,
+    /// Owning session id.
+    #[serde(rename = "sessionID")]
+    pub session_id: String,
+    /// Message role (`user`/`assistant`).
+    pub role: String,
+    /// Timestamps, omitted when absent.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub time: Option<MessageTime>,
+    /// Remaining message fields, carried verbatim.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, Value>,
+}
+
+/// A message part (minimum viable wire shape).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Part {
+    /// Part id.
+    pub id: String,
+    /// Owning session id.
+    #[serde(rename = "sessionID")]
+    pub session_id: String,
+    /// Owning message id.
+    #[serde(rename = "messageID")]
+    pub message_id: String,
+    /// Part discriminator.
+    #[serde(rename = "type")]
+    pub part_type: String,
+    /// Remaining part fields, carried verbatim.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, Value>,
+}
+
+/// A message together with its parts.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MessageWithParts {
+    /// Message metadata.
+    pub info: Message,
+    /// Ordered parts.
+    pub parts: Vec<Part>,
+}
+
+/// Envelope returned by the v2 session list route.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SessionsResponse {
+    /// Page items.
+    pub data: Vec<SessionInfo>,
+    /// Pagination cursors.
+    pub cursor: opencode_protocol::Cursor,
+}
+
+/// Envelope returned by the v2 session message list route.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SessionMessagesResponse {
+    /// Page items.
+    pub data: Vec<Value>,
+    /// Pagination cursors.
+    pub cursor: opencode_protocol::Cursor,
+}
+
+/// Envelope returned by the v2 session history route.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SessionHistory {
+    /// Durable event page.
+    pub data: Vec<Value>,
+    /// Whether more events remain.
+    #[serde(rename = "hasMore")]
+    pub has_more: bool,
 }
 
 /// A schema decoding failure.

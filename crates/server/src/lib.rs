@@ -17,6 +17,7 @@ pub mod proxy_util;
 pub mod retry;
 pub mod routes;
 pub mod session;
+pub mod session_store;
 pub mod state;
 pub mod structured_output;
 pub mod system_prompt;
@@ -38,6 +39,8 @@ pub fn router(state: AppState) -> Router {
     Router::<AppState>::new()
         .merge(routes::health::router())
         .merge(routes::event::router())
+        .merge(routes::session::router())
+        .merge(routes::session_v2::router())
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }

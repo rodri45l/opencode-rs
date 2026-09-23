@@ -32,7 +32,6 @@ fn patch_json(uri: &str, value: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn session_routes_expose_metadata_on_create_update_get_and_fork() {
     let app = router(AppState::new());
 
@@ -108,7 +107,6 @@ async fn session_routes_expose_metadata_on_create_update_get_and_fork() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn abort_route_returns_success() {
     let app = router(AppState::new());
     let res = send(
@@ -126,7 +124,6 @@ async fn abort_route_returns_success() {
 }
 
 #[tokio::test]
-#[ignore = "porting: experimental session routes not implemented"]
 async fn experimental_background_route_is_a_noop_without_synchronous_subagents() {
     let app = router(AppState::new());
     let res = send(
