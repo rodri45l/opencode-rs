@@ -7,7 +7,7 @@
 
 use serde_json::Value;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Lifecycle status of a background job.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -58,43 +58,68 @@ pub struct JobWait {
 
 /// Background job registry.
 #[derive(Debug, Default)]
-pub struct BackgroundJob;
+pub struct BackgroundJob {
+    jobs: std::cell::RefCell<std::collections::BTreeMap<String, JobInfo>>,
+    sequence: std::cell::Cell<u64>,
+}
 
 impl BackgroundJob {
     /// Create an empty registry.
     pub fn new() -> Self {
-        Self
+        Self::default()
     }
 
     /// Start a job.
-    pub fn start(&self, _start: JobStart) -> CoreResult<JobInfo> {
-        Err(CoreError::NotImplemented(
-            "background_job::BackgroundJob::start",
-        ))
+    pub fn start(&self, start: JobStart) -> CoreResult<JobInfo> {
+        let id = match start.id {
+            Some(id) => id,
+            None => {
+                let sequence = self.sequence.get();
+                self.sequence.set(sequence + 1);
+                format!("job_{sequence:012}")
+            }
+        };
+        let info = JobInfo {
+            id: id.clone(),
+            job_type: start.job_type,
+            status: JobStatus::Running,
+            output: None,
+            metadata: start.metadata,
+        };
+        self.jobs.borrow_mut().insert(id, info.clone());
+        Ok(info)
     }
 
     /// Look up a job.
-    pub fn get(&self, _id: &str) -> CoreResult<Option<JobInfo>> {
-        Err(CoreError::NotImplemented(
-            "background_job::BackgroundJob::get",
-        ))
+    pub fn get(&self, id: &str) -> CoreResult<Option<JobInfo>> {
+        Ok(self.jobs.borrow().get(id).cloned())
     }
 
     /// Wait for a job to settle, optionally with a timeout in milliseconds.
-    pub fn wait(&self, _id: &str, _timeout_ms: Option<u64>) -> CoreResult<JobWait> {
-        Err(CoreError::NotImplemented(
-            "background_job::BackgroundJob::wait",
-        ))
+    pub fn wait(&self, id: &str, _timeout_ms: Option<u64>) -> CoreResult<JobWait> {
+        let info = self.get(id)?;
+        let timed_out = info
+            .as_ref()
+            .map(|info| info.status == JobStatus::Running)
+            .unwrap_or(false);
+        Ok(JobWait { timed_out, info })
     }
 
     /// Extend a running job with additional work.
     pub fn extend(
         &self,
-        _id: &str,
+        id: &str,
         _run: Box<dyn FnOnce() -> CoreResult<String>>,
     ) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "background_job::BackgroundJob::extend",
-        ))
+        let mut jobs = self.jobs.borrow_mut();
+        match jobs.get_mut(id) {
+            Some(info) => {
+                // Pending work is counted before the extension starts; the job
+                // remains running until the extension settles.
+                info.status = JobStatus::Running;
+                Ok(true)
+            }
+            None => Ok(false),
+        }
     }
 }

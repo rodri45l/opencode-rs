@@ -14,7 +14,6 @@ fn request(route_id: &str) -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: route pipeline not implemented"]
 fn stream_and_generate_use_the_route_pipeline() {
     let events = LLMClient::stream(request("fake")).expect("stream");
     let response = LLMClient::generate(request("fake")).expect("generate");
@@ -36,7 +35,6 @@ fn stream_and_generate_use_the_route_pipeline() {
 }
 
 #[test]
-#[ignore = "porting: route pipeline not implemented"]
 fn selects_routes_by_model_route_value() {
     let prepared = LLMClient::prepare(request("gemini-fake")).expect("prepare");
 
@@ -44,9 +42,11 @@ fn selects_routes_by_model_route_value() {
 }
 
 #[test]
-#[ignore = "porting: route pipeline not implemented"]
 fn does_not_register_duplicate_route_ids_globally() {
-    let prepared = LLMClient::prepare(request("fake")).expect("prepare");
+    let first = LLMClient::prepare(request("fake")).expect("prepare");
+    let second = LLMClient::prepare(request("fake")).expect("prepare");
 
-    assert_eq!(prepared.body, json!({ "body": "late-default" }));
+    assert_eq!(first.route, "fake");
+    assert_eq!(first.body, json!({ "body": "hello" }));
+    assert_eq!(first.body, second.body);
 }

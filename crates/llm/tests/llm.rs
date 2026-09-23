@@ -9,7 +9,6 @@ fn chat_route() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: llm request constructors not implemented"]
 fn builds_canonical_request_fields_from_ergonomic_input() {
     let request = LLM::request(json!({
         "id": "req_1",
@@ -27,7 +26,6 @@ fn builds_canonical_request_fields_from_ergonomic_input() {
 }
 
 #[test]
-#[ignore = "porting: llm request constructors not implemented"]
 fn keeps_request_options_separate_from_route_defaults() {
     let request = LLM::request(json!({
         "model": Model::make(json!({
@@ -50,7 +48,6 @@ fn keeps_request_options_separate_from_route_defaults() {
 }
 
 #[test]
-#[ignore = "porting: llm request constructors not implemented"]
 fn builds_tool_choices_from_names_and_tools() {
     let tool = ToolDefinition::make(
         json!({ "name": "lookup", "description": "Lookup data", "inputSchema": { "type": "object" } }),
@@ -71,24 +68,16 @@ fn builds_tool_choices_from_names_and_tools() {
 }
 
 #[test]
-#[ignore = "porting: llm request constructors not implemented"]
 fn builds_tool_choice_modes_from_reserved_strings() {
-    assert_eq!(
-        ToolChoice::make(json!("auto")),
-        json!({ "type": "tool", "name": "auto" })
-    );
-    assert_eq!(
-        ToolChoice::make(json!("none")),
-        json!({ "type": "tool", "name": "none" })
-    );
+    assert_eq!(ToolChoice::make(json!("auto")), json!({ "type": "auto" }));
+    assert_eq!(ToolChoice::make(json!("none")), json!({ "type": "none" }));
     assert_eq!(
         ToolChoice::make(json!("required")),
-        json!({ "type": "tool", "name": "required" })
+        json!({ "type": "required" })
     );
 }
 
 #[test]
-#[ignore = "porting: llm request constructors not implemented"]
 fn builds_chronological_system_updates_separately_from_the_initial_system_prompt() {
     let update = Message::system(
         json!([{ "type": "text", "text": "Use parameterized SQL.", "cache": { "type": "ephemeral" } }]),
@@ -108,7 +97,6 @@ fn builds_chronological_system_updates_separately_from_the_initial_system_prompt
 }
 
 #[test]
-#[ignore = "porting: llm request constructors not implemented"]
 fn extracts_output_text_from_response_events() {
     let events = vec![
         json!({ "type": "text-delta", "id": "text-0", "text": "hi" }),

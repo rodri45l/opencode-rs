@@ -7,7 +7,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// The Azure provider plugin.
 #[derive(Debug, Default)]
@@ -15,19 +15,18 @@ pub struct AzurePlugin;
 
 impl AzurePlugin {
     /// Whether the plugin handles the exact `@ai-sdk/azure` package.
-    pub fn matches_package(_package: &str) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_azure::AzurePlugin::matches_package",
-        ))
+    pub fn matches_package(package: &str) -> CoreResult<bool> {
+        Ok(package == "@ai-sdk/azure")
     }
 
     /// Resolve the effective `resourceName` from the configured value and env.
     pub fn resolve_resource_name(
-        _configured: Option<&str>,
-        _env: &BTreeMap<String, String>,
+        configured: Option<&str>,
+        env: &BTreeMap<String, String>,
     ) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_azure::AzurePlugin::resolve_resource_name",
-        ))
+        if let Some(value) = configured.filter(|value| !value.trim().is_empty()) {
+            return Ok(Some(value.to_string()));
+        }
+        Ok(env.get("AZURE_RESOURCE_NAME").cloned())
     }
 }

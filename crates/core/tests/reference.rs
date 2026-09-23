@@ -9,10 +9,7 @@ use opencode_core::path::AbsolutePath;
 use opencode_core::reference::Reference;
 use opencode_core::reference_guidance::ReferenceSource;
 
-const NOTE: &str = "porting: reference registry not implemented";
-
 #[test]
-#[ignore = "porting: reference registry not implemented"]
 fn registers_normalized_sources_for_the_owning_scope() {
     let mut references = Reference::new(AbsolutePath::new("/repos"));
     let path = AbsolutePath::new("/docs");
@@ -20,9 +17,9 @@ fn registers_normalized_sources_for_the_owning_scope() {
         path: path.clone(),
         description: Some("Use for API documentation".into()),
     };
-    references.add("docs", source.clone()).expect(NOTE);
+    references.add("docs", source.clone()).unwrap();
 
-    let list = references.list().expect(NOTE);
+    let list = references.list().unwrap();
     assert_eq!(list.len(), 1);
     assert_eq!(list[0].name, "docs");
     assert_eq!(list[0].path, path);
@@ -35,7 +32,6 @@ fn registers_normalized_sources_for_the_owning_scope() {
 }
 
 #[test]
-#[ignore = "porting: reference registry not implemented"]
 fn derives_git_paths_without_exposing_cache_operations() {
     let mut references = Reference::new(AbsolutePath::new("/repos"));
     let source = ReferenceSource::Git {
@@ -43,9 +39,9 @@ fn derives_git_paths_without_exposing_cache_operations() {
         branch: Some("main".into()),
         description: None,
     };
-    references.add("sdk", source.clone()).expect(NOTE);
+    references.add("sdk", source.clone()).unwrap();
 
-    let list = references.list().expect(NOTE);
+    let list = references.list().unwrap();
     assert_eq!(list.len(), 1);
     assert_eq!(list[0].name, "sdk");
     assert_eq!(
@@ -57,7 +53,6 @@ fn derives_git_paths_without_exposing_cache_operations() {
 }
 
 #[test]
-#[ignore = "porting: reference registry not implemented"]
 fn preserves_configured_git_descriptions() {
     let mut references = Reference::new(AbsolutePath::new("/repos"));
     let source = ReferenceSource::Git {
@@ -65,9 +60,9 @@ fn preserves_configured_git_descriptions() {
         branch: None,
         description: Some("Use for SDK implementation details".into()),
     };
-    references.add("sdk", source.clone()).expect(NOTE);
+    references.add("sdk", source.clone()).unwrap();
 
-    let list = references.list().expect(NOTE);
+    let list = references.list().unwrap();
     assert_eq!(list.len(), 1);
     assert_eq!(
         list[0].path,

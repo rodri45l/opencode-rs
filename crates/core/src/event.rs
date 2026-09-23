@@ -7,10 +7,11 @@
 //! durable definition per type regardless of declaration order.
 
 use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use serde_json::Value;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Durable declaration for an event definition.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -73,6 +74,8 @@ pub struct EventEnvelopeV2 {
     pub data: Value,
 }
 
+static COUNTER: AtomicU64 = AtomicU64::new(0);
+
 /// Publishes defined events.
 #[derive(Debug, Default)]
 pub struct EventService {
@@ -93,16 +96,49 @@ impl EventService {
     /// Publish `data` for `definition`.
     pub fn publish(
         &self,
-        _definition: &EventDefinition,
-        _data: Value,
+        definition: &EventDefinition,
+        data: Value,
     ) -> CoreResult<EventEnvelopeV2> {
-        Err(CoreError::NotImplemented("event::EventService::publish"))
+        let sequence = COUNTER.fetch_add(1, Ordering::Relaxed);
+        Ok(EventEnvelopeV2 {
+            id: format!("evt_{sequence:012}"),
+            event_type: definition.event_type.clone(),
+            durable: definition.durable.as_ref().map(|durable| EventDurable {
+                version: durable.version,
+                seq: 0,
+            }),
+            location: self.location.clone(),
+            data,
+        })
     }
 
     /// Select the latest durable definition per event type.
     pub fn latest(
-        _definitions: &[EventDefinition],
+        definitions: &[EventDefinition],
     ) -> CoreResult<BTreeMap<String, EventDefinition>> {
-        Err(CoreError::NotImplemented("event::EventService::latest"))
+        let mut latest: BTreeMap<String, EventDefinition> = BTreeMap::new();
+        for definition in definitions {
+            match latest.get(&definition.event_type) {
+                Some(existing) => {
+                    let existing_version = existing
+                        .durable
+                        .as_ref()
+                        .map(|d| d.version)
+                        .unwrap_or(i64::MIN);
+                    let candidate_version = definition
+                        .durable
+                        .as_ref()
+                        .map(|d| d.version)
+                        .unwrap_or(i64::MIN);
+                    if candidate_version > existing_version {
+                        latest.insert(definition.event_type.clone(), definition.clone());
+                    }
+                }
+                None => {
+                    latest.insert(definition.event_type.clone(), definition.clone());
+                }
+            }
+        }
+        Ok(latest)
     }
 }

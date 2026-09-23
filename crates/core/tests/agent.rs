@@ -11,20 +11,16 @@ use std::rc::Rc;
 
 use opencode_core::agent::{AgentId, AgentInfo, AgentMode, AgentRegistry};
 
-const NOTE: &str = "porting: agent not implemented";
-
 #[test]
-#[ignore = "porting: agent not implemented"]
 fn starts_without_agents() {
-    let agent = AgentRegistry::new().expect(NOTE);
-    assert!(agent.all().expect(NOTE).is_empty());
-    assert!(agent.get(&AgentId::make("build")).expect(NOTE).is_none());
+    let agent = AgentRegistry::new().unwrap();
+    assert!(agent.all().unwrap().is_empty());
+    assert!(agent.get(&AgentId::make("build")).unwrap().is_none());
 }
 
 #[test]
-#[ignore = "porting: agent not implemented"]
 fn materializes_replayable_agent_transforms() {
-    let agent = AgentRegistry::new().expect(NOTE);
+    let agent = AgentRegistry::new().unwrap();
     let id = AgentId::make("reviewer");
     let target = id.clone();
 
@@ -35,16 +31,16 @@ fn materializes_replayable_agent_transforms() {
                 info.mode = Some(AgentMode::Subagent);
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let got = agent.get(&id).expect(NOTE).expect("agent exists");
+    let got = agent.get(&id).unwrap().expect("agent exists");
     assert_eq!(got.id, id);
     assert_eq!(got.description, "Reviews code");
     assert_eq!(got.mode, AgentMode::Subagent);
 
     let ids: Vec<AgentId> = agent
         .all()
-        .expect(NOTE)
+        .unwrap()
         .into_iter()
         .map(|info| info.id)
         .collect();
@@ -52,9 +48,8 @@ fn materializes_replayable_agent_transforms() {
 }
 
 #[test]
-#[ignore = "porting: agent not implemented"]
 fn rebuilds_state_when_a_transform_is_replaced() {
-    let agent = AgentRegistry::new().expect(NOTE);
+    let agent = AgentRegistry::new().unwrap();
     let id = AgentId::make("reviewer");
     let description = Rc::new(RefCell::new("Old description".to_string()));
     let hidden = Rc::new(Cell::new(true));
@@ -69,21 +64,20 @@ fn rebuilds_state_when_a_transform_is_replaced() {
                 info.hidden = Some(captured_hidden.get());
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
     *description.borrow_mut() = "New description".to_string();
     hidden.set(false);
-    agent.reload().expect(NOTE);
+    agent.reload().unwrap();
 
-    let got = agent.get(&id).expect(NOTE).expect("agent exists");
+    let got = agent.get(&id).unwrap().expect("agent exists");
     assert_eq!(got.description, "New description");
     assert!(!got.hidden);
 }
 
 #[test]
-#[ignore = "porting: agent not implemented"]
 fn applies_direct_agent_updates() {
-    let agent = AgentRegistry::new().expect(NOTE);
+    let agent = AgentRegistry::new().unwrap();
     let id = AgentId::make("build");
     let target = id.clone();
 
@@ -94,32 +88,31 @@ fn applies_direct_agent_updates() {
                 info.hidden = Some(true);
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let got = agent.get(&id).expect(NOTE).expect("agent exists");
+    let got = agent.get(&id).unwrap().expect("agent exists");
     assert_eq!(got.id, id);
     assert_eq!(got.mode, AgentMode::Primary);
     assert!(got.hidden);
 }
 
 #[test]
-#[ignore = "porting: agent not implemented"]
 fn creates_agents_with_runtime_defaults_and_supports_removal() {
-    let agent = AgentRegistry::new().expect(NOTE);
+    let agent = AgentRegistry::new().unwrap();
     let id = AgentId::make("custom");
     let target = id.clone();
 
     agent
         .transform(move |editor| editor.update(target.clone(), |_| {}))
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(
-        agent.get(&id).expect(NOTE).expect("agent exists"),
-        AgentInfo::empty(id.clone()).expect(NOTE)
+        agent.get(&id).unwrap().expect("agent exists"),
+        AgentInfo::empty(id.clone()).unwrap()
     );
 
     let target = id.clone();
     agent
         .transform(move |editor| editor.remove(target.clone()))
-        .expect(NOTE);
-    assert!(agent.get(&id).expect(NOTE).is_none());
+        .unwrap();
+    assert!(agent.get(&id).unwrap().is_none());
 }

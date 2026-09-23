@@ -7,22 +7,16 @@
 
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 
-const NOTE: &str = "porting: alibaba provider plugin not implemented";
-
 #[test]
-#[ignore = "porting: alibaba provider plugin not implemented"]
 fn binds_only_to_the_exact_alibaba_package() {
-    assert!(ProviderSdkPlugins::matches_package("alibaba", "@ai-sdk/alibaba").expect(NOTE));
-    assert!(
-        !ProviderSdkPlugins::matches_package("alibaba", "@ai-sdk/openai-compatible").expect(NOTE)
-    );
+    assert!(ProviderSdkPlugins::matches_package("alibaba", "@ai-sdk/alibaba").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("alibaba", "@ai-sdk/openai-compatible").unwrap());
 }
 
 #[test]
-#[ignore = "porting: alibaba provider plugin not implemented"]
 fn uses_the_canonical_alibaba_chat_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("alibaba", "alibaba").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("alibaba", "alibaba").unwrap(),
         "alibaba.chat"
     );
 }

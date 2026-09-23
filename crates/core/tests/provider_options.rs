@@ -7,40 +7,35 @@
 use opencode_core::provider_options::ConfigProviderOptionsV1;
 use serde_json::json;
 
-const NOTE: &str = "porting: config provider options not implemented";
-
 #[test]
-#[ignore = "porting: config provider options not implemented"]
 fn keeps_raw_provider_and_request_options_unchanged() {
     let lowerer = ConfigProviderOptionsV1::get("custom-provider");
 
     assert_eq!(
         lowerer
             .provider(&json!({ "apiKey": "secret", "headers": { "x-test": "1" }, "nested": { "camelCase": true } }))
-            .expect(NOTE),
+            .unwrap(),
         json!({ "body": { "apiKey": "secret", "headers": { "x-test": "1" }, "nested": { "camelCase": true } } })
     );
     assert_eq!(
         lowerer
             .request(&json!({ "nested": { "camelCase": true } }))
-            .expect(NOTE),
+            .unwrap(),
         json!({ "nested": { "camelCase": true } })
     );
 }
 
 #[test]
-#[ignore = "porting: config provider options not implemented"]
 fn falls_back_to_raw_lowering_for_prototype_property_package_names() {
     assert_eq!(
         ConfigProviderOptionsV1::get("toString")
             .provider(&json!({ "enabled": true }))
-            .expect(NOTE),
+            .unwrap(),
         json!({ "body": { "enabled": true } })
     );
 }
 
 #[test]
-#[ignore = "porting: config provider options not implemented"]
 fn lowers_openai_provider_and_request_options() {
     let lowerer = ConfigProviderOptionsV1::get("@ai-sdk/openai");
 
@@ -55,7 +50,7 @@ fn lowers_openai_provider_and_request_options() {
                 "body": { "store": true },
                 "timeout": 1000,
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "url": "https://openai.example/v1",
             "headers": {
@@ -78,7 +73,7 @@ fn lowers_openai_provider_and_request_options() {
                 "text": { "outputFormat": "plain" },
                 "nestedValue": { "camelCase": true },
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "reasoning": { "encrypted_content": true, "effort": "high", "summary": "auto" },
             "text": { "output_format": "plain", "verbosity": "low" },
@@ -88,7 +83,6 @@ fn lowers_openai_provider_and_request_options() {
 }
 
 #[test]
-#[ignore = "porting: config provider options not implemented"]
 fn lowers_anthropic_provider_and_request_options() {
     let lowerer = ConfigProviderOptionsV1::get("@ai-sdk/anthropic");
 
@@ -102,7 +96,7 @@ fn lowers_anthropic_provider_and_request_options() {
                 "body": { "beta": true },
                 "generateId": "custom",
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "url": "https://anthropic.example",
             "headers": { "x-api-key": "secret", "Authorization": "Bearer token", "x-test": "1" },
@@ -118,7 +112,7 @@ fn lowers_anthropic_provider_and_request_options() {
                 "metadata": { "userId": "user", "traceId": "trace" },
                 "nestedValue": { "camelCase": true },
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "output_config": { "effort": "high", "task_budget": 1024 },
             "metadata": { "user_id": "user", "trace_id": "trace" },
@@ -128,7 +122,6 @@ fn lowers_anthropic_provider_and_request_options() {
 }
 
 #[test]
-#[ignore = "porting: config provider options not implemented"]
 fn lowers_google_provider_and_request_options() {
     let lowerer = ConfigProviderOptionsV1::get("@ai-sdk/google");
 
@@ -141,7 +134,7 @@ fn lowers_google_provider_and_request_options() {
                 "body": { "trace": true },
                 "project": "project",
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "url": "https://google.example",
             "headers": { "x-goog-api-key": "secret", "x-test": "1" },
@@ -158,7 +151,7 @@ fn lowers_google_provider_and_request_options() {
                 "imageConfig": { "aspectRatio": "16:9" },
                 "safetySettings": ["safe"],
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "safetySettings": ["safe"],
             "generationConfig": {
@@ -172,7 +165,6 @@ fn lowers_google_provider_and_request_options() {
 }
 
 #[test]
-#[ignore = "porting: config provider options not implemented"]
 fn lowers_openai_compatible_provider_and_request_options() {
     let lowerer = ConfigProviderOptionsV1::get("@ai-sdk/openai-compatible");
 
@@ -184,7 +176,7 @@ fn lowers_openai_compatible_provider_and_request_options() {
                 "body": { "trace": true },
                 "apiKey": "secret",
             }))
-            .expect(NOTE),
+            .unwrap(),
         json!({
             "url": "https://compatible.example/v1",
             "headers": { "x-test": "1" },
@@ -195,7 +187,7 @@ fn lowers_openai_compatible_provider_and_request_options() {
     assert_eq!(
         lowerer
             .request(&json!({ "reasoningEffort": "high", "serviceTier": "priority" }))
-            .expect(NOTE),
+            .unwrap(),
         json!({ "reasoning_effort": "high", "serviceTier": "priority" })
     );
 }

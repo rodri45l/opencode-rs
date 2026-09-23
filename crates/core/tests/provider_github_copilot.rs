@@ -12,8 +12,6 @@ use opencode_core::provider_sdk_plugins::{
     LanguageQuery, LanguageSelection, LanguageSelector, ProviderSdkPlugins, SdkCapabilities,
 };
 
-const NOTE: &str = "porting: github-copilot provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -39,20 +37,17 @@ fn query<'a>(
 }
 
 #[test]
-#[ignore = "porting: github-copilot provider plugin not implemented"]
 fn binds_only_to_the_exact_copilot_package() {
     assert!(
-        ProviderSdkPlugins::matches_package("github-copilot", "@ai-sdk/github-copilot")
-            .expect(NOTE)
+        ProviderSdkPlugins::matches_package("github-copilot", "@ai-sdk/github-copilot").unwrap()
     );
     assert!(
         !ProviderSdkPlugins::matches_package("github-copilot", "@ai-sdk/openai-compatible")
-            .expect(NOTE)
+            .unwrap()
     );
 }
 
 #[test]
-#[ignore = "porting: github-copilot provider plugin not implemented"]
 fn selects_routes_by_model_id() {
     let cases = [
         ("gpt-5", LanguageSelector::Responses),
@@ -63,7 +58,7 @@ fn selects_routes_by_model_id() {
     ];
     for (model, selector) in cases {
         assert_eq!(
-            ProviderSdkPlugins::select_language(&query(model, model, caps_all())).expect(NOTE),
+            ProviderSdkPlugins::select_language(&query(model, model, caps_all())).unwrap(),
             Some(LanguageSelection {
                 selector,
                 model_id: model.to_string(),
@@ -73,7 +68,6 @@ fn selects_routes_by_model_id() {
 }
 
 #[test]
-#[ignore = "porting: github-copilot provider plugin not implemented"]
 fn falls_back_to_language_model_when_absent() {
     let capabilities = SdkCapabilities {
         language_model: true,
@@ -85,7 +79,7 @@ fn falls_back_to_language_model_when_absent() {
             "claude-sonnet-4",
             capabilities
         ))
-        .expect(NOTE),
+        .unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::LanguageModel,
             model_id: "claude-sonnet-4".to_string(),
@@ -94,17 +88,16 @@ fn falls_back_to_language_model_when_absent() {
 }
 
 #[test]
-#[ignore = "porting: github-copilot provider plugin not implemented"]
 fn uses_the_model_api_id_for_selection() {
     assert_eq!(
-        ProviderSdkPlugins::select_language(&query("default", "gpt-5", caps_all())).expect(NOTE),
+        ProviderSdkPlugins::select_language(&query("default", "gpt-5", caps_all())).unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Responses,
             model_id: "gpt-5".to_string(),
         })
     );
     assert_eq!(
-        ProviderSdkPlugins::select_language(&query("small", "gpt-5-mini", caps_all())).expect(NOTE),
+        ProviderSdkPlugins::select_language(&query("small", "gpt-5-mini", caps_all())).unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Chat,
             model_id: "gpt-5-mini".to_string(),
@@ -112,7 +105,7 @@ fn uses_the_model_api_id_for_selection() {
     );
     assert_eq!(
         ProviderSdkPlugins::select_language(&query("sonnet", "claude-sonnet-4", caps_all()))
-            .expect(NOTE),
+            .unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Chat,
             model_id: "claude-sonnet-4".to_string(),
@@ -121,18 +114,17 @@ fn uses_the_model_api_id_for_selection() {
 }
 
 #[test]
-#[ignore = "porting: github-copilot provider plugin not implemented"]
 fn disables_gpt_5_chat_latest_for_the_exact_copilot_provider() {
     assert!(ProviderSdkPlugins::disables_model(
         "github-copilot",
         "github-copilot",
         "gpt-5-chat-latest"
     )
-    .expect(NOTE));
+    .unwrap());
     assert!(!ProviderSdkPlugins::disables_model(
         "github-copilot",
         "custom-copilot",
         "gpt-5-chat-latest"
     )
-    .expect(NOTE));
+    .unwrap());
 }

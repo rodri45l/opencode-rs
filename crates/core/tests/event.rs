@@ -9,8 +9,6 @@
 use opencode_core::event::{DurableDef, EventDefinition, EventLocation, EventService};
 use serde_json::json;
 
-const NOTE: &str = "porting: event not implemented";
-
 fn test_location() -> EventLocation {
     EventLocation {
         directory: "project".into(),
@@ -19,14 +17,13 @@ fn test_location() -> EventLocation {
 }
 
 #[test]
-#[ignore = "porting: event not implemented"]
 fn publishes_events_with_the_current_location() {
     let events = EventService::new(Some(test_location()));
     let message = EventDefinition::new("test.message", None);
 
     let event = events
         .publish(&message, json!({ "text": "hello" }))
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(event.event_type, "test.message");
     assert!(event.durable.is_none());
@@ -35,21 +32,19 @@ fn publishes_events_with_the_current_location() {
 }
 
 #[test]
-#[ignore = "porting: event not implemented"]
 fn omits_location_when_no_location_is_available() {
     let events = EventService::new(None);
     let message = EventDefinition::new("test.global", None);
 
     let event = events
         .publish(&message, json!({ "text": "hello" }))
-        .expect(NOTE);
+        .unwrap();
 
     assert!(event.location.is_none());
     assert_eq!(event.event_type, "test.global");
 }
 
 #[test]
-#[ignore = "porting: event not implemented"]
 fn publishes_the_definition_version() {
     let events = EventService::new(Some(test_location()));
     let versioned = EventDefinition::new(
@@ -62,14 +57,13 @@ fn publishes_the_definition_version() {
 
     let event = events
         .publish(&versioned, json!({ "id": "one", "text": "hello" }))
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(event.event_type, "test.versioned");
     assert_eq!(event.durable.map(|durable| durable.version), Some(2));
 }
 
 #[test]
-#[ignore = "porting: event not implemented"]
 fn selects_the_latest_durable_definition_independent_of_declaration_order() {
     let latest = EventDefinition::new(
         "test.out-of-order",
@@ -86,9 +80,9 @@ fn selects_the_latest_durable_definition_independent_of_declaration_order() {
         }),
     );
 
-    let forward = EventService::latest(&[latest.clone(), historical.clone()]).expect(NOTE);
+    let forward = EventService::latest(&[latest.clone(), historical.clone()]).unwrap();
     assert_eq!(forward.get("test.out-of-order"), Some(&latest));
 
-    let reverse = EventService::latest(&[historical, latest.clone()]).expect(NOTE);
+    let reverse = EventService::latest(&[historical, latest.clone()]).unwrap();
     assert_eq!(reverse.get("test.out-of-order"), Some(&latest));
 }

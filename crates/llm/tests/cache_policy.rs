@@ -16,7 +16,6 @@ fn anthropic_model() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn undefined_cache_resolves_to_auto() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -36,7 +35,6 @@ fn undefined_cache_resolves_to_auto() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn auto_marks_the_last_tool_system_and_user_message_on_anthropic() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -65,7 +63,6 @@ fn auto_marks_the_last_tool_system_and_user_message_on_anthropic() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn auto_is_a_noop_on_openai_and_gemini() {
     let openai = LLMClient::prepare(LLM::request(json!({
         "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" }, "endpoint": { "baseURL": "https://api.openai.test/v1/" }, "auth": Auth::bearer("test") },
@@ -89,7 +86,6 @@ fn auto_is_a_noop_on_openai_and_gemini() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn auto_on_bedrock_emits_cache_point_markers() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": { "id": "anthropic.claude-3-5-sonnet-20241022-v2:0", "provider": "amazon-bedrock", "route": { "id": "bedrock-converse" } },
@@ -115,7 +111,6 @@ fn auto_on_bedrock_emits_cache_point_markers() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn none_disables_auto_placement_even_when_manual_hints_exist() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -131,7 +126,6 @@ fn none_disables_auto_placement_even_when_manual_hints_exist() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn granular_object_form_marks_just_tools() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -150,7 +144,6 @@ fn granular_object_form_marks_just_tools() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn auto_policy_preserves_manual_hints_on_other_parts() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -174,7 +167,6 @@ fn auto_policy_preserves_manual_hints_on_other_parts() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn messages_tail_marks_the_last_two_message_boundaries() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -200,7 +192,6 @@ fn messages_tail_marks_the_last_two_message_boundaries() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn latest_assistant_marks_the_last_assistant_message() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": anthropic_model(),
@@ -222,7 +213,6 @@ fn latest_assistant_marks_the_last_assistant_message() {
 }
 
 #[test]
-#[ignore = "porting: cache policy not implemented"]
 fn returns_the_same_request_reference_when_policy_is_a_noop() {
     let request =
         LLM::request(json!({ "model": anthropic_model(), "prompt": "hi", "cache": "none" }));

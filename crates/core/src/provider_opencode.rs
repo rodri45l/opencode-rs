@@ -9,7 +9,7 @@
 //! prefers `gpt-5-nano` as the small model. The `Catalog`/`Credential`/
 //! `Integration`/`PluginHost` wiring and the remote provider fetch are dropped.
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// The OpenCode provider plugin.
 #[derive(Debug, Default)]
@@ -17,55 +17,54 @@ pub struct OpencodePlugin;
 
 impl OpencodePlugin {
     /// Whether the plugin rewrites `provider_id` (only `opencode`).
-    pub fn matches_provider(_provider_id: &str) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_opencode::OpencodePlugin::matches_provider",
-        ))
+    pub fn matches_provider(provider_id: &str) -> CoreResult<bool> {
+        Ok(provider_id == "opencode")
     }
 
     /// Whether a model with the given input cost (per million tokens) is paid,
     /// and therefore requires credentials.
-    pub fn requires_credentials(_input_cost: f64) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_opencode::OpencodePlugin::requires_credentials",
-        ))
+    pub fn requires_credentials(input_cost: f64) -> CoreResult<bool> {
+        Ok(input_cost > 0.0)
     }
 
     /// Whether a model is enabled given whether credentials are available and
     /// its input cost.
-    pub fn model_enabled(_credentials: bool, _input_cost: f64) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_opencode::OpencodePlugin::model_enabled",
-        ))
+    pub fn model_enabled(credentials: bool, input_cost: f64) -> CoreResult<bool> {
+        Ok(credentials || !Self::requires_credentials(input_cost)?)
     }
 
     /// Resolve whether credentials are available: a primary env key, a
     /// configured env-method variable, or a configured `apiKey`.
     pub fn has_credentials(
-        _primary_env_key: Option<&str>,
-        _env_method_present: bool,
-        _configured_api_key: Option<&str>,
+        primary_env_key: Option<&str>,
+        env_method_present: bool,
+        configured_api_key: Option<&str>,
     ) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_opencode::OpencodePlugin::has_credentials",
-        ))
+        Ok(primary_env_key.is_some_and(|value| !value.is_empty())
+            || env_method_present
+            || configured_api_key.is_some_and(|value| !value.is_empty()))
     }
 
     /// The API key to write into the provider body: the configured key when
     /// authenticated, otherwise the public fallback.
     pub fn api_key(
-        _credentials: bool,
-        _configured_api_key: Option<&str>,
+        credentials: bool,
+        configured_api_key: Option<&str>,
     ) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_opencode::OpencodePlugin::api_key",
-        ))
+        if credentials {
+            Ok(configured_api_key
+                .filter(|value| !value.is_empty())
+                .map(str::to_string))
+        } else {
+            Ok(Some("public".to_string()))
+        }
     }
 
     /// Choose the small model from candidate ids, preferring `gpt-5-nano`.
-    pub fn small_model(_candidates: &[&str]) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_opencode::OpencodePlugin::small_model",
-        ))
+    pub fn small_model(candidates: &[&str]) -> CoreResult<Option<String>> {
+        if let Some(nano) = candidates.iter().find(|id| **id == "gpt-5-nano") {
+            return Ok(Some((*nano).to_string()));
+        }
+        Ok(candidates.first().map(|id| (*id).to_string()))
     }
 }

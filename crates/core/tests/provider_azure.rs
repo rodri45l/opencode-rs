@@ -15,8 +15,6 @@ use opencode_core::provider_sdk_plugins::{
     LanguageQuery, LanguageSelection, LanguageSelector, ProviderSdkPlugins, SdkCapabilities,
 };
 
-const NOTE: &str = "porting: azure provider plugin not implemented";
-
 fn env(pairs: &[(&str, &str)]) -> BTreeMap<String, String> {
     pairs
         .iter()
@@ -34,44 +32,40 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: azure provider plugin not implemented"]
 fn resolves_resource_name_from_env() {
     assert_eq!(
         AzurePlugin::resolve_resource_name(None, &env(&[("AZURE_RESOURCE_NAME", "from-env")]))
-            .expect(NOTE),
+            .unwrap(),
         Some("from-env".to_string())
     );
 }
 
 #[test]
-#[ignore = "porting: azure provider plugin not implemented"]
 fn keeps_an_explicit_resource_name_over_env() {
     assert_eq!(
         AzurePlugin::resolve_resource_name(
             Some("from-config"),
             &env(&[("AZURE_RESOURCE_NAME", "from-env")])
         )
-        .expect(NOTE),
+        .unwrap(),
         Some("from-config".to_string())
     );
 }
 
 #[test]
-#[ignore = "porting: azure provider plugin not implemented"]
 fn falls_back_to_env_for_blank_or_whitespace_resource_names() {
     let values = env(&[("AZURE_RESOURCE_NAME", "from-env")]);
     assert_eq!(
-        AzurePlugin::resolve_resource_name(Some(""), &values).expect(NOTE),
+        AzurePlugin::resolve_resource_name(Some(""), &values).unwrap(),
         Some("from-env".to_string())
     );
     assert_eq!(
-        AzurePlugin::resolve_resource_name(Some("   "), &values).expect(NOTE),
+        AzurePlugin::resolve_resource_name(Some("   "), &values).unwrap(),
         Some("from-env".to_string())
     );
 }
 
 #[test]
-#[ignore = "porting: azure provider plugin not implemented"]
 fn selects_chat_only_for_completion_urls() {
     let query = LanguageQuery {
         plugin: "azure",
@@ -82,7 +76,7 @@ fn selects_chat_only_for_completion_urls() {
         use_completion_urls: true,
     };
     assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
+        ProviderSdkPlugins::select_language(&query).unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Chat,
             model_id: "deployment".to_string(),
@@ -91,7 +85,6 @@ fn selects_chat_only_for_completion_urls() {
 }
 
 #[test]
-#[ignore = "porting: azure provider plugin not implemented"]
 fn uses_the_legacy_selector_order_and_provider_guard() {
     let query = LanguageQuery {
         plugin: "azure",
@@ -102,7 +95,7 @@ fn uses_the_legacy_selector_order_and_provider_guard() {
         use_completion_urls: false,
     };
     assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
+        ProviderSdkPlugins::select_language(&query).unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Responses,
             model_id: "deployment".to_string(),
@@ -113,14 +106,10 @@ fn uses_the_legacy_selector_order_and_provider_guard() {
         provider_id: "openai",
         ..query
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&ignored).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&ignored).unwrap(), None);
 }
 
 #[test]
-#[ignore = "porting: azure provider plugin not implemented"]
 fn falls_back_through_the_legacy_selector_order() {
     let messages = SdkCapabilities {
         messages: true,
@@ -137,7 +126,7 @@ fn falls_back_through_the_legacy_selector_order() {
             capabilities: messages,
             use_completion_urls: false,
         })
-        .expect(NOTE),
+        .unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Messages,
             model_id: "messages-deployment".to_string(),
@@ -157,7 +146,7 @@ fn falls_back_through_the_legacy_selector_order() {
             capabilities: language,
             use_completion_urls: false,
         })
-        .expect(NOTE),
+        .unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::LanguageModel,
             model_id: "language-deployment".to_string(),

@@ -7,7 +7,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Identifier for an agent.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -66,8 +66,14 @@ pub struct AgentInfo {
 
 impl AgentInfo {
     /// The runtime-default agent for an id.
-    pub fn empty(_id: AgentId) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented("agent::AgentInfo::empty"))
+    pub fn empty(id: AgentId) -> CoreResult<Self> {
+        Ok(Self {
+            id,
+            description: String::new(),
+            mode: AgentMode::Subagent,
+            hidden: false,
+            permissions: Vec::new(),
+        })
     }
 }
 
@@ -134,35 +140,66 @@ impl AgentEditor {
 }
 
 /// Registry of agents built from replayable transforms.
-#[derive(Debug, Default)]
-pub struct AgentRegistry;
+type AgentTransform = Box<dyn Fn(&mut AgentEditor)>;
+
+#[derive(Default)]
+pub struct AgentRegistry {
+    transforms: std::cell::RefCell<Vec<AgentTransform>>,
+    entries: std::cell::RefCell<BTreeMap<String, AgentDraft>>,
+}
+
+impl std::fmt::Debug for AgentRegistry {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AgentRegistry").finish_non_exhaustive()
+    }
+}
 
 impl AgentRegistry {
     /// Create an empty registry.
     pub fn new() -> CoreResult<Self> {
-        Err(CoreError::NotImplemented("agent::AgentRegistry::new"))
+        Ok(Self::default())
     }
 
     /// All materialized agents.
     pub fn all(&self) -> CoreResult<Vec<AgentInfo>> {
-        Err(CoreError::NotImplemented("agent::AgentRegistry::all"))
+        Ok(self.entries.borrow().values().map(materialize).collect())
     }
 
     /// Look up one agent.
-    pub fn get(&self, _id: &AgentId) -> CoreResult<Option<AgentInfo>> {
-        Err(CoreError::NotImplemented("agent::AgentRegistry::get"))
+    pub fn get(&self, id: &AgentId) -> CoreResult<Option<AgentInfo>> {
+        Ok(self.entries.borrow().get(id.as_str()).map(materialize))
     }
 
     /// Register a replayable transform.
-    pub fn transform<F>(&self, _transform: F) -> CoreResult<()>
+    pub fn transform<F>(&self, transform: F) -> CoreResult<()>
     where
         F: Fn(&mut AgentEditor) + 'static,
     {
-        Err(CoreError::NotImplemented("agent::AgentRegistry::transform"))
+        self.transforms.borrow_mut().push(Box::new(transform));
+        self.rebuild()
     }
 
     /// Re-apply every registered transform.
     pub fn reload(&self) -> CoreResult<()> {
-        Err(CoreError::NotImplemented("agent::AgentRegistry::reload"))
+        self.rebuild()
+    }
+
+    fn rebuild(&self) -> CoreResult<()> {
+        let mut editor = AgentEditor::new();
+        for transform in self.transforms.borrow().iter() {
+            transform(&mut editor);
+        }
+        *self.entries.borrow_mut() = editor.entries;
+        Ok(())
+    }
+}
+
+fn materialize(draft: &AgentDraft) -> AgentInfo {
+    AgentInfo {
+        id: draft.id.clone(),
+        description: draft.description.clone().unwrap_or_default(),
+        mode: draft.mode.unwrap_or(AgentMode::Subagent),
+        hidden: draft.hidden.unwrap_or(false),
+        permissions: draft.permissions.clone(),
     }
 }

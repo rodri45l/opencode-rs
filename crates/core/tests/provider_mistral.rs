@@ -10,17 +10,14 @@
 use opencode_core::mistral::MistralPlugin;
 use serde_json::json;
 
-const NOTE: &str = "porting: mistral provider lowering not implemented";
-
 #[test]
-#[ignore = "porting: mistral provider lowering not implemented"]
 fn sends_prompt_cache_key_and_reasoning_effort() {
     let mut body = json!({});
     MistralPlugin::apply_request(
         &json!({ "mistral": { "promptCacheKey": "session-123" } }),
         &mut body,
     )
-    .expect(NOTE);
+    .unwrap();
     assert_eq!(body["prompt_cache_key"], json!("session-123"));
 
     let mut body = json!({});
@@ -28,12 +25,11 @@ fn sends_prompt_cache_key_and_reasoning_effort() {
         &json!({ "mistral": { "reasoningEffort": "custom" } }),
         &mut body,
     )
-    .expect(NOTE);
+    .unwrap();
     assert_eq!(body["reasoning_effort"], json!("custom"));
 }
 
 #[test]
-#[ignore = "porting: mistral provider lowering not implemented"]
 fn preserves_metadata_only_thinking_chunks() {
     let thinking = json!({
         "type": "thinking",
@@ -53,7 +49,7 @@ fn preserves_metadata_only_thinking_chunks() {
     });
 
     assert_eq!(
-        MistralPlugin::normalize_thinking(&thinking).expect(NOTE),
+        MistralPlugin::normalize_thinking(&thinking).unwrap(),
         json!({
             "type": "reasoning",
             "text": "",
@@ -63,14 +59,13 @@ fn preserves_metadata_only_thinking_chunks() {
 }
 
 #[test]
-#[ignore = "porting: mistral provider lowering not implemented"]
 fn collapses_plain_reasoning_with_adjacent_text_in_history() {
     let content = json!([
         { "type": "reasoning", "text": "thinking" },
         { "type": "text", "text": "Hi" }
     ]);
     assert_eq!(
-        MistralPlugin::history_content(&content).expect(NOTE),
+        MistralPlugin::history_content(&content).unwrap(),
         json!("thinkingHi")
     );
 }

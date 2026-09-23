@@ -4,7 +4,6 @@
 use opencode_llm::LLM;
 
 #[test]
-#[ignore = "porting: provider error classification not implemented"]
 fn classifies_provider_token_limit_messages_as_context_overflow() {
     let messages = [
         "tokens in request more than max tokens allowed",
@@ -27,7 +26,6 @@ fn classifies_provider_token_limit_messages_as_context_overflow() {
 }
 
 #[test]
-#[ignore = "porting: provider error classification not implemented"]
 fn does_not_classify_rate_limits_as_context_overflow() {
     let messages = [
         "Throttling error: Too many tokens, please wait before trying again.",

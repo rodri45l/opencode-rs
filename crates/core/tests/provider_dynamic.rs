@@ -10,43 +10,37 @@
 
 use opencode_core::provider_dynamic::DynamicProviderPlugin;
 
-const NOTE: &str = "porting: dynamic provider plugin not implemented";
-
 #[test]
-#[ignore = "porting: dynamic provider plugin not implemented"]
 fn does_not_override_an_sdk_already_supplied_by_an_earlier_plugin() {
-    assert!(!DynamicProviderPlugin::should_override_sdk(true).expect(NOTE));
-    assert!(DynamicProviderPlugin::should_override_sdk(false).expect(NOTE));
+    assert!(!DynamicProviderPlugin::should_override_sdk(true).unwrap());
+    assert!(DynamicProviderPlugin::should_override_sdk(false).unwrap());
 }
 
 #[test]
-#[ignore = "porting: dynamic provider plugin not implemented"]
 fn injects_the_provider_id_as_the_sdk_factory_name() {
     assert_eq!(
-        DynamicProviderPlugin::sdk_name("custom-provider").expect(NOTE),
+        DynamicProviderPlugin::sdk_name("custom-provider").unwrap(),
         "custom-provider"
     );
 }
 
 #[test]
-#[ignore = "porting: dynamic provider plugin not implemented"]
 fn uses_the_model_api_id_for_the_default_language_model() {
     assert_eq!(
-        DynamicProviderPlugin::default_language_model_id("test-model-api").expect(NOTE),
+        DynamicProviderPlugin::default_language_model_id("test-model-api").unwrap(),
         "test-model-api"
     );
 }
 
 #[test]
-#[ignore = "porting: dynamic provider plugin not implemented"]
 fn loads_npm_packages_through_their_resolved_import_entrypoint() {
     assert_eq!(
         DynamicProviderPlugin::import_source("fixture-provider", Some("/tmp/provider.mjs"))
-            .expect(NOTE),
+            .unwrap(),
         "/tmp/provider.mjs"
     );
     assert_eq!(
-        DynamicProviderPlugin::import_source("fixture-provider", None).expect(NOTE),
+        DynamicProviderPlugin::import_source("fixture-provider", None).unwrap(),
         "fixture-provider"
     );
 }

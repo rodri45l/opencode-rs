@@ -8,7 +8,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A provider request envelope.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -36,16 +36,33 @@ impl ProviderPlugins {
     }
 
     /// Apply the Kilo legacy referer headers to `request` for `provider_id`.
-    pub fn apply_kilo(_provider_id: &str, _request: &mut ProviderRequest) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "provider_plugins::ProviderPlugins::apply_kilo",
-        ))
+    pub fn apply_kilo(provider_id: &str, request: &mut ProviderRequest) -> CoreResult<()> {
+        if provider_id != "kilo" {
+            return Ok(());
+        }
+        request.headers.insert(
+            "HTTP-Referer".to_string(),
+            "https://opencode.ai/".to_string(),
+        );
+        request
+            .headers
+            .insert("X-Title".to_string(), "opencode".to_string());
+        Ok(())
     }
 
     /// Apply the Zenmux legacy referer headers to `request` for `provider_id`.
-    pub fn apply_zenmux(_provider_id: &str, _request: &mut ProviderRequest) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "provider_plugins::ProviderPlugins::apply_zenmux",
-        ))
+    pub fn apply_zenmux(provider_id: &str, request: &mut ProviderRequest) -> CoreResult<()> {
+        if provider_id != "zenmux" {
+            return Ok(());
+        }
+        request
+            .headers
+            .entry("HTTP-Referer".to_string())
+            .or_insert_with(|| "https://opencode.ai/".to_string());
+        request
+            .headers
+            .entry("X-Title".to_string())
+            .or_insert_with(|| "opencode".to_string());
+        Ok(())
     }
 }

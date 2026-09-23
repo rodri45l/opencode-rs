@@ -5,7 +5,6 @@ use opencode_llm::{Auth, Route};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: route merge not implemented"]
 fn merges_endpoint_query_and_header_defaults_while_replacing_auth_and_id() {
     let auth = Auth::headers(json!({ "x-auth": "new" }));
     let base = json!({

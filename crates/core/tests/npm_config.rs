@@ -10,8 +10,6 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use opencode_core::npm_config::NpmConfig;
 use serde_json::json;
 
-const NOTE: &str = "porting: npm config not implemented";
-
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 
 fn scratch(contents: &str) -> PathBuf {
@@ -26,46 +24,41 @@ fn scratch(contents: &str) -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: npm config not implemented"]
 fn reads_registry_from_project_npmrc() {
     let dir = scratch("registry=https://registry.example.test/\n");
-    let config = NpmConfig::load(&dir.to_string_lossy()).expect(NOTE);
+    let config = NpmConfig::load(&dir.to_string_lossy()).unwrap();
     assert_eq!(config["registry"], json!("https://registry.example.test/"));
 }
 
 #[test]
-#[ignore = "porting: npm config not implemented"]
 fn reads_scoped_registries_from_project_npmrc() {
     let dir = scratch("@acme:registry=https://npm.acme.test/\n");
-    let config = NpmConfig::load(&dir.to_string_lossy()).expect(NOTE);
+    let config = NpmConfig::load(&dir.to_string_lossy()).unwrap();
     assert_eq!(config["@acme:registry"], json!("https://npm.acme.test/"));
 }
 
 #[test]
-#[ignore = "porting: npm config not implemented"]
 fn flattens_boolean_and_list_options() {
     let dir = scratch("ignore-scripts=true\nomit[]=dev\nomit[]=optional\n");
-    let config = NpmConfig::load(&dir.to_string_lossy()).expect(NOTE);
+    let config = NpmConfig::load(&dir.to_string_lossy()).unwrap();
     assert_eq!(config["ignoreScripts"], json!(true));
     assert_eq!(config["omit"], json!(["dev", "optional"]));
 }
 
 #[test]
-#[ignore = "porting: npm config not implemented"]
 fn normalizes_configured_registry_without_trailing_slash() {
     let dir = scratch("registry=https://registry.example.test/\n");
     assert_eq!(
-        NpmConfig::registry(&dir.to_string_lossy()).expect(NOTE),
+        NpmConfig::registry(&dir.to_string_lossy()).unwrap(),
         "https://registry.example.test"
     );
 }
 
 #[test]
-#[ignore = "porting: npm config not implemented"]
 fn leaves_configured_registry_without_trailing_slash_unchanged() {
     let dir = scratch("registry=https://registry.example.test\n");
     assert_eq!(
-        NpmConfig::registry(&dir.to_string_lossy()).expect(NOTE),
+        NpmConfig::registry(&dir.to_string_lossy()).unwrap(),
         "https://registry.example.test"
     );
 }

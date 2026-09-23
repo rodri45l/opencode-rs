@@ -8,8 +8,6 @@
 
 use opencode_core::provider_sdk_plugins::{LanguageQuery, ProviderSdkPlugins, SdkCapabilities};
 
-const NOTE: &str = "porting: togetherai provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -20,27 +18,24 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: togetherai provider plugin not implemented"]
 fn binds_only_to_the_exact_togetherai_package() {
-    assert!(ProviderSdkPlugins::matches_package("togetherai", "@ai-sdk/togetherai").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("togetherai", "@ai-sdk/togetherai").unwrap());
     assert!(!ProviderSdkPlugins::matches_package(
         "togetherai",
         "file:///tmp/@ai-sdk/togetherai-provider.js"
     )
-    .expect(NOTE));
+    .unwrap());
 }
 
 #[test]
-#[ignore = "porting: togetherai provider plugin not implemented"]
 fn uses_the_canonical_togetherai_sdk_name_for_custom_providers() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("togetherai", "custom-togetherai").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("togetherai", "custom-togetherai").unwrap(),
         "togetherai.chat"
     );
 }
 
 #[test]
-#[ignore = "porting: togetherai provider plugin not implemented"]
 fn leaves_language_selection_to_the_default_fallback() {
     let query = LanguageQuery {
         plugin: "togetherai",
@@ -50,8 +45,5 @@ fn leaves_language_selection_to_the_default_fallback() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }

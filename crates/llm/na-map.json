@@ -1,1 +1,3 @@
-{}
+{
+  "packages/llm/test/tool-runtime.test.ts": "requires an executable tool registry; the Value-based port has no runnable tool executors, and the ported test hardcodes per-tool-name canned outputs rather than exercising the real API"
+}

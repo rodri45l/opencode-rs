@@ -11,8 +11,6 @@ use std::collections::BTreeMap;
 use opencode_core::models_dev_plugin::{ModelsDevModel, ModelsDevPlugin, ModelsDevProvider};
 use serde_json::json;
 
-const NOTE: &str = "porting: models.dev plugin not implemented";
-
 fn provider() -> ModelsDevProvider {
     let mut modes = BTreeMap::new();
     modes.insert(
@@ -52,21 +50,20 @@ fn provider() -> ModelsDevProvider {
 }
 
 #[test]
-#[ignore = "porting: models.dev plugin not implemented"]
 fn projects_modes_as_separate_models_instead_of_variants() {
-    let projected = ModelsDevPlugin::project_models(&provider()).expect(NOTE);
+    let projected = ModelsDevPlugin::project_models(&provider()).unwrap();
 
     let base = projected
         .iter()
         .find(|model| model.id == "gpt-5.4")
-        .expect(NOTE);
+        .unwrap();
     assert!(base.variants.is_empty());
     assert_eq!(base.request["body"], json!({}));
 
     let fast = projected
         .iter()
         .find(|model| model.id == "gpt-5.4-fast")
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(fast.name, "GPT-5.4 Fast");
     assert_eq!(fast.api_id, "gpt-5.4");
     assert_eq!(fast.request["headers"], json!({ "x-mode": "fast" }));
@@ -83,9 +80,8 @@ fn projects_modes_as_separate_models_instead_of_variants() {
 }
 
 #[test]
-#[ignore = "porting: models.dev plugin not implemented"]
 fn registers_key_methods_for_providers_with_environment_variables() {
-    let methods = ModelsDevPlugin::integration_methods(&provider()).expect(NOTE);
+    let methods = ModelsDevPlugin::integration_methods(&provider()).unwrap();
     assert_eq!(
         methods,
         vec![

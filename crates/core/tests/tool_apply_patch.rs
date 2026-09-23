@@ -11,20 +11,16 @@
 
 use opencode_core::tool_apply_patch::{ApplyPatchTool, ParsedPatch, PatchOperation};
 
-const NOTE: &str = "porting: apply-patch tool not implemented";
-
 const PATCH: &str = "*** Begin Patch\n*** Add File: nested/new.txt\n+created\n*** Update File: update.txt\n@@\n-before\n+after\n*** Delete File: remove.txt\n*** End Patch";
 
 #[test]
-#[ignore = "porting: apply-patch tool not implemented"]
 fn registers_as_apply_patch() {
     assert_eq!(ApplyPatchTool::NAME, "apply_patch");
 }
 
 #[test]
-#[ignore = "porting: apply-patch tool not implemented"]
 fn parses_add_update_and_delete_hunks_in_order() {
-    let parsed = ApplyPatchTool::parse(PATCH).expect(NOTE);
+    let parsed = ApplyPatchTool::parse(PATCH).unwrap();
     assert_eq!(
         parsed.operations,
         vec![
@@ -42,7 +38,6 @@ fn parses_add_update_and_delete_hunks_in_order() {
 }
 
 #[test]
-#[ignore = "porting: apply-patch tool not implemented"]
 fn summarizes_an_applied_batch_with_lettered_lines() {
     let parsed = ParsedPatch {
         operations: vec![
@@ -58,26 +53,24 @@ fn summarizes_an_applied_batch_with_lettered_lines() {
         ],
     };
     assert_eq!(
-        ApplyPatchTool::summary(&parsed).expect(NOTE),
+        ApplyPatchTool::summary(&parsed).unwrap(),
         "Applied patch sequentially:\nA nested/new.txt\nM update.txt\nD remove.txt"
     );
 }
 
 #[test]
-#[ignore = "porting: apply-patch tool not implemented"]
 fn rejects_move_hunks_before_applying_anything() {
     let error = ApplyPatchTool::parse(
         "*** Begin Patch\n*** Add File: created.txt\n+created\n*** Update File: old.txt\n*** Move to: moved.txt\n@@\n-before\n+after\n*** End Patch",
     )
-    .expect_err(NOTE);
+    .unwrap_err();
     assert_eq!(error.to_string(), ApplyPatchTool::MOVE_ERROR);
 }
 
 #[test]
-#[ignore = "porting: apply-patch tool not implemented"]
 fn reports_a_failure_for_the_requested_hunk() {
     assert_eq!(
-        ApplyPatchTool::failure_message("missing.txt").expect(NOTE),
+        ApplyPatchTool::failure_message("missing.txt").unwrap(),
         "Unable to apply patch at missing.txt"
     );
 }

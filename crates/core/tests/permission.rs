@@ -8,8 +8,6 @@
 
 use opencode_core::permission::{AssertInput, Effect, PermissionV2, Rule};
 
-const NOTE: &str = "porting: permission service not implemented";
-
 fn read(resource: &str) -> AssertInput {
     AssertInput {
         action: "read".into(),
@@ -26,43 +24,34 @@ fn rule(action: &str, resource: &str, effect: Effect) -> Rule {
 }
 
 #[test]
-#[ignore = "porting: permission service not implemented"]
 fn returns_the_evaluated_effect() {
     let allow = PermissionV2::new(vec![rule("read", "*", Effect::Allow)]);
-    assert_eq!(allow.ask(&read("src/index.ts")).expect(NOTE), Effect::Allow);
+    assert_eq!(allow.ask(&read("src/index.ts")).unwrap(), Effect::Allow);
 
     let deny = PermissionV2::new(vec![rule("read", "*", Effect::Deny)]);
-    assert_eq!(deny.ask(&read("src/index.ts")).expect(NOTE), Effect::Deny);
+    assert_eq!(deny.ask(&read("src/index.ts")).unwrap(), Effect::Deny);
 
     let unset = PermissionV2::new(vec![]);
-    assert_eq!(unset.ask(&read("src/index.ts")).expect(NOTE), Effect::Ask);
+    assert_eq!(unset.ask(&read("src/index.ts")).unwrap(), Effect::Ask);
 }
 
 #[test]
-#[ignore = "porting: permission service not implemented"]
 fn lets_deny_take_precedence_over_a_broader_allow() {
     let service = PermissionV2::new(vec![
         rule("*", "*", Effect::Allow),
         rule("read", "src/secret.ts", Effect::Deny),
     ]);
 
-    assert_eq!(
-        service.ask(&read("src/index.ts")).expect(NOTE),
-        Effect::Allow
-    );
-    assert_eq!(
-        service.ask(&read("src/secret.ts")).expect(NOTE),
-        Effect::Deny
-    );
+    assert_eq!(service.ask(&read("src/index.ts")).unwrap(), Effect::Allow);
+    assert_eq!(service.ask(&read("src/secret.ts")).unwrap(), Effect::Deny);
 }
 
 #[test]
-#[ignore = "porting: permission service not implemented"]
 fn matches_a_wildcard_resource_for_a_specific_action() {
     let service = PermissionV2::new(vec![rule("bash", "*", Effect::Allow)]);
     let bash = AssertInput {
         action: "bash".into(),
         resources: vec!["pwd".into()],
     };
-    assert_eq!(service.ask(&bash).expect(NOTE), Effect::Allow);
+    assert_eq!(service.ask(&bash).unwrap(), Effect::Allow);
 }

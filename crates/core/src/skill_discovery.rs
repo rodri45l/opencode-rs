@@ -15,17 +15,34 @@ pub struct SkillDiscovery;
 
 impl SkillDiscovery {
     /// Whether a skill name is safe to use as a directory name.
-    pub fn is_safe_name(_name: &str) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "skill_discovery::SkillDiscovery::is_safe_name",
-        ))
+    pub fn is_safe_name(name: &str) -> CoreResult<bool> {
+        if name.is_empty() || name.contains('/') || name.contains('\\') || name.contains("..") {
+            return Ok(false);
+        }
+        if name.starts_with('.') || name.contains('\0') {
+            return Ok(false);
+        }
+        Ok(true)
     }
 
     /// Whether a catalog file path stays under the skill root.
-    pub fn is_safe_file(_file: &str) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "skill_discovery::SkillDiscovery::is_safe_file",
-        ))
+    pub fn is_safe_file(file: &str) -> CoreResult<bool> {
+        if file.is_empty() {
+            return Ok(false);
+        }
+        if file.starts_with('/') || file.starts_with('\\') {
+            return Ok(false);
+        }
+        if file.contains("://") {
+            return Ok(false);
+        }
+        if file.starts_with("..") || file.contains("/../") || file.contains("\\..\\") {
+            return Ok(false);
+        }
+        if file.contains('\0') {
+            return Ok(false);
+        }
+        Ok(true)
     }
 
     /// Pull a catalog and materialize its skills, returning their directories.

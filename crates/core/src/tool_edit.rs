@@ -29,36 +29,73 @@ impl EditTool {
 
     /// The locked input schema property names.
     pub fn schema_keys() -> CoreResult<Vec<&'static str>> {
-        Err(CoreError::NotImplemented(
-            "tool_edit::EditTool::schema_keys",
-        ))
+        Ok(vec!["path", "oldString", "newString", "replaceAll"])
     }
 
     /// Apply an exact replacement, returning the count and new content.
     pub fn apply(
-        _content: &str,
-        _old_string: &str,
-        _new_string: &str,
-        _replace_all: bool,
+        content: &str,
+        old_string: &str,
+        new_string: &str,
+        replace_all: bool,
     ) -> CoreResult<EditOutcome> {
-        Err(CoreError::NotImplemented("tool_edit::EditTool::apply"))
+        if old_string == new_string {
+            return Err(CoreError::Invalid(
+                "No changes to apply: oldString and newString are identical.".into(),
+            ));
+        }
+        if old_string.is_empty() {
+            return Err(CoreError::Invalid(
+                "oldString must not be empty. Use write to create or overwrite a file.".into(),
+            ));
+        }
+        let occurrences = count_occurrences(content, old_string);
+        if occurrences == 0 {
+            return Err(CoreError::Invalid(
+                "Could not find oldString in the file. It must match exactly, including whitespace and indentation."
+                    .into(),
+            ));
+        }
+        if occurrences > 1 && !replace_all {
+            return Err(CoreError::Invalid(
+                "Found multiple exact matches for oldString. Provide more surrounding context or set replaceAll to true."
+                    .into(),
+            ));
+        }
+        let replacements = if replace_all { occurrences } else { 1 };
+        let content = if replace_all {
+            content.replace(old_string, new_string)
+        } else {
+            content.replacen(old_string, new_string, 1)
+        };
+        Ok(EditOutcome {
+            replacements,
+            content,
+        })
     }
 
     /// The success message for an edit.
-    pub fn success_message(
-        _resource: &str,
-        _replacements: usize,
-        _diff: &str,
-    ) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_edit::EditTool::success_message",
+    pub fn success_message(resource: &str, replacements: usize, diff: &str) -> CoreResult<String> {
+        Ok(format!(
+            "Edited file successfully: {resource}\nReplacements: {replacements}\n```diff\n{diff}\n```"
         ))
     }
 
     /// The failure message when an edit is denied or fails.
-    pub fn failure_message(_path: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_edit::EditTool::failure_message",
-        ))
+    pub fn failure_message(path: &str) -> CoreResult<String> {
+        Ok(format!("Unable to edit {path}"))
     }
+}
+
+fn count_occurrences(content: &str, search: &str) -> usize {
+    if search.is_empty() {
+        return content.len() + 1;
+    }
+    let mut count = 0;
+    let mut offset = 0;
+    while let Some(index) = content[offset..].find(search) {
+        count += 1;
+        offset += index + search.len();
+    }
+    count
 }

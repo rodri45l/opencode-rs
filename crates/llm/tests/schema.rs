@@ -5,7 +5,6 @@ use opencode_llm::{ContentPart, LLMEvent, LLMRequest, ProviderShared, Usage};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn decodes_a_minimal_request() {
     let input = json!({
         "id": "req_1",
@@ -23,7 +22,6 @@ fn decodes_a_minimal_request() {
 }
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn accepts_custom_route_ids() {
     let decoded = LLMRequest::input(json!({
         "model": { "id": "fake-model", "provider": "fake-provider", "route": { "id": "openai-responses" } },
@@ -37,7 +35,6 @@ fn accepts_custom_route_ids() {
 }
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn finish_constructors_accept_usage_input() {
     let step = LLMEvent::step_finish(0, "stop", Some(json!({ "inputTokens": 1 })));
     assert_eq!(step["usage"]["inputTokens"], 1);
@@ -47,7 +44,6 @@ fn finish_constructors_accept_usage_input() {
 }
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn content_part_tagged_union_exposes_guards() {
     assert!(ContentPart::guards_text(
         &json!({ "type": "text", "text": "hi" })
@@ -58,7 +54,6 @@ fn content_part_tagged_union_exposes_guards() {
 }
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn subtract_tokens_clamps_non_sensical_breakdowns_to_zero() {
     assert_eq!(ProviderShared::subtract_tokens(Some(5), Some(3)), Some(2));
     assert_eq!(ProviderShared::subtract_tokens(Some(5), Some(10)), Some(0));
@@ -68,7 +63,6 @@ fn subtract_tokens_clamps_non_sensical_breakdowns_to_zero() {
 }
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn sum_tokens_returns_none_only_when_every_input_is_absent() {
     assert_eq!(
         ProviderShared::sum_tokens(&[Some(1), Some(2), Some(3)]),
@@ -83,7 +77,6 @@ fn sum_tokens_returns_none_only_when_every_input_is_absent() {
 }
 
 #[test]
-#[ignore = "porting: llm schema not implemented"]
 fn visible_output_tokens_clamps_reasoning_over_output_to_zero() {
     assert_eq!(
         Usage::new(json!({ "outputTokens": 10, "reasoningTokens": 4 })).visible_output_tokens(),

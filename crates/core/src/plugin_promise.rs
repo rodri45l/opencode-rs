@@ -7,7 +7,7 @@
 //! wiring and the async `setup` runtime are dropped; the pure registration
 //! lifecycle remains.
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A registered promise-plugin transform hook.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,10 +23,8 @@ impl PromiseRegistration {
 
     /// Dispose the registration, reverting the hook.
     pub fn dispose(&mut self) -> CoreResult<()> {
-        let _ = &mut self.description;
-        Err(CoreError::NotImplemented(
-            "plugin_promise::PromiseRegistration::dispose",
-        ))
+        self.description = None;
+        Ok(())
     }
 }
 
@@ -36,9 +34,9 @@ pub struct PluginPromise;
 
 impl PluginPromise {
     /// Load a promise-defined plugin, registering its transform hook.
-    pub fn from_promise(_description: &str) -> CoreResult<PromiseRegistration> {
-        Err(CoreError::NotImplemented(
-            "plugin_promise::PluginPromise::from_promise",
-        ))
+    pub fn from_promise(description: &str) -> CoreResult<PromiseRegistration> {
+        Ok(PromiseRegistration {
+            description: Some(description.to_string()),
+        })
     }
 }

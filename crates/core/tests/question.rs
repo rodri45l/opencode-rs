@@ -8,8 +8,6 @@
 
 use opencode_core::question::{QuestionInfo, QuestionOption, QuestionV2};
 
-const NOTE: &str = "porting: question service not implemented";
-
 fn question() -> QuestionInfo {
     QuestionInfo {
         question: "Which option?".into(),
@@ -22,24 +20,20 @@ fn question() -> QuestionInfo {
 }
 
 #[test]
-#[ignore = "porting: question service not implemented"]
 fn registers_a_pending_request_and_settles_a_reply() {
     let mut service = QuestionV2::new();
-    let request = service
-        .ask("ses_question_test", vec![question()])
-        .expect(NOTE);
+    let request = service.ask("ses_question_test", vec![question()]).unwrap();
 
     assert!(request.id.starts_with("que_"));
-    assert_eq!(service.list().expect(NOTE), vec![request.clone()]);
+    assert_eq!(service.list().unwrap(), vec![request.clone()]);
 
     service
         .reply(&request.id, vec![vec!["One".into()]])
-        .expect(NOTE);
-    assert!(service.list().expect(NOTE).is_empty());
+        .unwrap();
+    assert!(service.list().unwrap().is_empty());
 }
 
 #[test]
-#[ignore = "porting: question service not implemented"]
 fn rejects_unknown_request_ids() {
     let mut service = QuestionV2::new();
     assert!(service.reply("que_unknown", vec![]).is_err());
@@ -47,12 +41,9 @@ fn rejects_unknown_request_ids() {
 }
 
 #[test]
-#[ignore = "porting: question service not implemented"]
 fn rejects_a_pending_request() {
     let mut service = QuestionV2::new();
-    let request = service
-        .ask("ses_question_test", vec![question()])
-        .expect(NOTE);
-    service.reject(&request.id).expect(NOTE);
-    assert!(service.list().expect(NOTE).is_empty());
+    let request = service.ask("ses_question_test", vec![question()]).unwrap();
+    service.reject(&request.id).unwrap();
+    assert!(service.list().unwrap().is_empty());
 }

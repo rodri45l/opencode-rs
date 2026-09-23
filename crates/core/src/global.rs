@@ -21,11 +21,14 @@ pub struct Global;
 impl Global {
     /// The global scratch directory, `<system-temp>/opencode`.
     pub fn tmp() -> CoreResult<PathBuf> {
-        Err(CoreError::NotImplemented("global::Global::tmp"))
+        let directory = std::env::temp_dir().join("opencode");
+        std::fs::create_dir_all(&directory)
+            .map_err(|error| CoreError::FileSystem(error.to_string()))?;
+        Ok(directory)
     }
 
     /// Build the global path bundle.
     pub fn make() -> CoreResult<GlobalPath> {
-        Err(CoreError::NotImplemented("global::Global::make"))
+        Ok(GlobalPath { tmp: Self::tmp()? })
     }
 }

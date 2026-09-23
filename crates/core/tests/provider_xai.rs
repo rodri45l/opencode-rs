@@ -9,8 +9,6 @@ use opencode_core::provider_sdk_plugins::{
     LanguageQuery, LanguageSelection, LanguageSelector, ProviderSdkPlugins, SdkCapabilities,
 };
 
-const NOTE: &str = "porting: xai provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -21,23 +19,20 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: xai provider plugin not implemented"]
 fn binds_only_to_the_exact_xai_package() {
-    assert!(ProviderSdkPlugins::matches_package("xai", "@ai-sdk/xai").expect(NOTE));
-    assert!(!ProviderSdkPlugins::matches_package("xai", "@ai-sdk/openai-compatible").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("xai", "@ai-sdk/xai").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("xai", "@ai-sdk/openai-compatible").unwrap());
 }
 
 #[test]
-#[ignore = "porting: xai provider plugin not implemented"]
 fn uses_the_model_provider_id_as_the_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("xai", "custom-xai").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("xai", "custom-xai").unwrap(),
         "custom-xai"
     );
 }
 
 #[test]
-#[ignore = "porting: xai provider plugin not implemented"]
 fn selects_responses_with_the_model_api_id() {
     let query = LanguageQuery {
         plugin: "xai",
@@ -48,7 +43,7 @@ fn selects_responses_with_the_model_api_id() {
         use_completion_urls: false,
     };
     assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
+        ProviderSdkPlugins::select_language(&query).unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Responses,
             model_id: "grok-4".to_string(),
@@ -57,7 +52,6 @@ fn selects_responses_with_the_model_api_id() {
 }
 
 #[test]
-#[ignore = "porting: xai provider plugin not implemented"]
 fn ignores_non_xai_providers() {
     let query = LanguageQuery {
         plugin: "xai",
@@ -67,8 +61,5 @@ fn ignores_non_xai_providers() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }

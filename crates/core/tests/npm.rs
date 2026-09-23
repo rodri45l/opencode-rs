@@ -8,31 +8,23 @@
 
 use opencode_core::npm::Npm;
 
-const NOTE: &str = "porting: npm not implemented";
-
 #[test]
-#[ignore = "porting: npm not implemented"]
 fn keeps_normal_scoped_package_specs_unchanged() {
+    assert_eq!(Npm::sanitize("@opencode/acme").unwrap(), "@opencode/acme");
     assert_eq!(
-        Npm::sanitize("@opencode/acme").expect(NOTE),
-        "@opencode/acme"
-    );
-    assert_eq!(
-        Npm::sanitize("@opencode/acme@1.0.0").expect(NOTE),
+        Npm::sanitize("@opencode/acme@1.0.0").unwrap(),
         "@opencode/acme@1.0.0"
     );
-    assert_eq!(Npm::sanitize("prettier").expect(NOTE), "prettier");
+    assert_eq!(Npm::sanitize("prettier").unwrap(), "prettier");
 }
 
 #[test]
-#[ignore = "porting: npm not implemented"]
 fn resolves_an_importable_entrypoint() {
-    let entry = Npm::add("@opencode/acme@1.0.0").expect(NOTE);
+    let entry = Npm::add("@opencode/acme@1.0.0").unwrap();
     assert!(!entry.entrypoint.is_empty());
 }
 
 #[test]
-#[ignore = "porting: npm not implemented"]
 fn handles_git_https_specs() {
     let spec = "acme@git+https://github.com/opencode/acme.git";
     let expected = if cfg!(windows) {
@@ -40,5 +32,5 @@ fn handles_git_https_specs() {
     } else {
         spec
     };
-    assert_eq!(Npm::sanitize(spec).expect(NOTE), expected);
+    assert_eq!(Npm::sanitize(spec).unwrap(), expected);
 }

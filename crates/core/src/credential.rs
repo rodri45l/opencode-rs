@@ -104,45 +104,71 @@ pub struct CredentialPatch {
 
 /// Store for integration credentials.
 #[derive(Debug, Default)]
-pub struct CredentialStore;
+pub struct CredentialStore {
+    entries: std::cell::RefCell<Vec<CredentialInfo>>,
+    sequence: std::cell::Cell<u64>,
+}
 
 impl CredentialStore {
     /// Create an empty store.
     pub fn new() -> CoreResult<Self> {
-        Err(CoreError::NotImplemented(
-            "credential::CredentialStore::new",
-        ))
+        Ok(Self::default())
     }
 
     /// Create (and activate) a credential.
-    pub fn create(&self, _input: CredentialCreate) -> CoreResult<CredentialInfo> {
-        Err(CoreError::NotImplemented(
-            "credential::CredentialStore::create",
-        ))
+    pub fn create(&self, input: CredentialCreate) -> CoreResult<CredentialInfo> {
+        let sequence = self.sequence.get();
+        self.sequence.set(sequence + 1);
+        let info = CredentialInfo {
+            id: CredentialId::make(format!("cred_{sequence:012}")),
+            integration_id: input.integration_id.clone(),
+            label: input.label,
+            value: input.value,
+        };
+        let mut entries = self.entries.borrow_mut();
+        entries.retain(|entry| entry.integration_id != input.integration_id);
+        entries.push(info.clone());
+        Ok(info)
     }
 
     /// List the active credentials for an integration.
-    pub fn list(&self, _integration: &IntegrationId) -> CoreResult<Vec<CredentialInfo>> {
-        Err(CoreError::NotImplemented(
-            "credential::CredentialStore::list",
-        ))
+    pub fn list(&self, integration: &IntegrationId) -> CoreResult<Vec<CredentialInfo>> {
+        Ok(self
+            .entries
+            .borrow()
+            .iter()
+            .filter(|entry| &entry.integration_id == integration)
+            .cloned()
+            .collect())
     }
 
     /// Update a credential in place.
-    pub fn update(
-        &self,
-        _id: &CredentialId,
-        _patch: CredentialPatch,
-    ) -> CoreResult<CredentialInfo> {
-        Err(CoreError::NotImplemented(
-            "credential::CredentialStore::update",
-        ))
+    pub fn update(&self, id: &CredentialId, patch: CredentialPatch) -> CoreResult<CredentialInfo> {
+        let mut entries = self.entries.borrow_mut();
+        let entry = entries
+            .iter_mut()
+            .find(|entry| &entry.id == id)
+            .ok_or_else(|| CoreError::Invalid(format!("credential not found: {}", id.as_str())))?;
+        if let Some(label) = patch.label {
+            entry.label = Some(label);
+        }
+        if let Some(value) = patch.value {
+            entry.value = value;
+        }
+        Ok(entry.clone())
     }
 
     /// Remove a credential.
-    pub fn remove(&self, _id: &CredentialId) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "credential::CredentialStore::remove",
-        ))
+    pub fn remove(&self, id: &CredentialId) -> CoreResult<()> {
+        let mut entries = self.entries.borrow_mut();
+        let before = entries.len();
+        entries.retain(|entry| &entry.id != id);
+        if entries.len() == before {
+            return Err(CoreError::Invalid(format!(
+                "credential not found: {}",
+                id.as_str()
+            )));
+        }
+        Ok(())
     }
 }

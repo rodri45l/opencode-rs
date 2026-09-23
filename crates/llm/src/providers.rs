@@ -13,6 +13,7 @@ pub struct Configured {
     chat_route: String,
     responses_route: String,
     base_url: Option<String>,
+    provider_options: Option<Value>,
 }
 
 impl Configured {
@@ -28,16 +29,21 @@ impl Configured {
             chat_route: chat_route.to_string(),
             responses_route: responses_route.to_string(),
             base_url: None,
+            provider_options: None,
         }
     }
 
     fn model_on(&self, id: &str, route: &str) -> Value {
-        json!({
+        let mut model = json!({
             "id": id,
             "provider": self.provider,
             "route": { "id": route },
             "endpoint": { "baseURL": self.base_url },
-        })
+        });
+        if let Some(provider_options) = &self.provider_options {
+            model["defaults"] = json!({ "providerOptions": provider_options });
+        }
+        model
     }
 
     /// Model using the provider's default route.
@@ -227,6 +233,7 @@ pub mod openrouter {
     /// Configure OpenRouter.
     pub fn configure(config: Value) -> Configured {
         Configured::with_routes("openrouter", "openrouter", "openrouter", "openrouter")
+            .with_base_url("https://openrouter.ai/api/v1")
             .with_config(&config)
     }
 
@@ -307,23 +314,40 @@ pub mod cloudflare {
 
     /// Cloudflare AI Gateway.
     pub fn ai_gateway(config: Value) -> Configured {
+        let account = config
+            .get("accountId")
+            .and_then(Value::as_str)
+            .unwrap_or("default");
+        let gateway = config
+            .get("gatewayId")
+            .and_then(Value::as_str)
+            .filter(|value| !value.is_empty())
+            .unwrap_or("default");
+        let base_url = format!("https://gateway.ai.cloudflare.com/v1/{account}/{gateway}/compat");
         Configured::with_routes(
             "cloudflare-ai-gateway",
             "cloudflare-ai-gateway",
             "cloudflare-ai-gateway",
             "cloudflare-ai-gateway",
         )
+        .with_base_url(&base_url)
         .with_config(&config)
     }
 
     /// Cloudflare Workers AI.
     pub fn workers_ai(config: Value) -> Configured {
+        let account = config
+            .get("accountId")
+            .and_then(Value::as_str)
+            .unwrap_or("default");
+        let base_url = format!("https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1");
         Configured::with_routes(
             "cloudflare-workers-ai",
             "cloudflare-workers-ai",
             "cloudflare-workers-ai",
             "cloudflare-workers-ai",
         )
+        .with_base_url(&base_url)
         .with_config(&config)
     }
 }
@@ -351,12 +375,20 @@ pub mod github_copilot {
 }
 
 impl Configured {
-    /// Apply the config's `baseURL` and `endpoint` overrides.
+    /// Apply a computed default base URL before config overrides.
+    pub fn with_base_url(mut self, base_url: &str) -> Self {
+        self.base_url = Some(base_url.to_string());
+        self
+    }
+
+    /// Apply the config's `baseURL`, `providerOptions` and `endpoint` overrides.
     pub fn with_config(mut self, config: &Value) -> Self {
-        self.base_url = config
-            .get("baseURL")
-            .and_then(Value::as_str)
-            .map(str::to_string);
+        if let Some(base_url) = config.get("baseURL").and_then(Value::as_str) {
+            self.base_url = Some(base_url.to_string());
+        }
+        if let Some(provider_options) = config.get("providerOptions") {
+            self.provider_options = Some(provider_options.clone());
+        }
         self
     }
 }

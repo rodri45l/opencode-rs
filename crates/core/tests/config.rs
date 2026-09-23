@@ -10,10 +10,7 @@ use opencode_core::config::{Config, ConfigDocument, ConfigEntry, ConfigMigrateV1
 use opencode_core::path::AbsolutePath;
 use serde_json::json;
 
-const NOTE: &str = "porting: config not implemented";
-
 #[test]
-#[ignore = "porting: config not implemented"]
 fn returns_the_latest_defined_scalar_from_priority_ordered_documents() {
     let entries = vec![
         ConfigEntry::Document(ConfigDocument::new(
@@ -27,27 +24,25 @@ fn returns_the_latest_defined_scalar_from_priority_ordered_documents() {
     ];
 
     assert_eq!(
-        Config::latest(&entries, "model").expect(NOTE),
+        Config::latest(&entries, "model").unwrap(),
         Some(json!("openrouter/openai/gpt-5.5"))
     );
-    assert_eq!(Config::latest(&entries, "default_agent").expect(NOTE), None);
+    assert_eq!(Config::latest(&entries, "default_agent").unwrap(), None);
 }
 
 #[test]
-#[ignore = "porting: config not implemented"]
 fn detects_v1_configuration_from_any_v1_only_top_level_key() {
-    assert!(ConfigMigrateV1::is_v1(&json!({ "snapshot": false })).expect(NOTE));
-    assert!(ConfigMigrateV1::is_v1(&json!({ "snapshot": false, "agents": {} })).expect(NOTE));
-    assert!(ConfigMigrateV1::is_v1(&json!({ "reference": {} })).expect(NOTE));
+    assert!(ConfigMigrateV1::is_v1(&json!({ "snapshot": false })).unwrap());
+    assert!(ConfigMigrateV1::is_v1(&json!({ "snapshot": false, "agents": {} })).unwrap());
+    assert!(ConfigMigrateV1::is_v1(&json!({ "reference": {} })).unwrap());
     assert!(
         !ConfigMigrateV1::is_v1(&json!({ "shell": "/bin/zsh", "model": "anthropic/claude" }))
-            .expect(NOTE)
+            .unwrap()
     );
-    assert!(!ConfigMigrateV1::is_v1(&json!({ "references": {} })).expect(NOTE));
+    assert!(!ConfigMigrateV1::is_v1(&json!({ "references": {} })).unwrap());
 }
 
 #[test]
-#[ignore = "porting: config not implemented"]
 fn migrates_v1_provider_setup_options_into_aisdk_settings() {
     let migrated = ConfigMigrateV1::migrate(&json!({
         "provider": {
@@ -62,7 +57,7 @@ fn migrates_v1_provider_setup_options_into_aisdk_settings() {
             },
         },
     }))
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         migrated["providers"]["bedrock"]["api"],
@@ -79,7 +74,6 @@ fn migrates_v1_provider_setup_options_into_aisdk_settings() {
 }
 
 #[test]
-#[ignore = "porting: config not implemented"]
 fn migrates_v1_command_configuration() {
     let migrated = ConfigMigrateV1::migrate(&json!({
         "command": {
@@ -93,7 +87,7 @@ fn migrates_v1_command_configuration() {
             },
         },
     }))
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         migrated["commands"],

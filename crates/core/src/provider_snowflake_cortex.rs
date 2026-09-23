@@ -29,51 +29,86 @@ pub struct SnowflakeCortexPlugin;
 
 impl SnowflakeCortexPlugin {
     /// The registry index of a built-in provider plugin id.
-    pub fn registry_index(_id: &str) -> CoreResult<usize> {
-        Err(CoreError::NotImplemented(
-            "provider_snowflake_cortex::SnowflakeCortexPlugin::registry_index",
-        ))
+    pub fn registry_index(id: &str) -> CoreResult<usize> {
+        let order = [
+            "google-vertex",
+            "snowflake-cortex",
+            "kilo",
+            "zenmux",
+            "openai-compatible",
+        ];
+        Ok(order
+            .iter()
+            .position(|entry| *entry == id)
+            .unwrap_or(usize::MAX))
     }
 
     /// Resolve the bearer token from the environment, then options.
     pub fn resolve_token(
-        _env: &BTreeMap<String, String>,
-        _options: &CortexOptions,
+        env: &BTreeMap<String, String>,
+        options: &CortexOptions,
     ) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_snowflake_cortex::SnowflakeCortexPlugin::resolve_token",
-        ))
+        Ok(env
+            .get("SNOWFLAKE_CORTEX_PAT")
+            .filter(|value| !value.is_empty())
+            .cloned()
+            .or_else(|| {
+                env.get("SNOWFLAKE_CORTEX_TOKEN")
+                    .filter(|value| !value.is_empty())
+                    .cloned()
+            })
+            .or_else(|| options.pat.clone().filter(|value| !value.is_empty()))
+            .or_else(|| options.token.clone().filter(|value| !value.is_empty()))
+            .or_else(|| options.api_key.clone().filter(|value| !value.is_empty())))
     }
 
     /// Whether usage is requested on the SDK options.
     pub fn include_usage(
-        _env: &BTreeMap<String, String>,
-        _options: &CortexOptions,
+        env: &BTreeMap<String, String>,
+        options: &CortexOptions,
     ) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_snowflake_cortex::SnowflakeCortexPlugin::include_usage",
-        ))
+        Ok(Self::resolve_token(env, options)?.is_some())
     }
 
     /// Rewrite `max_tokens` to `max_completion_tokens`, preserving other bodies.
-    pub fn rewrite_request_body(_body: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "provider_snowflake_cortex::SnowflakeCortexPlugin::rewrite_request_body",
-        ))
+    pub fn rewrite_request_body(body: &str) -> CoreResult<String> {
+        let Ok(mut value) = serde_json::from_str::<serde_json::Value>(body) else {
+            return Ok(body.to_string());
+        };
+        let Some(map) = value.as_object_mut() else {
+            return Ok(body.to_string());
+        };
+        if let Some(max_tokens) = map.remove("max_tokens") {
+            map.insert("max_completion_tokens".to_string(), max_tokens);
+        }
+        serde_json::to_string(&value).map_err(|error| CoreError::Message(error.to_string()))
     }
 
     /// Normalize a Cortex response: a `400` "Conversation complete" becomes a
     /// `200` stop response.
-    pub fn rewrite_response(_status: u16, _body: &str) -> CoreResult<(u16, String)> {
-        Err(CoreError::NotImplemented(
-            "provider_snowflake_cortex::SnowflakeCortexPlugin::rewrite_response",
+    pub fn rewrite_response(status: u16, body: &str) -> CoreResult<(u16, String)> {
+        if status != 400 {
+            return Ok((status, body.to_string()));
+        }
+        let Ok(value) = serde_json::from_str::<serde_json::Value>(body) else {
+            return Ok((status, body.to_string()));
+        };
+        let message = value.get("message").and_then(serde_json::Value::as_str);
+        if message != Some("Conversation complete") {
+            return Ok((status, body.to_string()));
+        }
+        let rewritten = serde_json::json!({
+            "choices": [{ "finish_reason": "stop", "message": { "role": "assistant", "content": "" } }],
+        });
+        Ok((
+            200,
+            serde_json::to_string(&rewritten)
+                .map_err(|error| CoreError::Message(error.to_string()))?,
         ))
     }
 
     /// Rewrite an empty streaming `role` to `assistant`.
-    pub fn rewrite_streaming_role(_chunk: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "provider_snowflake_cortex::SnowflakeCortexPlugin::rewrite_streaming_role",
-        ))
+    pub fn rewrite_streaming_role(chunk: &str) -> CoreResult<String> {
+        Ok(chunk.replace("\"role\":\"\"", "\"role\":\"assistant\""))
     }
 }

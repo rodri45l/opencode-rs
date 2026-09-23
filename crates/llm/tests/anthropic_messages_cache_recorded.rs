@@ -5,11 +5,18 @@
 
 mod common;
 
-use opencode_llm::{providers, CacheHint, LLMClient, LLM};
+use opencode_llm::{providers, testing, CacheHint, LLMClient, LLM};
 use serde_json::json;
 
+fn cassette_response(cassette: &serde_json::Value, index: usize) -> serde_json::Value {
+    let interaction = &cassette["interactions"][index];
+    json!({
+        "status": interaction["response"]["status"],
+        "body": interaction["response"]["body"],
+    })
+}
+
 #[test]
-#[ignore = "porting: anthropic recorded cache not implemented"]
 fn writes_then_reads_cache_control_on_identical_second_call() {
     let cassette = common::recording(
         "anthropic-messages-cache",
@@ -29,9 +36,11 @@ fn writes_then_reads_cache_control_on_identical_second_call() {
         "generation": { "maxTokens": 16, "temperature": 0 },
     }));
 
+    testing::push_response(cassette_response(&cassette, 0));
     let first = LLMClient::generate(request.clone()).expect("first call");
     assert!(first.usage["cacheReadInputTokens"].as_i64().unwrap_or(0) >= 0);
 
+    testing::push_response(cassette_response(&cassette, 1));
     let second = LLMClient::generate(request).expect("second call");
     assert!(second.usage["cacheReadInputTokens"].as_i64().unwrap_or(0) > 0);
 }

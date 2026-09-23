@@ -7,8 +7,6 @@
 
 use opencode_core::system_context::{BuiltinEnv, SystemContextBuiltIns};
 
-const NOTE: &str = "porting: system context builtins not implemented";
-
 fn env(is_git_repo: bool) -> BuiltinEnv {
     BuiltinEnv {
         working_directory: "/repo/packages/core".into(),
@@ -20,9 +18,8 @@ fn env(is_git_repo: bool) -> BuiltinEnv {
 }
 
 #[test]
-#[ignore = "porting: system context builtins not implemented"]
 fn renders_environment_and_host_local_date() {
-    let baseline = SystemContextBuiltIns::render(&env(true)).expect(NOTE);
+    let baseline = SystemContextBuiltIns::render(&env(true)).unwrap();
 
     assert_eq!(
         baseline,
@@ -42,8 +39,7 @@ fn renders_environment_and_host_local_date() {
 }
 
 #[test]
-#[ignore = "porting: system context builtins not implemented"]
 fn marks_non_git_directories() {
-    let baseline = SystemContextBuiltIns::render(&env(false)).expect(NOTE);
+    let baseline = SystemContextBuiltIns::render(&env(false)).unwrap();
     assert!(baseline.contains("  Is directory a git repo: no"));
 }

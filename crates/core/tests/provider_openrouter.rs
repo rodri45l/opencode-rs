@@ -13,8 +13,6 @@ use opencode_core::provider_plugins::ProviderRequest;
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 use serde_json::json;
 
-const NOTE: &str = "porting: openrouter provider plugin not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -26,18 +24,16 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: openrouter provider plugin not implemented"]
 fn is_registered_so_legacy_behavior_can_be_applied() {
     assert!(ProviderHeaderPlugins::registered_ids()
-        .expect(NOTE)
+        .unwrap()
         .contains(&"openrouter"));
 }
 
 #[test]
-#[ignore = "porting: openrouter provider plugin not implemented"]
 fn applies_legacy_referer_headers_only_to_openrouter() {
     let mut openrouter = request(&[("Existing", "value")]);
-    ProviderHeaderPlugins::apply_openrouter("openrouter", &mut openrouter).expect(NOTE);
+    ProviderHeaderPlugins::apply_openrouter("openrouter", &mut openrouter).unwrap();
     assert_eq!(
         openrouter.headers.get("Existing").map(String::as_str),
         Some("value")
@@ -52,42 +48,36 @@ fn applies_legacy_referer_headers_only_to_openrouter() {
     );
 
     let mut nvidia = request(&[]);
-    ProviderHeaderPlugins::apply_openrouter("nvidia", &mut nvidia).expect(NOTE);
+    ProviderHeaderPlugins::apply_openrouter("nvidia", &mut nvidia).unwrap();
     assert!(nvidia.headers.is_empty());
 }
 
 #[test]
-#[ignore = "porting: openrouter provider plugin not implemented"]
 fn binds_only_to_the_exact_openrouter_package() {
     assert!(
-        ProviderSdkPlugins::matches_package("openrouter", "@openrouter/ai-sdk-provider")
-            .expect(NOTE)
+        ProviderSdkPlugins::matches_package("openrouter", "@openrouter/ai-sdk-provider").unwrap()
     );
     assert!(
-        !ProviderSdkPlugins::matches_package("openrouter", "@ai-sdk/openai-compatible")
-            .expect(NOTE)
+        !ProviderSdkPlugins::matches_package("openrouter", "@ai-sdk/openai-compatible").unwrap()
     );
 }
 
 #[test]
-#[ignore = "porting: openrouter provider plugin not implemented"]
 fn disables_the_openrouter_gpt_5_chat_alias_without_affecting_others() {
     assert!(
         ProviderSdkPlugins::disables_model("openrouter", "openrouter", "openai/gpt-5-chat")
-            .expect(NOTE)
+            .unwrap()
     );
     assert!(
-        !ProviderSdkPlugins::disables_model("openrouter", "openrouter", "openai/gpt-5")
-            .expect(NOTE)
+        !ProviderSdkPlugins::disables_model("openrouter", "openrouter", "openai/gpt-5").unwrap()
     );
     assert!(
-        !ProviderSdkPlugins::disables_model("openrouter", "openai", "openai/gpt-5-chat")
-            .expect(NOTE)
+        !ProviderSdkPlugins::disables_model("openrouter", "openai", "openai/gpt-5-chat").unwrap()
     );
     assert!(!ProviderSdkPlugins::disables_model(
         "openrouter",
         "custom-openrouter",
         "gpt-5-chat-latest"
     )
-    .expect(NOTE));
+    .unwrap());
 }

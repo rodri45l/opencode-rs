@@ -11,8 +11,6 @@ use opencode_core::project_directories::{
 };
 use serde_json::json;
 
-const NOTE: &str = "porting: project directories not implemented";
-
 const PROJECT_ID: &str = "project-directories";
 const DIRECTORY: &str = "/tmp/project-directories";
 
@@ -26,14 +24,12 @@ fn create(strategy: Option<&str>, behavior: CreateBehavior) -> CreateInput {
 }
 
 #[test]
-#[ignore = "porting: project directories not implemented"]
 fn decodes_directory_schemas() {
-    let input =
-        ProjectDirectories::decode_list_input(&json!({ "projectID": PROJECT_ID })).expect(NOTE);
+    let input = ProjectDirectories::decode_list_input(&json!({ "projectID": PROJECT_ID })).unwrap();
     assert_eq!(input.project_id, PROJECT_ID);
 
     let output =
-        ProjectDirectories::decode_list_output(&json!([{ "directory": DIRECTORY }])).expect(NOTE);
+        ProjectDirectories::decode_list_output(&json!([{ "directory": DIRECTORY }])).unwrap();
     assert_eq!(
         output,
         vec![DirectoryEntry {
@@ -44,17 +40,16 @@ fn decodes_directory_schemas() {
 }
 
 #[test]
-#[ignore = "porting: project directories not implemented"]
 fn creates_once_and_ignores_conflicts() {
     let mut directories = ProjectDirectories::new();
     assert!(directories
         .create(create(None, CreateBehavior::Ignore))
-        .expect(NOTE));
+        .unwrap());
     assert!(!directories
         .create(create(Some("git_worktree"), CreateBehavior::Ignore))
-        .expect(NOTE));
+        .unwrap());
     assert_eq!(
-        directories.list(PROJECT_ID).expect(NOTE),
+        directories.list(PROJECT_ID).unwrap(),
         vec![DirectoryEntry {
             directory: DIRECTORY.into(),
             strategy: None,
@@ -63,30 +58,29 @@ fn creates_once_and_ignores_conflicts() {
 }
 
 #[test]
-#[ignore = "porting: project directories not implemented"]
 fn replaces_the_strategy_when_requested() {
     let mut directories = ProjectDirectories::new();
     directories
         .create(create(Some("old/strategy"), CreateBehavior::Ignore))
-        .expect(NOTE);
+        .unwrap();
 
     assert!(directories
         .create(create(Some("new/strategy"), CreateBehavior::Replace))
-        .expect(NOTE));
+        .unwrap());
     assert!(!directories
         .create(create(Some("new/strategy"), CreateBehavior::Replace))
-        .expect(NOTE));
+        .unwrap());
     assert!(directories
         .create(create(None, CreateBehavior::Replace))
-        .expect(NOTE));
+        .unwrap());
     assert!(!directories
         .create(create(None, CreateBehavior::Replace))
-        .expect(NOTE));
+        .unwrap());
     assert!(directories
         .create(create(Some("new/strategy"), CreateBehavior::Replace))
-        .expect(NOTE));
+        .unwrap());
     assert_eq!(
-        directories.list(PROJECT_ID).expect(NOTE),
+        directories.list(PROJECT_ID).unwrap(),
         vec![DirectoryEntry {
             directory: DIRECTORY.into(),
             strategy: Some("new/strategy".into()),

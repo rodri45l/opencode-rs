@@ -11,8 +11,6 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use opencode_core::tool_output_store::{ToolOutput, ToolOutputStore};
 use serde_json::json;
 
-const NOTE: &str = "porting: tool output store not implemented";
-
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 
 fn scratch() -> PathBuf {
@@ -30,7 +28,6 @@ fn store() -> ToolOutputStore {
 }
 
 #[test]
-#[ignore = "porting: tool output store not implemented"]
 fn bounds_the_provider_facing_text_channel_with_one_managed_file() {
     let store = store();
     let first = format!("HEAD-{}", "x".repeat(30_000));
@@ -48,7 +45,7 @@ fn bounds_the_provider_facing_text_channel_with_one_managed_file() {
                 ],
             },
         )
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(result.output.structured, json!({ "kind": "report" }));
     assert_eq!(result.output_paths.len(), 1);
@@ -61,7 +58,6 @@ fn bounds_the_provider_facing_text_channel_with_one_managed_file() {
 }
 
 #[test]
-#[ignore = "porting: tool output store not implemented"]
 fn uses_bounded_text_for_oversized_structured_only_output() {
     let store = store();
     let structured = json!({ "text": "x".repeat(ToolOutputStore::MAX_BYTES) });
@@ -75,7 +71,7 @@ fn uses_bounded_text_for_oversized_structured_only_output() {
                 content: vec![],
             },
         )
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(result.output.structured, structured);
     assert_eq!(result.output_paths.len(), 1);
@@ -90,7 +86,6 @@ fn uses_bounded_text_for_oversized_structured_only_output() {
 }
 
 #[test]
-#[ignore = "porting: tool output store not implemented"]
 fn preserves_native_media_without_applying_a_settlement_media_limit() {
     let store = store();
     let data = "a".repeat(6 * 1024 * 1024);
@@ -110,7 +105,7 @@ fn preserves_native_media_without_applying_a_settlement_media_limit() {
                 content: vec![media.clone()],
             },
         )
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(result.output_paths, Vec::<PathBuf>::new());
     assert_eq!(result.output.structured, json!({ "caption": "pixel" }));
@@ -118,7 +113,6 @@ fn preserves_native_media_without_applying_a_settlement_media_limit() {
 }
 
 #[test]
-#[ignore = "porting: tool output store not implemented"]
 fn does_not_double_count_structured_data_duplicated_in_projected_text() {
     let store = store();
     let text = "x".repeat(30_000);
@@ -129,7 +123,7 @@ fn does_not_double_count_structured_data_duplicated_in_projected_text() {
 
     let result = store
         .bound("ses_tool_output_store", "call-duplicated", output.clone())
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(result.output, output);
     assert_eq!(result.output_paths, Vec::<PathBuf>::new());

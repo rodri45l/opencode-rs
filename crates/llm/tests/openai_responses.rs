@@ -2,8 +2,15 @@
 //! Behaviour pinned by the OpenAI Responses protocol.
 //! Effect-ts `Layer`/`Stream`/WebSocket plumbing is dropped; wire and event behaviour is kept.
 
-use opencode_llm::{Auth, LLMClient, Message, ProviderShared, ToolCallPart, LLM};
-use serde_json::json;
+use opencode_llm::{testing, Auth, LLMClient, Message, ProviderShared, ToolCallPart, LLM};
+use serde_json::{json, Value};
+
+fn responses_sse(chunks: &[Value]) -> String {
+    chunks
+        .iter()
+        .map(|chunk| format!("data: {chunk}\n\n"))
+        .collect()
+}
 
 fn model() -> serde_json::Value {
     json!({
@@ -26,7 +33,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn prepares_openai_responses_target() {
     let prepared = LLMClient::prepare(request()).expect("prepare");
 
@@ -47,7 +53,6 @@ fn prepares_openai_responses_target() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn lowers_semantic_service_tier_options() {
     let prepared = LLMClient::prepare(
         LLM::update_request(
@@ -65,7 +70,6 @@ fn lowers_semantic_service_tier_options() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn flattens_top_level_object_unions_in_function_schemas() {
     let prepared = LLMClient::prepare(LLM::update_request(request(), json!({
         "tools": [{
@@ -104,7 +108,6 @@ fn flattens_top_level_object_unions_in_function_schemas() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn lowers_chronological_system_updates_to_escaped_user_wrappers_in_order() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -122,7 +125,6 @@ fn lowers_chronological_system_updates_to_escaped_user_wrappers_in_order() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn prepares_function_call_and_function_output_input_items() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_tool_result",
@@ -146,7 +148,6 @@ fn prepares_function_call_and_function_output_input_items() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn preserves_structured_tool_errors_for_the_model() {
     let error = json!({ "error": { "type": "unknown", "message": "Tool execution interrupted" }, "content": [], "structured": {} });
     let prepared = LLMClient::prepare(LLM::request(json!({
@@ -170,7 +171,6 @@ fn preserves_structured_tool_errors_for_the_model() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn keeps_primitive_and_non_json_tool_errors_as_plain_text() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -193,7 +193,6 @@ fn keeps_primitive_and_non_json_tool_errors_as_plain_text() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn requests_encrypted_reasoning_by_default_for_gpt5_reasoning_models() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": { "id": "gpt-5.2", "provider": "openai", "route": { "id": "openai-responses" }, "endpoint": { "baseURL": "https://api.openai.test/v1/" }, "auth": Auth::bearer("test") },
@@ -213,8 +212,16 @@ fn requests_encrypted_reasoning_by_default_for_gpt5_reasoning_models() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn parses_text_and_usage_stream_fixtures() {
+    testing::push_response(json!({ "status": 200, "body": responses_sse(&[
+        json!({ "type": "response.output_text.delta", "item_id": "msg_1", "delta": "Hello" }),
+        json!({ "type": "response.output_text.delta", "item_id": "msg_1", "delta": "!" }),
+        json!({ "type": "response.completed", "response": { "id": "resp_1", "usage": {
+            "input_tokens": 5, "output_tokens": 2, "total_tokens": 7,
+            "input_tokens_details": { "cached_tokens": 1 },
+            "output_tokens_details": { "reasoning_tokens": 0 }
+        } } }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.text, "Hello!");
@@ -230,9 +237,12 @@ fn parses_text_and_usage_stream_fixtures() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn decodes_web_search_call_as_provider_executed_tool_call_and_result() {
     let item = json!({ "type": "web_search_call", "id": "ws_1", "status": "completed", "action": { "type": "search", "query": "effect 4" } });
+    testing::push_response(json!({ "status": 200, "body": responses_sse(&[
+        json!({ "type": "response.output_item.done", "item": item.clone() }),
+        json!({ "type": "response.completed", "response": { "id": "resp_1" } }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     let calls: Vec<&serde_json::Value> = response
@@ -250,8 +260,10 @@ fn decodes_web_search_call_as_provider_executed_tool_call_and_result() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn emits_provider_error_events_for_mid_stream_provider_errors() {
+    testing::push_response(json!({ "status": 200, "body": responses_sse(&[
+        json!({ "type": "error", "code": "rate_limit_exceeded", "message": "Slow down" }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(
@@ -264,16 +276,21 @@ fn emits_provider_error_events_for_mid_stream_provider_errors() {
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn surfaces_response_failed_details_from_response_error() {
+    testing::push_response(json!({ "status": 200, "body": responses_sse(&[
+        json!({ "type": "response.failed", "response": { "error": { "code": "server_error", "message": "Upstream model unavailable" } } }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.events, json!([{ "type": "provider-error", "message": "server_error: Upstream model unavailable" }]).as_array().cloned().unwrap());
 }
 
 #[test]
-#[ignore = "porting: openai responses protocol not implemented"]
 fn fails_http_provider_errors_before_stream_parsing() {
+    testing::push_response(json!({
+        "status": 400,
+        "body": "{\"error\":{\"message\":\"Bad request\"}}",
+    }));
     let error = LLMClient::generate(request()).expect_err("should fail");
 
     assert!(error.to_string().contains("HTTP 400"));

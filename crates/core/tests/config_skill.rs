@@ -9,10 +9,7 @@
 use opencode_core::config_skill::{ConfigSkill, SkillSource};
 use opencode_core::path::AbsolutePath;
 
-const NOTE: &str = "porting: config skill not implemented";
-
 #[test]
-#[ignore = "porting: config skill not implemented"]
 fn registers_configured_skill_directories_and_urls() {
     let config_directories = vec![AbsolutePath::new("/repo/.opencode")];
     let skills = vec![
@@ -29,7 +26,7 @@ fn registers_configured_skill_directories_and_urls() {
         &location_directory,
         "/home/test",
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         sources,

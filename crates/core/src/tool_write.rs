@@ -11,7 +11,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A write target resolved against the active location.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -34,41 +34,64 @@ impl WriteTool {
 
     /// The locked input schema property names.
     pub fn schema_keys() -> CoreResult<Vec<&'static str>> {
-        Err(CoreError::NotImplemented(
-            "tool_write::WriteTool::schema_keys",
-        ))
+        Ok(vec!["path", "content"])
     }
 
     /// Resolve `path` against the active location directory.
-    pub fn resolve(_active_directory: &str, _path: &str) -> CoreResult<ResolvedWriteTarget> {
-        Err(CoreError::NotImplemented("tool_write::WriteTool::resolve"))
+    pub fn resolve(active_directory: &str, path: &str) -> CoreResult<ResolvedWriteTarget> {
+        let base = Path::new(active_directory);
+        let joined = if Path::new(path).is_absolute() {
+            PathBuf::from(path)
+        } else {
+            base.join(path)
+        };
+        let canonical = Self::canonical(&joined)?;
+        let external = !canonical.starts_with(base);
+        let resource = canonical
+            .strip_prefix(base)
+            .unwrap_or(&canonical)
+            .to_string_lossy()
+            .replace('\\', "/");
+        Ok(ResolvedWriteTarget {
+            canonical,
+            resource,
+            external,
+        })
     }
 
     /// The success message for a completed write.
-    pub fn success_message(_existed: bool, _resource: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_write::WriteTool::success_message",
-        ))
+    pub fn success_message(existed: bool, resource: &str) -> CoreResult<String> {
+        let verb = if existed { "Wrote" } else { "Created" };
+        Ok(format!("{verb} file successfully: {resource}"))
     }
 
     /// The ordered permission actions for a target.
-    pub fn permission_actions(_external: bool) -> CoreResult<Vec<&'static str>> {
-        Err(CoreError::NotImplemented(
-            "tool_write::WriteTool::permission_actions",
-        ))
+    pub fn permission_actions(external: bool) -> CoreResult<Vec<&'static str>> {
+        if external {
+            Ok(vec!["external_directory", "edit"])
+        } else {
+            Ok(vec!["edit"])
+        }
     }
 
     /// The failure message when a write is denied or fails.
-    pub fn failure_message(_path: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_write::WriteTool::failure_message",
-        ))
+    pub fn failure_message(path: &str) -> CoreResult<String> {
+        Ok(format!("Unable to write {path}"))
     }
 
     /// The canonical form of `path` used for the structured `target` field.
-    pub fn canonical(_path: &Path) -> CoreResult<PathBuf> {
-        Err(CoreError::NotImplemented(
-            "tool_write::WriteTool::canonical",
-        ))
+    pub fn canonical(path: &Path) -> CoreResult<PathBuf> {
+        // Resolve `.`/`..` lexically without requiring the file to exist.
+        let mut normalized = PathBuf::new();
+        for component in path.components() {
+            match component {
+                std::path::Component::ParentDir => {
+                    normalized.pop();
+                }
+                std::path::Component::CurDir => {}
+                other => normalized.push(other.as_os_str()),
+            }
+        }
+        Ok(normalized)
     }
 }

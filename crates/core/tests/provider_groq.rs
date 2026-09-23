@@ -7,16 +7,13 @@
 use opencode_core::groq::GroqPlugin;
 use serde_json::json;
 
-const NOTE: &str = "porting: groq provider lowering not implemented";
-
 #[test]
-#[ignore = "porting: groq provider lowering not implemented"]
 fn passes_through_unknown_reasoning_effort() {
     let mut body = json!({});
     GroqPlugin::apply_body(
         &json!({ "groq": { "reasoningEffort": "custom" } }),
         &mut body,
     )
-    .expect(NOTE);
+    .unwrap();
     assert_eq!(body["reasoning_effort"], json!("custom"));
 }

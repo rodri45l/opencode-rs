@@ -6,7 +6,7 @@
 
 use serde_json::Value;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Groq request lowering.
 #[derive(Debug, Default)]
@@ -14,7 +14,15 @@ pub struct GroqPlugin;
 
 impl GroqPlugin {
     /// Apply Groq provider options onto a request body.
-    pub fn apply_body(_options: &Value, _body: &mut Value) -> CoreResult<()> {
-        Err(CoreError::NotImplemented("groq::GroqPlugin::apply_body"))
+    pub fn apply_body(options: &Value, body: &mut Value) -> CoreResult<()> {
+        if let Some(effort) = options
+            .get("groq")
+            .and_then(|groq| groq.get("reasoningEffort"))
+        {
+            if let Value::Object(map) = body {
+                map.insert("reasoning_effort".to_string(), effort.clone());
+            }
+        }
+        Ok(())
     }
 }

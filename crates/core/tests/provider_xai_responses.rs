@@ -9,10 +9,7 @@
 use opencode_core::xai_responses::{XaiApi, XaiResponsesPlugin};
 use serde_json::json;
 
-const NOTE: &str = "porting: xai responses lowering not implemented";
-
 #[test]
-#[ignore = "porting: xai responses lowering not implemented"]
 fn responses_sends_prompt_cache_key_and_nested_reasoning() {
     let mut body = json!({});
     XaiResponsesPlugin::apply_options(
@@ -20,7 +17,7 @@ fn responses_sends_prompt_cache_key_and_nested_reasoning() {
         &json!({ "xai": { "promptCacheKey": "session-123" } }),
         &mut body,
     )
-    .expect(NOTE);
+    .unwrap();
     assert_eq!(body["prompt_cache_key"], json!("session-123"));
 
     let mut body = json!({});
@@ -29,12 +26,11 @@ fn responses_sends_prompt_cache_key_and_nested_reasoning() {
         &json!({ "xai": { "reasoningEffort": "xhigh" } }),
         &mut body,
     )
-    .expect(NOTE);
+    .unwrap();
     assert_eq!(body["reasoning"], json!({ "effort": "xhigh" }));
 }
 
 #[test]
-#[ignore = "porting: xai responses lowering not implemented"]
 fn chat_sends_flat_reasoning_effort() {
     let mut body = json!({});
     XaiResponsesPlugin::apply_options(
@@ -42,6 +38,6 @@ fn chat_sends_flat_reasoning_effort() {
         &json!({ "xai": { "reasoningEffort": "xhigh" } }),
         &mut body,
     )
-    .expect(NOTE);
+    .unwrap();
     assert_eq!(body["reasoning_effort"], json!("xhigh"));
 }

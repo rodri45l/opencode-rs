@@ -5,7 +5,6 @@ use opencode_llm::{providers, LLMClient, LLM};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: openrouter provider not implemented"]
 fn prepares_openrouter_models_through_the_openai_compatible_chat_route() {
     let model = providers::openrouter::configure(json!({ "apiKey": "test-key" }))
         .model("openai/gpt-4o-mini");
@@ -29,7 +28,6 @@ fn prepares_openrouter_models_through_the_openai_compatible_chat_route() {
 }
 
 #[test]
-#[ignore = "porting: openrouter provider not implemented"]
 fn applies_openrouter_payload_options_from_the_model_helper() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": providers::openrouter::configure(json!({

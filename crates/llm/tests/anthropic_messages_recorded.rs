@@ -3,11 +3,10 @@
 
 mod common;
 
-use opencode_llm::{providers, LLMClient, Message, ToolCallPart, LLM};
+use opencode_llm::{providers, testing, LLMClient, Message, ToolCallPart, LLM};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: anthropic recorded sad path not implemented"]
 fn rejects_malformed_assistant_tool_order() {
     let cassette = common::recording(
         "anthropic-messages",
@@ -30,6 +29,12 @@ fn rejects_malformed_assistant_tool_order() {
             Message::user("Use that result to answer briefly."),
         ],
         "tools": [{ "name": common::WEATHER_TOOL_NAME, "description": "Get weather", "inputSchema": { "type": "object", "properties": {} } }],
+    }));
+
+    let interaction = &cassette["interactions"][0];
+    testing::push_response(json!({
+        "status": interaction["response"]["status"],
+        "body": interaction["response"]["body"],
     }));
 
     let error = LLMClient::generate(request).expect_err("should fail");

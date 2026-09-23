@@ -8,8 +8,6 @@
 use opencode_core::background_job::{BackgroundJob, JobStart, JobStatus};
 use serde_json::json;
 
-const NOTE: &str = "porting: background job not implemented";
-
 fn start(id: Option<&str>) -> JobStart {
     JobStart {
         id: id.map(str::to_string),
@@ -20,16 +18,15 @@ fn start(id: Option<&str>) -> JobStart {
 }
 
 #[test]
-#[ignore = "porting: background job not implemented"]
 fn tracks_process_local_work_through_explicit_observation() {
     let jobs = BackgroundJob::new();
-    let job = jobs.start(start(None)).expect(NOTE);
+    let job = jobs.start(start(None)).unwrap();
 
     assert_eq!(job.job_type, "test");
     assert_eq!(job.status, JobStatus::Running);
     assert_eq!(job.metadata, json!({ "durable": false }));
 
-    let running = jobs.wait(&job.id, Some(0)).expect(NOTE);
+    let running = jobs.wait(&job.id, Some(0)).unwrap();
     assert!(running.timed_out);
     assert_eq!(
         running.info.map(|info| info.status),
@@ -38,16 +35,15 @@ fn tracks_process_local_work_through_explicit_observation() {
 }
 
 #[test]
-#[ignore = "porting: background job not implemented"]
 fn increments_pending_work_before_starting_extensions() {
     let jobs = BackgroundJob::new();
-    let job = jobs.start(start(Some("job_extend"))).expect(NOTE);
+    let job = jobs.start(start(Some("job_extend"))).unwrap();
 
     assert!(jobs
         .extend(&job.id, Box::new(|| Ok("second".into())))
-        .expect(NOTE));
+        .unwrap());
     assert_eq!(
-        jobs.get(&job.id).expect(NOTE).map(|info| info.status),
+        jobs.get(&job.id).unwrap().map(|info| info.status),
         Some(JobStatus::Running)
     );
 }

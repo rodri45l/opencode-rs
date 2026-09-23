@@ -11,8 +11,6 @@ use opencode_core::tool_websearch::{
 };
 use serde_json::json;
 
-const NOTE: &str = "porting: web search tool not implemented";
-
 fn payload(text: &str) -> String {
     json!({
         "jsonrpc": "2.0",
@@ -23,7 +21,6 @@ fn payload(text: &str) -> String {
 }
 
 #[test]
-#[ignore = "porting: web search tool not implemented"]
 fn rejects_out_of_range_numeric_controls() {
     assert!(WebSearchTool::parse_input(&json!({ "query": "x", "numResults": 0 })).is_err());
     assert!(WebSearchTool::parse_input(
@@ -37,25 +34,23 @@ fn rejects_out_of_range_numeric_controls() {
 }
 
 #[test]
-#[ignore = "porting: web search tool not implemented"]
 fn selects_a_stable_provider_per_session() {
     let config = SearchConfig::default();
     assert_eq!(
-        WebSearchTool::select_provider("ses_one", &config, None).expect(NOTE),
-        WebSearchTool::select_provider("ses_one", &config, None).expect(NOTE)
+        WebSearchTool::select_provider("ses_one", &config, None).unwrap(),
+        WebSearchTool::select_provider("ses_one", &config, None).unwrap()
     );
 }
 
 #[test]
-#[ignore = "porting: web search tool not implemented"]
 fn honors_explicit_operational_overrides_and_flags() {
     let none = SearchConfig::default();
     assert_eq!(
-        WebSearchTool::select_provider("ses_one", &none, Some("parallel")).expect(NOTE),
+        WebSearchTool::select_provider("ses_one", &none, Some("parallel")).unwrap(),
         "parallel"
     );
     assert_eq!(
-        WebSearchTool::select_provider("ses_one", &none, Some("exa")).expect(NOTE),
+        WebSearchTool::select_provider("ses_one", &none, Some("exa")).unwrap(),
         "exa"
     );
     assert_eq!(
@@ -67,7 +62,7 @@ fn honors_explicit_operational_overrides_and_flags() {
             },
             None,
         )
-        .expect(NOTE),
+        .unwrap(),
         "parallel"
     );
     assert_eq!(
@@ -79,16 +74,15 @@ fn honors_explicit_operational_overrides_and_flags() {
             },
             None,
         )
-        .expect(NOTE),
+        .unwrap(),
         "exa"
     );
 }
 
 #[test]
-#[ignore = "porting: web search tool not implemented"]
 fn parses_plain_and_sse_json_rpc_responses() {
     assert_eq!(
-        WebSearchTool::parse_response(&payload("search results")).expect(NOTE),
+        WebSearchTool::parse_response(&payload("search results")).unwrap(),
         "search results"
     );
     let sse = format!(
@@ -96,7 +90,7 @@ fn parses_plain_and_sse_json_rpc_responses() {
         payload("search results")
     );
     assert_eq!(
-        WebSearchTool::parse_response(&sse).expect(NOTE),
+        WebSearchTool::parse_response(&sse).unwrap(),
         "search results"
     );
 }

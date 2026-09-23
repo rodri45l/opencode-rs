@@ -5,7 +5,6 @@ use opencode_llm::ToolStream;
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: tool stream not implemented"]
 fn starts_from_openai_style_deltas_and_finalizes_parsed_input() {
     let first = ToolStream::append_or_start(
         ToolStream::empty(),
@@ -45,7 +44,6 @@ fn starts_from_openai_style_deltas_and_finalizes_parsed_input() {
 }
 
 #[test]
-#[ignore = "porting: tool stream not implemented"]
 fn fails_append_existing_when_the_provider_skipped_the_tool_start() {
     let error = ToolStream::append_existing(ToolStream::empty(), 0, "{}", "missing tool")
         .expect_err("should fail");
@@ -54,7 +52,6 @@ fn fails_append_existing_when_the_provider_skipped_the_tool_start() {
 }
 
 #[test]
-#[ignore = "porting: tool stream not implemented"]
 fn uses_final_input_override_without_losing_accumulated_deltas() {
     let tools = ToolStream::start(
         ToolStream::empty(),
@@ -77,7 +74,6 @@ fn uses_final_input_override_without_losing_accumulated_deltas() {
 }
 
 #[test]
-#[ignore = "porting: tool stream not implemented"]
 fn preserves_provider_executed_and_clears_all_tools() {
     let first = ToolStream::start(
         ToolStream::empty(),

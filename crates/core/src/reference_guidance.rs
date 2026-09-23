@@ -5,7 +5,7 @@
 //! description, and omit the block entirely when none qualify.
 
 use crate::path::AbsolutePath;
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A reference source.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -49,9 +49,31 @@ pub struct ReferenceGuidance;
 
 impl ReferenceGuidance {
     /// Render the available-references system context block.
-    pub fn render(_references: &[ReferenceInfo]) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "reference_guidance::ReferenceGuidance::render",
-        ))
+    pub fn render(references: &[ReferenceInfo]) -> CoreResult<String> {
+        let described: Vec<&ReferenceInfo> = references
+            .iter()
+            .filter(|reference| {
+                reference
+                    .description
+                    .as_ref()
+                    .is_some_and(|description| !description.is_empty())
+            })
+            .collect();
+        if described.is_empty() {
+            return Ok(String::new());
+        }
+        let mut lines = vec!["<available_references>".to_string()];
+        for reference in described {
+            lines.push("  <reference>".to_string());
+            lines.push(format!("    <name>{}</name>", reference.name));
+            lines.push(format!("    <path>{}</path>", reference.path));
+            lines.push(format!(
+                "    <description>{}</description>",
+                reference.description.as_deref().unwrap_or_default()
+            ));
+            lines.push("  </reference>".to_string());
+        }
+        lines.push("</available_references>".to_string());
+        Ok(lines.join("\n"))
     }
 }

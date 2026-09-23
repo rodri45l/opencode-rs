@@ -5,7 +5,6 @@ use opencode_llm::{Tool, LLM};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: generate object not implemented"]
 fn forwards_json_schema_and_description_through_to_definitions() {
     let json_schema = json!({
         "type": "object",
@@ -26,7 +25,6 @@ fn forwards_json_schema_and_description_through_to_definitions() {
 }
 
 #[test]
-#[ignore = "porting: generate object not implemented"]
 fn execute_receives_the_raw_input_untouched() {
     let tool = Tool::make(json!({ "description": "echo", "jsonSchema": { "type": "object" } }));
     let result = Tool::execute(tool, json!({ "hello": "world" })).expect("execute");
@@ -35,12 +33,12 @@ fn execute_receives_the_raw_input_untouched() {
 }
 
 #[test]
-#[ignore = "porting: generate object not implemented"]
 fn forces_a_synthetic_tool_call_and_decodes_the_input() {
     let response = LLM::generate_object(json!({
         "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } },
         "prompt": "Return a structured weather report.",
         "schema": { "type": "object", "properties": { "city": { "type": "string" }, "temp": { "type": "number" } }, "required": ["city", "temp"] },
+        "canned": { "toolCall": { "id": "call_1", "name": "generate_object", "input": { "city": "Paris", "temp": 22 } } },
     }))
     .expect("generateObject");
 
@@ -60,12 +58,12 @@ fn forces_a_synthetic_tool_call_and_decodes_the_input() {
 }
 
 #[test]
-#[ignore = "porting: generate object not implemented"]
 fn accepts_a_raw_json_schema_and_returns_the_input_untouched() {
     let response = LLM::generate_object(json!({
         "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } },
         "prompt": "Extract the user.",
         "jsonSchema": { "type": "object", "properties": { "name": { "type": "string" }, "age": { "type": "number" } }, "required": ["name", "age"] },
+        "canned": { "toolCall": { "id": "call_1", "name": "generate_object", "input": { "name": "Ada", "age": 30 } } },
     }))
     .expect("generateObject");
 
@@ -77,7 +75,6 @@ fn accepts_a_raw_json_schema_and_returns_the_input_untouched() {
 }
 
 #[test]
-#[ignore = "porting: generate object not implemented"]
 fn fails_when_the_model_does_not_call_the_synthetic_tool() {
     let error = LLM::generate_object(json!({
         "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } },
@@ -91,7 +88,6 @@ fn fails_when_the_model_does_not_call_the_synthetic_tool() {
 }
 
 #[test]
-#[ignore = "porting: generate object not implemented"]
 fn fails_with_a_decode_error_when_the_tool_input_does_not_match_the_schema() {
     let error = LLM::generate_object(json!({
         "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } },

@@ -10,8 +10,6 @@
 
 use opencode_core::tool_question::{Question, QuestionTool};
 
-const NOTE: &str = "porting: question tool not implemented";
-
 fn questions() -> Vec<Question> {
     vec![
         Question {
@@ -28,27 +26,25 @@ fn questions() -> Vec<Question> {
 }
 
 #[test]
-#[ignore = "porting: question tool not implemented"]
 fn is_omitted_when_the_wildcard_question_action_is_denied() {
     assert_eq!(QuestionTool::NAME, "question");
     assert_eq!(
-        QuestionTool::permission_action().expect(NOTE),
+        QuestionTool::permission_action().unwrap(),
         QuestionTool::ACTION
     );
-    assert_eq!(QuestionTool::permission_resources().expect(NOTE), vec!["*"]);
-    assert!(QuestionTool::omitted_when_denied(true).expect(NOTE));
-    assert!(!QuestionTool::omitted_when_denied(false).expect(NOTE));
+    assert_eq!(QuestionTool::permission_resources().unwrap(), vec!["*"]);
+    assert!(QuestionTool::omitted_when_denied(true).unwrap());
+    assert!(!QuestionTool::omitted_when_denied(false).unwrap());
     assert_eq!(
-        QuestionTool::denied_message().expect(NOTE),
+        QuestionTool::denied_message().unwrap(),
         "Permission denied: question"
     );
 }
 
 #[test]
-#[ignore = "porting: question tool not implemented"]
 fn projects_answers_and_marks_unanswered_questions() {
     assert_eq!(
-        QuestionTool::format_answers(&questions(), &[vec!["Build".into()], vec![]]).expect(NOTE),
+        QuestionTool::format_answers(&questions(), &[vec!["Build".into()], vec![]]).unwrap(),
         "User has answered your questions: \"What should happen?\"=\"Build\", \"Which environment?\"=\"Unanswered\". You can now continue with the user's answers in mind."
     );
 }

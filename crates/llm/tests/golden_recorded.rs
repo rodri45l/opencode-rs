@@ -155,8 +155,15 @@ fn targets() -> Vec<Target> {
     ]
 }
 
-fn facade(provider: &str) -> Json {
+fn facade(provider: &str, route: &str) -> Json {
     match provider {
+        "openai" if route == "openai-chat" => {
+            providers::openai::configure(json!({ "apiKey": "fixture" })).chat("gpt-4o-mini")
+        }
+        "openai" if route == "openai-responses-websocket" => {
+            providers::openai::configure(json!({ "apiKey": "fixture" }))
+                .responses_web_socket("gpt-4.1-mini")
+        }
         "openai" => {
             providers::openai::configure(json!({ "apiKey": "fixture" })).responses("gpt-5.5")
         }
@@ -190,7 +197,6 @@ fn facade(provider: &str) -> Json {
 }
 
 #[test]
-#[ignore = "porting: golden recorded scenarios not implemented"]
 fn every_golden_target_resolves_to_its_provider_route_and_scenarios() {
     for target in targets() {
         assert!(
@@ -203,13 +209,12 @@ fn every_golden_target_resolves_to_its_provider_route_and_scenarios() {
             "{} has a cassette prefix",
             target.name
         );
-        let model = facade(target.provider);
+        let model = facade(target.provider, target.route);
         assert_eq!(model["route"]["id"], target.route, "{} route", target.name);
     }
 }
 
 #[test]
-#[ignore = "porting: golden recorded scenarios not implemented"]
 fn golden_cassettes_are_loadable_where_present() {
     let known = [
         ("openai-chat", "streams-text"),

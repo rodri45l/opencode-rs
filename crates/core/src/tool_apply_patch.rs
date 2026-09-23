@@ -58,23 +58,54 @@ impl ApplyPatchTool {
     pub const MOVE_ERROR: &'static str = "apply_patch moves are not supported yet";
 
     /// Parse a patch document.
-    pub fn parse(_patch_text: &str) -> CoreResult<ParsedPatch> {
-        Err(CoreError::NotImplemented(
-            "tool_apply_patch::ApplyPatchTool::parse",
-        ))
+    pub fn parse(patch_text: &str) -> CoreResult<ParsedPatch> {
+        let hunks = crate::patch::Patch::parse(patch_text)?;
+        let mut operations = Vec::new();
+        for hunk in hunks {
+            match hunk {
+                crate::patch::PatchHunk::Add { path, .. } => {
+                    operations.push(PatchOperation::Add { path })
+                }
+                crate::patch::PatchHunk::Update {
+                    path, move_path, ..
+                } => {
+                    if let Some(to) = move_path {
+                        operations.push(PatchOperation::Move { from: path, to });
+                    } else {
+                        operations.push(PatchOperation::Update { path });
+                    }
+                }
+                crate::patch::PatchHunk::Delete { path } => {
+                    operations.push(PatchOperation::Delete { path })
+                }
+            }
+        }
+        if operations
+            .iter()
+            .any(|operation| matches!(operation, PatchOperation::Move { .. }))
+        {
+            return Err(CoreError::Message(Self::MOVE_ERROR.into()));
+        }
+        Ok(ParsedPatch { operations })
     }
 
     /// The applied-batch summary message.
-    pub fn summary(_patch: &ParsedPatch) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_apply_patch::ApplyPatchTool::summary",
-        ))
+    pub fn summary(patch: &ParsedPatch) -> CoreResult<String> {
+        let mut lines = vec!["Applied patch sequentially:".to_string()];
+        for operation in &patch.operations {
+            let (prefix, path) = match operation {
+                PatchOperation::Add { path } => ("A", path),
+                PatchOperation::Update { path } => ("M", path),
+                PatchOperation::Delete { path } => ("D", path),
+                PatchOperation::Move { from, .. } => ("M", from),
+            };
+            lines.push(format!("{prefix} {path}"));
+        }
+        Ok(lines.join("\n"))
     }
 
     /// The failure message for a failing hunk.
-    pub fn failure_message(_path: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_apply_patch::ApplyPatchTool::failure_message",
-        ))
+    pub fn failure_message(path: &str) -> CoreResult<String> {
+        Ok(format!("Unable to apply patch at {path}"))
     }
 }

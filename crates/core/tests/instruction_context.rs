@@ -8,10 +8,7 @@
 use opencode_core::instruction_context::{InstructionContext, InstructionFile};
 use opencode_core::path::AbsolutePath;
 
-const NOTE: &str = "porting: instruction context not implemented";
-
 #[test]
-#[ignore = "porting: instruction context not implemented"]
 fn renders_discovered_instruction_files_as_one_aggregate_context() {
     let baseline = InstructionContext::render(&[
         InstructionFile {
@@ -27,7 +24,7 @@ fn renders_discovered_instruction_files_as_one_aggregate_context() {
             content: "project".into(),
         },
     ])
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         baseline,
@@ -41,13 +38,12 @@ fn renders_discovered_instruction_files_as_one_aggregate_context() {
 }
 
 #[test]
-#[ignore = "porting: instruction context not implemented"]
 fn keeps_an_empty_agents_md_as_available_context() {
     let baseline = InstructionContext::render(&[InstructionFile {
         path: AbsolutePath::new("/tmp/AGENTS.md"),
         content: String::new(),
     }])
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(baseline, "Instructions from: /tmp/AGENTS.md\n");
 }

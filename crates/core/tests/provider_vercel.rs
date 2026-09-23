@@ -14,8 +14,6 @@ use opencode_core::provider_plugins::ProviderRequest;
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 use serde_json::json;
 
-const NOTE: &str = "porting: vercel provider plugin not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -27,18 +25,16 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: vercel provider plugin not implemented"]
 fn is_registered_so_legacy_referer_headers_can_be_applied() {
     assert!(ProviderHeaderPlugins::registered_ids()
-        .expect(NOTE)
+        .unwrap()
         .contains(&"vercel"));
 }
 
 #[test]
-#[ignore = "porting: vercel provider plugin not implemented"]
 fn applies_the_legacy_lower_case_referer_headers_only_to_vercel() {
     let mut vercel = request(&[("Existing", "value")]);
-    ProviderHeaderPlugins::apply_vercel("vercel", &mut vercel).expect(NOTE);
+    ProviderHeaderPlugins::apply_vercel("vercel", &mut vercel).unwrap();
 
     assert_eq!(
         vercel.headers.get("Existing").map(String::as_str),
@@ -54,31 +50,28 @@ fn applies_the_legacy_lower_case_referer_headers_only_to_vercel() {
     );
 
     let mut gateway = request(&[]);
-    ProviderHeaderPlugins::apply_vercel("gateway", &mut gateway).expect(NOTE);
+    ProviderHeaderPlugins::apply_vercel("gateway", &mut gateway).unwrap();
     assert!(gateway.headers.is_empty());
 }
 
 #[test]
-#[ignore = "porting: vercel provider plugin not implemented"]
 fn does_not_add_the_legacy_upper_case_referer_headers() {
     let mut vercel = request(&[]);
-    ProviderHeaderPlugins::apply_vercel("vercel", &mut vercel).expect(NOTE);
+    ProviderHeaderPlugins::apply_vercel("vercel", &mut vercel).unwrap();
 
     assert!(!vercel.headers.contains_key("HTTP-Referer"));
     assert!(!vercel.headers.contains_key("X-Title"));
 }
 
 #[test]
-#[ignore = "porting: vercel provider plugin not implemented"]
 fn binds_to_the_vercel_sdk_package() {
-    assert!(ProviderSdkPlugins::matches_package("vercel", "@ai-sdk/vercel").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("vercel", "@ai-sdk/vercel").unwrap());
 }
 
 #[test]
-#[ignore = "porting: vercel provider plugin not implemented"]
 fn names_the_sdk_provider_with_a_chat_suffix() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("vercel", "custom-vercel").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("vercel", "custom-vercel").unwrap(),
         "vercel.chat"
     );
 }

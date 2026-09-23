@@ -15,7 +15,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn classifies_context_overflow_responses() {
     let error = RequestExecutor::execute(json!({
         "request": request(),
@@ -27,7 +26,6 @@ fn classifies_context_overflow_responses() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn does_not_classify_generic_http_413_payload_errors_as_context_overflow() {
     let error = RequestExecutor::execute(json!({
         "request": request(),
@@ -39,7 +37,6 @@ fn does_not_classify_generic_http_413_payload_errors_as_context_overflow() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn returns_redacted_diagnostics_for_retryable_rate_limits() {
     let error = RequestExecutor::execute(json!({
         "request": request(),
@@ -59,7 +56,6 @@ fn returns_redacted_diagnostics_for_retryable_rate_limits() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn extracts_openai_style_rate_limit_diagnostics() {
     let error = RequestExecutor::execute(json!({
         "request": request(),
@@ -83,7 +79,6 @@ fn extracts_openai_style_rate_limit_diagnostics() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn marks_504_and_529_status_responses_retryable() {
     for status in [504, 529] {
         let error = RequestExecutor::execute(json!({
@@ -96,7 +91,6 @@ fn marks_504_and_529_status_responses_retryable() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn does_not_retry_non_retryable_status_responses_and_truncates_large_bodies() {
     let error = RequestExecutor::execute(json!({
         "request": request(),
@@ -110,7 +104,6 @@ fn does_not_retry_non_retryable_status_responses_and_truncates_large_bodies() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn redacts_echoed_request_secret_values_in_response_bodies() {
     let error = RequestExecutor::execute(json!({
         "request": {
@@ -128,7 +121,6 @@ fn redacts_echoed_request_secret_values_in_response_bodies() {
 }
 
 #[test]
-#[ignore = "porting: request executor not implemented"]
 fn does_not_retry_after_a_successful_response_reaches_stream_parsing() {
     let error = RequestExecutor::execute(json!({
         "request": request(),

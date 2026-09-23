@@ -8,47 +8,42 @@
 
 use opencode_core::state::State;
 
-const NOTE: &str = "porting: state not implemented";
-
 #[test]
-#[ignore = "porting: state not implemented"]
 fn runs_the_registered_transforms() {
     let mut state = State::new();
     state
         .transform(|values| values.push("first".into()))
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(state.values(), vec!["first".to_string()]);
 }
 
 #[test]
-#[ignore = "porting: state not implemented"]
 fn runs_effectful_transforms_during_every_reload() {
     let mut state = State::new();
     state
         .transform(|values| values.push("first".into()))
-        .expect(NOTE);
-    state.reload().expect(NOTE);
+        .unwrap();
+    state.reload().unwrap();
     assert_eq!(state.values(), vec!["first".to_string()]);
 }
 
 #[test]
-#[ignore = "porting: state not implemented"]
 fn disposes_a_transform_once_and_rebuilds_remaining_state() {
     let mut state = State::new();
     state
         .transform(|values| values.push("first".into()))
-        .expect(NOTE);
+        .unwrap();
     let registration = state
         .transform(|values| values.push("second".into()))
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(
         state.values(),
         vec!["first".to_string(), "second".to_string()]
     );
 
-    state.dispose(registration).expect(NOTE);
+    state.dispose(registration).unwrap();
     assert_eq!(state.values(), vec!["first".to_string()]);
 
-    state.dispose(registration).expect(NOTE);
+    state.dispose(registration).unwrap();
     assert_eq!(state.values(), vec!["first".to_string()]);
 }

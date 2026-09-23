@@ -5,7 +5,6 @@ use opencode_llm::{Auth, LLMClient, LLM};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: provider option merge not implemented"]
 fn deep_merges_provider_option_records_and_replaces_arrays_primitives_and_null() {
     let merged = LLM::merge_provider_options(vec![
         json!({
@@ -42,7 +41,6 @@ fn deep_merges_provider_option_records_and_replaces_arrays_primitives_and_null()
 }
 
 #[test]
-#[ignore = "porting: request precedence not implemented"]
 fn prepares_bodies_with_route_model_and_call_options_in_order() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": {
@@ -74,7 +72,6 @@ fn prepares_bodies_with_route_model_and_call_options_in_order() {
 }
 
 #[test]
-#[ignore = "porting: request precedence not implemented"]
 fn applies_model_http_defaults_before_request_http_overlays() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": {
@@ -97,7 +94,6 @@ fn applies_model_http_defaults_before_request_http_overlays() {
 }
 
 #[test]
-#[ignore = "porting: request precedence not implemented"]
 fn rejects_raw_body_overlays_for_protocol_owned_roots() {
     let error = LLMClient::prepare(LLM::request(json!({
         "model": {
@@ -118,7 +114,6 @@ fn rejects_raw_body_overlays_for_protocol_owned_roots() {
 }
 
 #[test]
-#[ignore = "porting: request precedence not implemented"]
 fn uses_model_output_limits_after_route_limits_and_before_call_max_tokens() {
     let base = json!({
         "model": {

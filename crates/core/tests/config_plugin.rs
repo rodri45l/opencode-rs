@@ -11,10 +11,7 @@ use opencode_core::config_plugin::{ConfigExternalPlugin, PluginSpec};
 use serde_json::json;
 use std::collections::BTreeMap;
 
-const NOTE: &str = "porting: config external plugin loader not implemented";
-
 #[test]
-#[ignore = "porting: config external plugin loader not implemented"]
 fn parses_string_and_object_plugin_entries_with_options() {
     let specs = ConfigExternalPlugin::parse_specs(&json!([
         "../plugin/fixtures/missing-plugin.ts",
@@ -23,7 +20,7 @@ fn parses_string_and_object_plugin_entries_with_options() {
             "options": { "description": "Loaded from config" }
         }
     ]))
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(specs.len(), 2);
     assert_eq!(specs[0].package, "../plugin/fixtures/missing-plugin.ts");
@@ -39,25 +36,22 @@ fn parses_string_and_object_plugin_entries_with_options() {
 }
 
 #[test]
-#[ignore = "porting: config external plugin loader not implemented"]
 fn distinguishes_relative_references_from_npm_specifiers() {
-    assert!(ConfigExternalPlugin::is_relative_reference("../plugin/x.ts").expect(NOTE));
-    assert!(ConfigExternalPlugin::is_relative_reference("./x.ts").expect(NOTE));
-    assert!(!ConfigExternalPlugin::is_relative_reference("example-plugin@1.0.0").expect(NOTE));
-    assert!(ConfigExternalPlugin::is_npm_spec("example-plugin@1.0.0").expect(NOTE));
-    assert!(!ConfigExternalPlugin::is_npm_spec("../plugin/x.ts").expect(NOTE));
+    assert!(ConfigExternalPlugin::is_relative_reference("../plugin/x.ts").unwrap());
+    assert!(ConfigExternalPlugin::is_relative_reference("./x.ts").unwrap());
+    assert!(!ConfigExternalPlugin::is_relative_reference("example-plugin@1.0.0").unwrap());
+    assert!(ConfigExternalPlugin::is_npm_spec("example-plugin@1.0.0").unwrap());
+    assert!(!ConfigExternalPlugin::is_npm_spec("../plugin/x.ts").unwrap());
 }
 
 #[test]
-#[ignore = "porting: config external plugin loader not implemented"]
 fn detects_plugin_files_by_extension() {
-    assert!(ConfigExternalPlugin::is_plugin_file("config-promise-plugin.ts").expect(NOTE));
-    assert!(ConfigExternalPlugin::is_plugin_file("plugin.mts").expect(NOTE));
-    assert!(!ConfigExternalPlugin::is_plugin_file("opencode.json").expect(NOTE));
+    assert!(ConfigExternalPlugin::is_plugin_file("config-promise-plugin.ts").unwrap());
+    assert!(ConfigExternalPlugin::is_plugin_file("plugin.mts").unwrap());
+    assert!(!ConfigExternalPlugin::is_plugin_file("opencode.json").unwrap());
 }
 
 #[test]
-#[ignore = "porting: config external plugin loader not implemented"]
 fn ignores_invalid_plugins_and_continues_loading() {
     let specs = vec![
         PluginSpec {
@@ -75,7 +69,7 @@ fn ignores_invalid_plugins_and_continues_loading() {
         },
     ];
 
-    let loadable = ConfigExternalPlugin::loadable_specs(specs).expect(NOTE);
+    let loadable = ConfigExternalPlugin::loadable_specs(specs).unwrap();
     assert_eq!(loadable.len(), 1);
     assert_eq!(
         loadable[0].options.get("description").map(String::as_str),

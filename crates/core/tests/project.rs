@@ -10,54 +10,46 @@
 
 use opencode_core::project::{Project, GLOBAL_ID};
 
-const NOTE: &str = "porting: project resolution not implemented";
-
 #[test]
-#[ignore = "porting: project resolution not implemented"]
 fn normalizes_ssh_and_https_remotes_to_the_same_identity() {
     assert_eq!(
-        Project::normalize_remote("git@github.com:owner/repo.git").expect(NOTE),
+        Project::normalize_remote("git@github.com:owner/repo.git").unwrap(),
         Some("github.com/owner/repo".to_string())
     );
     assert_eq!(
-        Project::normalize_remote("https://github.com/owner/repo.git").expect(NOTE),
+        Project::normalize_remote("https://github.com/owner/repo.git").unwrap(),
         Some("github.com/owner/repo".to_string())
     );
     assert_eq!(
-        Project::normalize_remote("git@github.com:Acme/App.git").expect(NOTE),
+        Project::normalize_remote("git@github.com:Acme/App.git").unwrap(),
         Some("github.com/Acme/App".to_string())
     );
     assert_eq!(
-        Project::remote_id_key("git@github.com:owner/repo.git").expect(NOTE),
-        Project::remote_id_key("https://github.com/owner/repo.git").expect(NOTE)
+        Project::remote_id_key("git@github.com:owner/repo.git").unwrap(),
+        Project::remote_id_key("https://github.com/owner/repo.git").unwrap()
     );
 }
 
 #[test]
-#[ignore = "porting: project resolution not implemented"]
 fn ignores_file_remotes_and_falls_back_to_the_root_commit() {
     assert!(Project::normalize_remote("file:///tmp/repo")
-        .expect(NOTE)
+        .unwrap()
         .is_none());
     assert!(Project::remote_id_key("file:///tmp/repo")
-        .expect(NOTE)
+        .unwrap()
         .is_none());
     assert_eq!(
-        Project::resolve_id(Some("file:///tmp/repo"), Some("abc123")).expect(NOTE),
+        Project::resolve_id(Some("file:///tmp/repo"), Some("abc123")).unwrap(),
         "abc123"
     );
 }
 
 #[test]
-#[ignore = "porting: project resolution not implemented"]
 fn prefers_a_normalized_remote_over_the_root_commit() {
     assert_eq!(
-        Project::resolve_id(Some("https://github.com/owner/repo.git"), Some("abc123")).expect(NOTE),
+        Project::resolve_id(Some("https://github.com/owner/repo.git"), Some("abc123")).unwrap(),
         "git-remote:github.com/owner/repo"
     );
-    assert_eq!(
-        Project::resolve_id(None, Some("abc123")).expect(NOTE),
-        "abc123"
-    );
-    assert_eq!(Project::resolve_id(None, None).expect(NOTE), GLOBAL_ID);
+    assert_eq!(Project::resolve_id(None, Some("abc123")).unwrap(), "abc123");
+    assert_eq!(Project::resolve_id(None, None).unwrap(), GLOBAL_ID);
 }

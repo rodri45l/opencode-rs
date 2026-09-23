@@ -5,6 +5,7 @@
 //! catalog when fetching is disabled, and the in-memory result is cached across
 //! calls until an explicit refresh.
 
+use std::cell::RefCell;
 use std::path::PathBuf;
 
 use serde_json::Value;
@@ -12,16 +13,35 @@ use serde_json::Value;
 use crate::{CoreError, CoreResult};
 
 /// Models.dev catalog cache.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct ModelsDev {
     cache_path: PathBuf,
+    cached: RefCell<Option<Value>>,
 }
+
+impl Clone for ModelsDev {
+    fn clone(&self) -> Self {
+        Self {
+            cache_path: self.cache_path.clone(),
+            cached: RefCell::new(self.cached.borrow().clone()),
+        }
+    }
+}
+
+impl PartialEq for ModelsDev {
+    fn eq(&self, other: &Self) -> bool {
+        self.cache_path == other.cache_path
+    }
+}
+
+impl Eq for ModelsDev {}
 
 impl ModelsDev {
     /// Build a cache bound to `cache_path`.
     pub fn with_cache_path(cache_path: impl Into<PathBuf>) -> Self {
         Self {
             cache_path: cache_path.into(),
+            cached: RefCell::new(None),
         }
     }
 
@@ -32,11 +52,22 @@ impl ModelsDev {
 
     /// The provider catalog.
     pub fn get(&self) -> CoreResult<Value> {
-        Err(CoreError::NotImplemented("models_dev::ModelsDev::get"))
+        if let Some(cached) = self.cached.borrow().clone() {
+            return Ok(cached);
+        }
+        let value = match std::fs::read(&self.cache_path) {
+            Ok(bytes) => serde_json::from_slice::<Value>(&bytes).map_err(|error| {
+                CoreError::Invalid(format!("invalid models.dev cache: {error}"))
+            })?,
+            Err(_) => Value::Object(serde_json::Map::new()),
+        };
+        *self.cached.borrow_mut() = Some(value.clone());
+        Ok(value)
     }
 
     /// Refresh the catalog, optionally forcing a fetch.
     pub fn refresh(&self, _force: bool) -> CoreResult<()> {
-        Err(CoreError::NotImplemented("models_dev::ModelsDev::refresh"))
+        *self.cached.borrow_mut() = None;
+        Ok(())
     }
 }

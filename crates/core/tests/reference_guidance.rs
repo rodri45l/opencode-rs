@@ -8,8 +8,6 @@
 use opencode_core::path::AbsolutePath;
 use opencode_core::reference_guidance::{ReferenceGuidance, ReferenceInfo, ReferenceSource};
 
-const NOTE: &str = "porting: reference guidance not implemented";
-
 fn reference(name: &str, description: Option<&str>) -> ReferenceInfo {
     let path = AbsolutePath::new("/docs");
     ReferenceInfo {
@@ -25,11 +23,10 @@ fn reference(name: &str, description: Option<&str>) -> ReferenceInfo {
 }
 
 #[test]
-#[ignore = "porting: reference guidance not implemented"]
 fn lists_available_references_in_the_system_context() {
     let baseline =
         ReferenceGuidance::render(&[reference("docs", Some("Use for product documentation"))])
-            .expect(NOTE);
+            .unwrap();
 
     assert!(baseline.contains("<available_references>"));
     assert!(baseline.contains("<name>docs</name>"));
@@ -38,16 +35,14 @@ fn lists_available_references_in_the_system_context() {
 }
 
 #[test]
-#[ignore = "porting: reference guidance not implemented"]
 fn omits_guidance_when_no_references_are_available() {
-    assert_eq!(ReferenceGuidance::render(&[]).expect(NOTE), "");
+    assert_eq!(ReferenceGuidance::render(&[]).unwrap(), "");
 }
 
 #[test]
-#[ignore = "porting: reference guidance not implemented"]
 fn omits_references_without_descriptions() {
     assert_eq!(
-        ReferenceGuidance::render(&[reference("docs", None)]).expect(NOTE),
+        ReferenceGuidance::render(&[reference("docs", None)]).unwrap(),
         ""
     );
 }

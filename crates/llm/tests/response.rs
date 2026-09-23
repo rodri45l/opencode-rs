@@ -11,7 +11,6 @@ fn reduce(events: &[Value]) -> Value {
 }
 
 #[test]
-#[ignore = "porting: llm response reducer not implemented"]
 fn assembles_interleaved_reasoning_and_text_with_end_metadata() {
     let events = vec![
         json!({ "type": "reasoning-start", "id": "r1" }),
@@ -48,7 +47,6 @@ fn assembles_interleaved_reasoning_and_text_with_end_metadata() {
 }
 
 #[test]
-#[ignore = "porting: llm response reducer not implemented"]
 fn preserves_partial_content_without_completing_a_failed_stream() {
     let state = reduce(&[
         json!({ "type": "text-start", "id": "t1" }),
@@ -63,7 +61,6 @@ fn preserves_partial_content_without_completing_a_failed_stream() {
 }
 
 #[test]
-#[ignore = "porting: llm response reducer not implemented"]
 fn does_not_complete_ended_content_without_a_terminal_finish() {
     let state = reduce(&[
         json!({ "type": "text-start", "id": "t1" }),
@@ -79,7 +76,6 @@ fn does_not_complete_ended_content_without_a_terminal_finish() {
 }
 
 #[test]
-#[ignore = "porting: llm response reducer not implemented"]
 fn uses_terminal_usage_and_keeps_prior_usage_when_finish_omits_it() {
     let with_finish_usage = LLMResponse::from_events(vec![
         LLMEvent::step_finish(0, "stop", Some(json!({ "inputTokens": 3 }))),
@@ -100,7 +96,6 @@ fn uses_terminal_usage_and_keeps_prior_usage_when_finish_omits_it() {
 }
 
 #[test]
-#[ignore = "porting: llm response reducer not implemented"]
 fn assembles_tool_call_content_only_after_the_completed_tool_call_event() {
     let pending = reduce(&[
         json!({ "type": "tool-input-start", "id": "call_1", "name": "lookup" }),

@@ -9,8 +9,6 @@
 use opencode_core::provider::ConfigProviderPlugin;
 use serde_json::json;
 
-const NOTE: &str = "porting: config provider plugin not implemented";
-
 fn documents() -> Vec<serde_json::Value> {
     vec![
         json!({
@@ -64,13 +62,12 @@ fn documents() -> Vec<serde_json::Value> {
 }
 
 #[test]
-#[ignore = "porting: config provider plugin not implemented"]
 fn loads_configured_providers_and_applies_later_model_overrides() {
-    let snapshot = ConfigProviderPlugin::build(&documents()).expect(NOTE);
+    let snapshot = ConfigProviderPlugin::build(&documents()).unwrap();
 
     assert_eq!(snapshot.default_model.as_deref(), Some("custom/default"));
 
-    let provider = snapshot.providers.get("custom").expect(NOTE);
+    let provider = snapshot.providers.get("custom").unwrap();
     assert_eq!(provider.name, "Renamed");
     assert!(!provider.disabled);
     assert_eq!(
@@ -82,7 +79,7 @@ fn loads_configured_providers_and_applies_later_model_overrides() {
         json!({ "first": "first", "shared": "last", "last": "last" })
     );
 
-    let model = provider.models.get("chat").expect(NOTE);
+    let model = provider.models.get("chat").unwrap();
     assert_eq!(model.api["id"], json!("api-chat"));
     assert_eq!(model.name, "Last");
     assert_eq!(model.limit, json!({ "context": 100, "output": 75 }));
@@ -107,7 +104,6 @@ fn loads_configured_providers_and_applies_later_model_overrides() {
 }
 
 #[test]
-#[ignore = "porting: config provider plugin not implemented"]
 fn keeps_configured_model_variant_bodies_unchanged() {
     let docs = vec![json!({
         "providers": {
@@ -129,12 +125,12 @@ fn keeps_configured_model_variant_bodies_unchanged() {
         }
     })];
 
-    let snapshot = ConfigProviderPlugin::build(&docs).expect(NOTE);
+    let snapshot = ConfigProviderPlugin::build(&docs).unwrap();
     let model = snapshot
         .providers
         .get("opencode")
         .and_then(|provider| provider.models.get("alpha-gpt-next"))
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(
         model.variants[0].body,
         json!({
