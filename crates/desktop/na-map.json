@@ -1,0 +1,4 @@
+{
+  "packages/desktop/electron-builder.config.test.ts": "Electron packaging config (electron-builder) evaluated from OPENCODE_CHANNEL; no Rust equivalent in the desktop shell",
+  "packages/desktop/src/renderer/html.test.ts": "Electron renderer HTML and electron.vite asset-path checks; the Rust desktop shell bundles no renderer HTML"
+}

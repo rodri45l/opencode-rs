@@ -1,0 +1,11 @@
+{
+  "files": 2,
+  "green": 0,
+  "red": 0,
+  "skipped": [
+    "packages/desktop/electron-builder.config.test.ts",
+    "packages/desktop/src/renderer/html.test.ts"
+  ],
+  "renames": {},
+  "notes": "both remaining rows are Electron packaging/renderer-asset checks with no Rust equivalent; na-map.json added"
+}

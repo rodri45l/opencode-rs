@@ -129,8 +129,12 @@ be serialised to one-per-crate. Instead:
 4. **Terse status.** Write `crates/<crate>/PORT-STATUS.<tag>.json`
    (`{"files":N,"green":N,"red":N,"skipped":[...]}`) and return **≤10 lines** to
    the orchestrator. Long prose reports are not read.
-5. **Inventory.** The orchestrator owns `port-map.json` and `docs/TEST-PORT.md`;
-   report any renamed stem in your status file.
+5. **Inventory.** The orchestrator owns `port-map.json`, `na-map.json`, and
+   `docs/TEST-PORT.md`. Report renamed stems in your status file. For a reference
+   test you deliberately do **not** port (visual, live-runtime, upstream unwired),
+   add it to `crates/<crate>/na-map.json` as `"<ref path>": "<reason>"` so the
+   tracker shows it as accounted-for (`n/a`) instead of pending. Never leave a
+   file silently unaccounted.
 
 This allows a single wave of 10-16 writers across the large crates (server, core,
 tui, app) with no shared-file contention.

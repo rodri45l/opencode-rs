@@ -129,19 +129,44 @@ def classify(package: str, text: str) -> str:
     return "P"
 
 
+def load_na_map() -> dict[str, str]:
+    """reference path -> reason, for tests deliberately not ported (visual,
+    live-runtime, unwired upstream). Merged from crates/*/na-map.json + central."""
+    merged: dict[str, str] = {}
+    sources = sorted((REPO / "crates").glob("*/na-map.json"))
+    central = FIXTURES / "na-map.json"
+    if central.exists():
+        sources.append(central)
+    for source in sources:
+        try:
+            data = json.loads(source.read_text())
+        except Exception:
+            continue
+        for key, value in data.items():
+            if key.startswith("_"):
+                continue
+            merged[key] = value if isinstance(value, str) else value.get("reason", "")
+    return merged
+
+
 def rust_test_exists(crate: str, path: str, port_map: dict[str, list[str]]) -> bool:
     tests_dir = REPO / crate / "tests"
     if not tests_dir.is_dir():
         return False
-    if path in port_map:
-        return any((tests_dir / f"{stem}.rs").is_file() for stem in port_map[path])
-    basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
-    stem = basename.replace("-", "_")
-    if (tests_dir / f"{stem}.rs").is_file():
+    if path in port_map and any((tests_dir / f"{stem}.rs").is_file() for stem in port_map[path]):
         return True
-    # Accept wave-prefixed stems (s2_prompt.rs, c1_session_runner.rs, a1_foo.rs, ...).
-    suffix = f"_{stem}"
-    return any(f.stem.endswith(suffix) for f in tests_dir.glob("*.rs"))
+    basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
+    candidates = {
+        basename.replace("-", "_").replace(".", "_"),
+        basename.replace(".", "_"),
+        basename.replace("-", "_"),
+    }
+    candidates |= {re.sub(r"(?<!^)(?=[A-Z])", "_", c).lower() for c in list(candidates)}
+    files = [f.stem for f in tests_dir.glob("*.rs")]
+    for stem in candidates:
+        if stem in files or any(name.endswith(f"_{stem}") for name in files):
+            return True
+    return False
 
 
 def main() -> int:
@@ -154,20 +179,33 @@ def main() -> int:
     ).splitlines()
     tests = [p for p in tracked if p.startswith("packages/") and TEST_GLOB.search(p)]
     port_map = load_port_map()
+    na_map = load_na_map()
 
     files = []
     for path in tests:
         package = path.split("/")[1] if len(path.split("/")) > 1 else ""
         crate = PACKAGE_CRATE.get(package, "?")
         tier = classify(package, (args.reference / path).read_text(errors="ignore"))
+        reason = ""
         if tier == "n/a":
             status = "n/a"
+            reason = "content-only package (not ported)"
+        elif path in na_map:
+            status = "n/a"
+            reason = na_map[path]
         elif rust_test_exists(crate, path, port_map):
             status = "ported"
         else:
             status = "pending"
         files.append(
-            {"path": path, "package": package, "crate": crate, "tier": tier, "status": status}
+            {
+                "path": path,
+                "package": package,
+                "crate": crate,
+                "tier": tier,
+                "status": status,
+                "reason": reason,
+            }
         )
     files.sort(key=lambda f: (f["crate"], f["tier"], f["path"]))
 

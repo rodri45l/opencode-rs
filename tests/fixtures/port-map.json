@@ -5,10 +5,10 @@
   "packages/httpapi-codegen/test/write.test.ts": "httpapi_codegen_write",
   "packages/opencode/test/server/auth.test.ts": "server_auth",
   "packages/core/test/config/skill.test.ts": "config_skill",
+  "packages/opencode/test/util/glob.test.ts": "glob_util",
   "packages/opencode/test/tool/glob.test.ts": "glob_tool",
   "packages/opencode/test/tool/lsp.test.ts": "lsp_tool",
   "packages/opencode/test/tool/question.test.ts": "question_tool",
   "packages/opencode/test/tool/skill.test.ts": "skill_tool",
-  "packages/opencode/test/acp/session.test.ts": "acp_session",
-  "packages/opencode/test/util/glob.test.ts": "util_glob"
+  "packages/opencode/test/acp/session.test.ts": "s4_acp_session"
 }

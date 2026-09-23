@@ -1,0 +1,11 @@
+{
+  "files": 14,
+  "green": 0,
+  "red": 12,
+  "skipped": [
+    "packages/session-ui/src/components/markdown-worker-queue.test.ts",
+    "packages/session-ui/src/v2/components/prompt-input/store.test.ts"
+  ],
+  "renames": {},
+  "notes": "session-ui pending rows: 12 red-first ports (apply-patch-file, markdown-code-state, markdown-inline-code-kind, markdown-stream, markdown-worker-protocol, markdown-worker-transport, message-file, message-part, part-default-open, machine, session-review-file-preview-v2-virtualize, session-diff); 2 na (worker queue, Solid store)"
+}

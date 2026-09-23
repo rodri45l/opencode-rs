@@ -1,0 +1,10 @@
+{
+  "files": 1,
+  "green": 0,
+  "red": 0,
+  "skipped": [
+    "packages/effect-drizzle-sqlite/test/sqlite.test.ts"
+  ],
+  "renames": {},
+  "notes": "Effect/Drizzle SQLite internals; na-map.json added"
+}

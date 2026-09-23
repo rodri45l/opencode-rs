@@ -1,0 +1,10 @@
+{
+  "files": 4,
+  "green": 0,
+  "red": 3,
+  "skipped": [
+    "packages/codemode/test/openapi.test.ts"
+  ],
+  "renames": {},
+  "notes": "red-first ports over the real CodeMode/ToolRuntime surface: enumeration.rs, parity.rs, signature.rs; openapi is n/a (unported interpreter + live HTTP)"
+}

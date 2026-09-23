@@ -1,0 +1,29 @@
+{
+  "ported": 19,
+  "na": 84,
+  "red": 94,
+  "mappings": {
+    "packages/opencode/test/cli/account.test.ts": ["s6_account"],
+    "packages/opencode/test/cli/github-remote.test.ts": ["s6_github_remote"],
+    "packages/opencode/test/cli/github-action.test.ts": ["s6_github_action"],
+    "packages/opencode/test/cli/import.test.ts": ["s6_import"],
+    "packages/opencode/test/cli/plugin-auth-picker.test.ts": ["s6_plugin_auth_picker"],
+    "packages/opencode/test/cli/run/footer.menu.test.ts": ["s6_footer_menu"],
+    "packages/opencode/test/cli/run/footer.width.test.ts": ["s6_footer_width"],
+    "packages/opencode/test/cli/run/permission.shared.test.ts": ["s6_permission_shared"],
+    "packages/opencode/test/cli/run/prompt.editor.test.ts": ["s6_prompt_editor"],
+    "packages/opencode/test/cli/run/prompt.shared.test.ts": ["s6_prompt_shared"],
+    "packages/opencode/test/cli/run/question.shared.test.ts": ["s6_question_shared"],
+    "packages/opencode/test/cli/run/runtime.stdin.test.ts": ["s6_runtime_stdin"],
+    "packages/opencode/test/cli/run/stream.test.ts": ["s6_run_stream"],
+    "packages/opencode/test/cli/run/variant.shared.test.ts": ["s6_variant_shared"],
+    "packages/opencode/test/cli/run/session.shared.test.ts": ["s6_session_shared"],
+    "packages/opencode/test/plugin/snowflake-cortex.test.ts": ["s6_snowflake_cortex"],
+    "packages/opencode/test/plugin/xai.test.ts": ["s6_xai"]
+  },
+  "already_ported": {
+    "packages/opencode/test/util/glob.test.ts": "tests/glob_util.rs (central port-map wrongly points to missing util_glob)",
+    "packages/opencode/test/acp/session.test.ts": "tests/s4_acp_session.rs (central port-map wrongly points to missing acp_session)"
+  },
+  "notes": "All 103 crates/server pending rows accounted: 17 new red-first files (s6_*, 94 ignored #[test] fns, local typed stubs, rustfmt clean) + 2 rows already ported under legacy stems + 84 na-map entries. No cargo run, no shared files edited. Orchestrator: wire port-map entries above and fix the two stale central mappings; then wire na-map."
+}
