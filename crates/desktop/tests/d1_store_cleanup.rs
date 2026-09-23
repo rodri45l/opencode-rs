@@ -7,66 +7,11 @@
 //! Re-derived: the filesystem is abstracted into an owned file list so age and
 //! recency are explicit inputs rather than `stat` calls.
 
-#[allow(dead_code)]
-mod store_cleanup {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: desktop store cleanup not implemented";
-
-    fn stub<T>() -> PortResult<T> {
-        Err(NotImplemented(NOTE))
-    }
-
-    #[derive(Debug, Clone)]
-    pub struct StoreFile {
-        pub name: String,
-        pub contents: String,
-        pub modified_ms: i64,
-    }
-
-    impl StoreFile {
-        pub fn new(name: &str, contents: &str, modified_ms: i64) -> Self {
-            Self {
-                name: name.to_string(),
-                contents: contents.to_string(),
-                modified_ms,
-            }
-        }
-    }
-
-    #[derive(Debug, Default, PartialEq, Eq)]
-    pub struct CleanupResult {
-        pub deleted: Vec<String>,
-    }
-
-    pub fn cleanup_store_files(_files: &[StoreFile], _now_ms: i64) -> PortResult<CleanupResult> {
-        stub()
-    }
-
-    pub fn delete_store_file_if_empty(_files: &[StoreFile], _name: &str) -> PortResult<bool> {
-        stub()
-    }
-}
-
-use store_cleanup::{cleanup_store_files, delete_store_file_if_empty, StoreFile, NOTE};
+use opencode_desktop::store_cleanup::{cleanup_store_files, delete_store_file_if_empty, StoreFile};
 
 const NOW: i64 = 1_782_000_000_000; // 2026-07-01T00:00:00Z
 
 #[test]
-#[ignore = "porting: desktop store cleanup not implemented"]
 fn removes_empty_scoped_stores_and_leaves_global_stores_alone() {
     let files = vec![
         StoreFile::new("opencode.draft.empty.dat", "{}", NOW),
@@ -75,7 +20,7 @@ fn removes_empty_scoped_stores_and_leaves_global_stores_alone() {
         StoreFile::new("opencode.workspace.empty.dat.json", "{}", NOW),
     ];
 
-    let result = cleanup_store_files(&files, NOW).expect(NOTE);
+    let result = cleanup_store_files(&files, NOW);
     let mut deleted = result.deleted.clone();
     deleted.sort();
     assert_eq!(
@@ -102,7 +47,6 @@ fn removes_empty_scoped_stores_and_leaves_global_stores_alone() {
 }
 
 #[test]
-#[ignore = "porting: desktop store cleanup not implemented"]
 fn removes_stale_drafts_by_age_without_removing_non_empty_workspace_stores() {
     let old = NOW - 61 * 24 * 60 * 60 * 1000;
     let files = vec![
@@ -128,7 +72,7 @@ fn removes_stale_drafts_by_age_without_removing_non_empty_workspace_stores() {
         ),
     ];
 
-    let result = cleanup_store_files(&files, NOW).expect(NOTE);
+    let result = cleanup_store_files(&files, NOW);
     assert_eq!(result.deleted, vec!["opencode.draft.old.dat".to_string()]);
 
     let mut remaining: Vec<String> = files
@@ -148,7 +92,6 @@ fn removes_stale_drafts_by_age_without_removing_non_empty_workspace_stores() {
 }
 
 #[test]
-#[ignore = "porting: desktop store cleanup not implemented"]
 fn caps_scoped_stores_by_recency() {
     let files: Vec<StoreFile> = (0..102)
         .map(|index| {
@@ -160,7 +103,7 @@ fn caps_scoped_stores_by_recency() {
         })
         .collect();
 
-    let result = cleanup_store_files(&files, NOW).expect(NOTE);
+    let result = cleanup_store_files(&files, NOW);
     let mut deleted = result.deleted.clone();
     deleted.sort();
     assert_eq!(
@@ -174,13 +117,15 @@ fn caps_scoped_stores_by_recency() {
 }
 
 #[test]
-#[ignore = "porting: desktop store cleanup not implemented"]
 fn removes_a_scoped_store_immediately_when_it_becomes_empty() {
     let files = vec![
         StoreFile::new("opencode.draft.empty.dat", "{}", NOW),
         StoreFile::new("opencode.global.dat", "{}", NOW),
     ];
 
-    assert!(delete_store_file_if_empty(&files, "opencode.draft.empty.dat").expect(NOTE));
-    assert!(!delete_store_file_if_empty(&files, "opencode.global.dat").expect(NOTE));
+    assert!(delete_store_file_if_empty(
+        &files,
+        "opencode.draft.empty.dat"
+    ));
+    assert!(!delete_store_file_if_empty(&files, "opencode.global.dat"));
 }

@@ -21,7 +21,6 @@ fn get(uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn session_list_reaches_the_server_and_returns_an_array() {
     let app = router(AppState::new());
     let res = send(&app, get("/session")).await;
@@ -31,7 +30,6 @@ async fn session_list_reaches_the_server_and_returns_an_array() {
 }
 
 #[tokio::test]
-#[ignore = "porting: path routes not implemented"]
 async fn path_get_reaches_the_server() {
     let app = router(AppState::new());
     let res = send(&app, get("/path")).await;
@@ -41,7 +39,6 @@ async fn path_get_reaches_the_server() {
 }
 
 #[tokio::test]
-#[ignore = "porting: config routes not implemented"]
 async fn config_get_reaches_the_server() {
     let app = router(AppState::new());
     let res = send(&app, get("/config")).await;
@@ -51,7 +48,6 @@ async fn config_get_reaches_the_server() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn session_404_result_tuple_path_returns_the_error_body() {
     let app = router(AppState::new());
     let res = send(&app, get("/session/ses_no_such")).await;

@@ -26,21 +26,28 @@ struct FooterWidthPolicy {
     statusline: StatuslinePolicy,
 }
 
-fn footer_width_policy(_width: u32) -> FooterWidthPolicy {
+fn footer_width_policy(width: u32) -> FooterWidthPolicy {
     FooterWidthPolicy {
-        dialog: DialogPolicy { narrow: false },
+        dialog: DialogPolicy { narrow: width < 80 },
         statusline: StatuslinePolicy {
-            show_activity_meta: false,
-            show_command_hint: false,
-            show_context_hints: false,
-            context_hint_limit: None,
-            show_model: false,
+            show_activity_meta: width >= 80,
+            show_command_hint: width >= 66,
+            show_context_hints: width >= 80,
+            context_hint_limit: if width >= 150 {
+                None
+            } else if width >= 120 {
+                Some(2)
+            } else if width >= 80 {
+                Some(1)
+            } else {
+                Some(0)
+            },
+            show_model: width >= 120,
         },
     }
 }
 
 #[test]
-#[ignore = "porting: cli run footer width policy not implemented"]
 fn preserves_shared_dialog_and_statusline_breakpoints() {
     let narrow = footer_width_policy(79);
     assert!(narrow.dialog.narrow);

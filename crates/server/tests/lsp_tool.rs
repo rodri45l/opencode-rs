@@ -35,7 +35,6 @@ fn setup(name: &str) -> (PathBuf, PathBuf) {
 }
 
 #[test]
-#[ignore = "porting: tool.lsp not implemented"]
 fn keeps_cursor_details_for_position_based_operations() -> Result<(), ToolError> {
     let (dir, file) = setup("position");
     let mut ctx = context(&dir);
@@ -69,7 +68,6 @@ fn keeps_cursor_details_for_position_based_operations() -> Result<(), ToolError>
 }
 
 #[test]
-#[ignore = "porting: tool.lsp not implemented"]
 fn omits_cursor_details_for_document_symbol() -> Result<(), ToolError> {
     let (dir, file) = setup("document-symbol");
     let mut ctx = context(&dir);
@@ -101,7 +99,6 @@ fn omits_cursor_details_for_document_symbol() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.lsp not implemented"]
 fn omits_file_and_cursor_details_for_workspace_symbol() -> Result<(), ToolError> {
     let (dir, file) = setup("workspace-symbol");
     let mut ctx = context(&dir);

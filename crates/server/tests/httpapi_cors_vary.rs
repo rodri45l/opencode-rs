@@ -29,7 +29,6 @@ fn vary_count(vary: &str, needle: &str) -> usize {
 }
 
 #[tokio::test]
-#[ignore = "porting: CORS Vary merge not implemented"]
 async fn preflight_vary_contains_origin() {
     let app = router(AppState::new());
     let res = send(&app, preflight()).await;
@@ -51,7 +50,6 @@ async fn preflight_vary_contains_origin() {
 }
 
 #[tokio::test]
-#[ignore = "porting: CORS Vary merge not implemented"]
 async fn preflight_vary_preserves_access_control_request_headers() {
     let app = router(AppState::new());
     let res = send(&app, preflight()).await;
@@ -68,7 +66,6 @@ async fn preflight_vary_preserves_access_control_request_headers() {
 }
 
 #[tokio::test]
-#[ignore = "porting: CORS Vary merge not implemented"]
 async fn preflight_vary_does_not_duplicate_origin() {
     let app = router(AppState::new());
     let res = send(&app, preflight()).await;

@@ -20,7 +20,6 @@ fn context() -> ToolContext {
 }
 
 #[test]
-#[ignore = "porting: tool.question not implemented"]
 fn executes_with_valid_question_parameters() -> Result<(), ToolError> {
     let args = QuestionArgs {
         questions: vec![QuestionSpec {
@@ -46,7 +45,6 @@ fn executes_with_valid_question_parameters() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.question not implemented"]
 fn passes_with_a_header_longer_than_twelve_but_less_than_thirty_chars() -> Result<(), ToolError> {
     let args = QuestionArgs {
         questions: vec![QuestionSpec {

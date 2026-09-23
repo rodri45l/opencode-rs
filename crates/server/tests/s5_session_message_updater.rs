@@ -46,15 +46,32 @@ mod updater {
         },
     }
 
-    pub fn update(_state: &mut MemoryState, _event: Event) -> Result<(), &'static str> {
-        Err("porting: SessionMessageUpdater.update not implemented")
+    pub fn update(state: &mut MemoryState, event: Event) -> Result<(), &'static str> {
+        match event {
+            Event::CompactionStarted { .. } | Event::CompactionDelta { .. } => Ok(()),
+            Event::CompactionEnded {
+                message_id,
+                timestamp,
+                reason,
+                text,
+                recent,
+            } => {
+                state.messages.push(Message::Compaction {
+                    id: message_id,
+                    reason,
+                    summary: text,
+                    recent,
+                    created: timestamp,
+                });
+                Ok(())
+            }
+        }
     }
 }
 
 use updater::{Event, MemoryState, Message};
 
 #[test]
-#[ignore = "porting: session-message-updater not implemented"]
 fn compaction_events_reduce_to_compaction_message_only_when_completed() {
     let mut state = MemoryState::default();
 

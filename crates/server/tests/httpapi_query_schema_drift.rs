@@ -53,7 +53,6 @@ async fn session_messages_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: filesystem routes not implemented"]
 async fn file_find_file_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(
@@ -66,7 +65,6 @@ async fn file_find_file_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: filesystem routes not implemented"]
 async fn file_find_text_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(
@@ -79,7 +77,6 @@ async fn file_find_text_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: filesystem routes not implemented"]
 async fn file_read_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(&app, get(&format!("/file?path=foo&{}", routing_params()))).await;
@@ -100,7 +97,6 @@ async fn experimental_session_list_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: experimental tool routes not implemented"]
 async fn experimental_tool_list_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(
@@ -116,7 +112,6 @@ async fn experimental_tool_list_accepts_directory_and_workspace() {
 }
 
 #[tokio::test]
-#[ignore = "porting: vcs routes not implemented"]
 async fn vcs_diff_accepts_directory_and_workspace() {
     let app = router(AppState::new());
     let res = send(

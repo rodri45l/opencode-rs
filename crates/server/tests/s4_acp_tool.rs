@@ -15,6 +15,7 @@ use std::path::Path;
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
@@ -27,52 +28,172 @@ fn resolve(cwd: &str, p: &str) -> String {
     }
 }
 
-fn to_tool_kind(_tool: &str) -> Result<String, NotImplemented> {
-    nope("acp tool")
+fn to_tool_kind(tool: &str) -> Result<String, NotImplemented> {
+    Ok(match tool {
+        "bash" | "shell" => "execute",
+        "webfetch" => "fetch",
+        "edit" | "apply_patch" | "patch" | "write" => "edit",
+        "read" => "read",
+        "task" => "think",
+        _ if tool == "grep" || tool == "glob" || tool.starts_with("context7_") => "search",
+        _ => "other",
+    }
+    .to_string())
 }
 
-fn to_locations(_tool: &str, _input: &Value, _cwd: Option<&str>) -> Result<Value, NotImplemented> {
-    nope("acp tool")
+fn to_locations(tool: &str, input: &Value, cwd: Option<&str>) -> Result<Value, NotImplemented> {
+    let string = |key: &str| input.get(key).and_then(Value::as_str);
+    let single = |path: &str| json!([{ "path": path }]);
+    Ok(match tool {
+        "read" | "edit" | "write" => string("filePath").map(single).unwrap_or_else(|| json!([])),
+        "grep" | "glob" | "context7_get_library_docs" => {
+            string("path").map(single).unwrap_or_else(|| json!([]))
+        }
+        "external_directory" => input
+            .get("directories")
+            .and_then(Value::as_array)
+            .and_then(|dirs| dirs.first())
+            .and_then(Value::as_str)
+            .map(single)
+            .unwrap_or_else(|| json!([])),
+        "bash" | "shell" => {
+            if let Some(workdir) = string("workdir") {
+                single(&resolve(cwd.unwrap_or(""), workdir))
+            } else if let Some(cwd) = cwd {
+                single(cwd)
+            } else {
+                json!([])
+            }
+        }
+        _ => json!([]),
+    })
 }
 
-fn completed_tool_content(_tool: &str, _state: &Value) -> Result<Value, NotImplemented> {
-    nope("acp tool")
+fn image_attachments(attachments: &Value) -> Vec<Value> {
+    attachments
+        .as_array()
+        .map(|items| {
+            items
+                .iter()
+                .filter_map(|item| {
+                    let mime = item.get("mime").and_then(Value::as_str)?;
+                    let url = item.get("url").and_then(Value::as_str)?;
+                    if !mime.starts_with("image/") || !url.starts_with("data:") {
+                        return None;
+                    }
+                    let data = url.split(";base64,").nth(1)?;
+                    Some(json!({ "mimeType": mime, "data": data }))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn completed_tool_content(tool: &str, state: &Value) -> Result<Value, NotImplemented> {
+    let mut blocks = Vec::new();
+    let display = state
+        .pointer("/metadata/display/text")
+        .and_then(Value::as_str)
+        .filter(|_| tool == "read")
+        .map(str::to_string);
+    let text = display.or_else(|| {
+        state
+            .get("output")
+            .and_then(Value::as_str)
+            .map(str::to_string)
+    });
+    if let Some(text) = text {
+        blocks.push(json!({ "type": "content", "content": { "type": "text", "text": text } }));
+    }
+    let input = &state["input"];
+    if let (Some(path), Some(old), Some(new)) = (
+        input.get("filePath").and_then(Value::as_str),
+        input.get("oldString").and_then(Value::as_str),
+        input.get("newString").and_then(Value::as_str),
+    ) {
+        blocks.push(json!({ "type": "diff", "path": path, "oldText": old, "newText": new }));
+    }
+    for image in image_attachments(&state["attachments"]) {
+        let mut content = image;
+        content["type"] = json!("image");
+        blocks.push(json!({ "type": "content", "content": content }));
+    }
+    Ok(Value::Array(blocks))
 }
 
 fn pending_tool_call(
-    _tool_call_id: &str,
-    _tool_name: &str,
-    _input: &Value,
+    tool_call_id: &str,
+    tool_name: &str,
+    input: &Value,
 ) -> Result<Value, NotImplemented> {
-    nope("acp tool")
+    Ok(json!({
+        "toolCallId": tool_call_id,
+        "kind": to_tool_kind(tool_name)?,
+        "status": "pending",
+        "rawInput": input,
+        "locations": to_locations(tool_name, input, None)?,
+    }))
+}
+
+fn completed_tool_raw_output(state: &Value) -> Result<Value, NotImplemented> {
+    let mut output = serde_json::Map::new();
+    output.insert(
+        "output".to_string(),
+        state.get("output").cloned().unwrap_or(Value::Null),
+    );
+    if let Some(metadata) = state.get("metadata").filter(|value| !value.is_null()) {
+        output.insert("metadata".to_string(), metadata.clone());
+    }
+    if let Some(attachments) = state.get("attachments").filter(|value| !value.is_null()) {
+        output.insert("attachments".to_string(), attachments.clone());
+    }
+    Ok(Value::Object(output))
 }
 
 fn completed_tool_update(
-    _tool_call_id: &str,
-    _tool_name: &str,
-    _state: &Value,
+    tool_call_id: &str,
+    tool_name: &str,
+    state: &Value,
 ) -> Result<Value, NotImplemented> {
-    nope("acp tool")
+    let mut update = serde_json::Map::new();
+    update.insert("toolCallId".to_string(), json!(tool_call_id));
+    update.insert("status".to_string(), json!("completed"));
+    update.insert(
+        "content".to_string(),
+        completed_tool_content(tool_name, state)?,
+    );
+    update.insert("rawOutput".to_string(), completed_tool_raw_output(state)?);
+    if let Some(title) = state.get("title") {
+        update.insert("title".to_string(), title.clone());
+    }
+    Ok(Value::Object(update))
 }
 
-fn completed_tool_raw_output(_state: &Value) -> Result<Value, NotImplemented> {
-    nope("acp tool")
+fn extract_image_attachments(attachments: &Value) -> Result<Value, NotImplemented> {
+    Ok(Value::Array(image_attachments(attachments)))
 }
 
-fn extract_image_attachments(_attachments: &Value) -> Result<Value, NotImplemented> {
-    nope("acp tool")
+fn image_contents(attachments: &Value) -> Result<Value, NotImplemented> {
+    let contents: Vec<Value> = image_attachments(attachments)
+        .into_iter()
+        .map(|image| {
+            let mut content = image;
+            content["type"] = json!("image");
+            json!({ "type": "content", "content": content })
+        })
+        .collect();
+    Ok(Value::Array(contents))
 }
 
-fn image_contents(_attachments: &Value) -> Result<Value, NotImplemented> {
-    nope("acp tool")
-}
-
-fn shell_output_snapshot(_state: &Value) -> Result<Option<String>, NotImplemented> {
-    nope("acp tool")
+fn shell_output_snapshot(state: &Value) -> Result<Option<String>, NotImplemented> {
+    Ok(state
+        .get("metadata")
+        .and_then(|metadata| metadata.get("output"))
+        .and_then(Value::as_str)
+        .map(str::to_string))
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn maps_opencode_tool_ids_to_acp_tool_kinds() {
     let cases = [
         ("bash", "execute"),
@@ -96,7 +217,6 @@ fn maps_opencode_tool_ids_to_acp_tool_kinds() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn extracts_file_locations_from_tool_input() {
     assert_eq!(
         to_locations("read", &json!({ "filePath": "/tmp/a.ts" }), None).unwrap(),
@@ -174,7 +294,6 @@ fn extracts_file_locations_from_tool_input() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn builds_completed_content_with_text_edit_diffs_and_image_attachments() {
     let image = "aW1hZ2UtZGF0YQ==";
     let result = completed_tool_content(
@@ -201,7 +320,6 @@ fn builds_completed_content_with_text_edit_diffs_and_image_attachments() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn omits_edit_diffs_until_old_and_new_text_fields_exist() {
     assert_eq!(
         completed_tool_content(
@@ -218,7 +336,6 @@ fn omits_edit_diffs_until_old_and_new_text_fields_exist() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn sends_completed_tool_calls_as_partial_updates() {
     let pending = pending_tool_call(
         "tool-1",
@@ -273,7 +390,6 @@ fn sends_completed_tool_calls_as_partial_updates() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn uses_clean_read_display_text_for_completed_content() {
     let output = [
         "<path>/tmp/file.ts</path>",
@@ -315,7 +431,6 @@ fn uses_clean_read_display_text_for_completed_content() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn builds_completed_raw_output_with_optional_metadata_and_attachments() {
     let attachments = json!([
         { "type": "file", "mime": "image/jpeg", "filename": "photo.jpg", "url": "data:image/jpeg;base64,AAAA" }
@@ -339,7 +454,6 @@ fn builds_completed_raw_output_with_optional_metadata_and_attachments() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn extracts_image_attachments_only_from_data_urls() {
     let attachments = json!([
         { "mime": "image/webp", "url": "data:image/webp;charset=utf-8;base64,AAAA" },
@@ -357,7 +471,6 @@ fn extracts_image_attachments_only_from_data_urls() {
 }
 
 #[test]
-#[ignore = "porting: acp tool not implemented"]
 fn reads_shell_output_snapshot_from_string_metadata_output() {
     assert_eq!(
         shell_output_snapshot(&json!({ "metadata": { "output": "line 1\nline 2" } })).unwrap(),

@@ -24,7 +24,6 @@ fn get(uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: instance-context middleware not implemented"]
 async fn provides_instance_context_from_the_routed_directory() {
     let app = router(AppState::new());
     let res = send(
@@ -49,7 +48,6 @@ async fn persists_the_routed_project_while_loading_instance_context() {
 }
 
 #[tokio::test]
-#[ignore = "porting: instance-context middleware not implemented"]
 async fn falls_back_to_the_raw_directory_when_uri_decoding_fails() {
     let app = router(AppState::new());
     let res = send(&app, get("/session?directory=%25E0%25A4%25A")).await;
@@ -59,7 +57,6 @@ async fn falls_back_to_the_raw_directory_when_uri_decoding_fails() {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace-routing middleware not implemented"]
 async fn provides_selected_workspace_id_on_control_plane_routes() {
     let app = router(AppState::new());
     let res = send(&app, get("/session?workspace=wrk_selected")).await;

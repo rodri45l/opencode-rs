@@ -19,7 +19,6 @@ fn with_directory(req: Request<Body>, dir: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: config routes not implemented"]
 async fn serves_config_update_through_the_default_server_app() {
     let dir = directory();
     let app = router(AppState::new());
@@ -52,7 +51,6 @@ async fn serves_config_update_through_the_default_server_app() {
 }
 
 #[tokio::test]
-#[ignore = "porting: config routes not implemented"]
 async fn serves_config_with_active_provider_model_status() {
     let dir = directory();
     let app = router(AppState::new());

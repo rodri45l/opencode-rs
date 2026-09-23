@@ -38,7 +38,6 @@ fn write_skill(dir: &Path, name: &str, description: &str) -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: tool.skill not implemented"]
 fn execute_returns_skill_content_block_with_files() -> Result<(), ToolError> {
     let dir = temp_dir("content");
     let skill = write_skill(&dir, "tool-skill", "Skill for tool tests.");
@@ -74,7 +73,6 @@ fn execute_returns_skill_content_block_with_files() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.skill not implemented"]
 fn execute_preserves_not_found_message() {
     let dir = temp_dir("missing");
     let error = SkillTool::new()

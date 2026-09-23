@@ -24,7 +24,6 @@ fn get(uri: &str, headers: &[(&str, &str)]) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: instance route authorization middleware not implemented"]
 async fn requires_configured_auth_before_opening_the_instance_event_stream() {
     let app = authed_app();
     let directory = "/tmp/opencode-instance-route-auth";
@@ -47,7 +46,6 @@ async fn requires_configured_auth_before_opening_the_instance_event_stream() {
 }
 
 #[tokio::test]
-#[ignore = "porting: instance route authorization middleware not implemented"]
 async fn requires_configured_auth_before_resolving_the_pty_websocket_route() {
     let app = authed_app();
     let directory = "/tmp/opencode-instance-route-auth";

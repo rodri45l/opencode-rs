@@ -51,12 +51,18 @@ async fn event_stream_emits_published_events() {
     ));
 
     let mut body = res.into_body().into_data_stream();
-    let chunk = tokio::time::timeout(Duration::from_secs(2), body.next())
-        .await
-        .expect("timed out waiting for an event")
-        .expect("stream ended")
-        .expect("body error");
-    let text = String::from_utf8_lossy(&chunk);
+    let mut text = String::new();
+    for _ in 0..10 {
+        let chunk = tokio::time::timeout(Duration::from_secs(2), body.next())
+            .await
+            .expect("timed out waiting for an event")
+            .expect("stream ended")
+            .expect("body error");
+        text = String::from_utf8_lossy(&chunk).into_owned();
+        if text.contains("session.created") {
+            break;
+        }
+    }
 
     assert!(text.contains("event: session.created"), "chunk was: {text}");
     assert!(

@@ -26,7 +26,6 @@ fn add_server(value: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: mcp routes not implemented"]
 async fn headers_are_passed_to_transports_when_oauth_is_enabled() {
     let app = router(AppState::new());
     let res = send(
@@ -50,7 +49,6 @@ async fn headers_are_passed_to_transports_when_oauth_is_enabled() {
 }
 
 #[tokio::test]
-#[ignore = "porting: mcp routes not implemented"]
 async fn headers_are_passed_to_transports_when_oauth_is_explicitly_disabled() {
     let app = router(AppState::new());
     let res = send(
@@ -75,7 +73,6 @@ async fn headers_are_passed_to_transports_when_oauth_is_explicitly_disabled() {
 }
 
 #[tokio::test]
-#[ignore = "porting: mcp routes not implemented"]
 async fn connects_without_request_init_when_headers_are_not_provided() {
     let app = router(AppState::new());
     let res = send(

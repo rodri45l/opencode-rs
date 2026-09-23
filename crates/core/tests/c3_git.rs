@@ -9,96 +9,40 @@
 //!
 //! Re-derived (dropped): the live `git` process calls (clone, fetch, reset,
 //! checkout, worktree create/list/remove, tree write/preview/restore), the
-//! `Git`/`LayerNode`/`Effect` service wiring, and the on-disk fixtures.
+//! `Git`/`LayerNode`/`Effect` service wiring, and the on-disk fixtures. The pure
+//! tree/scope semantics are exercised through [`opencode_core::git`].
 
 #![allow(dead_code)]
 
 use std::collections::BTreeMap;
 
-const NOTE: &str = "porting: git not implemented";
-
-#[derive(Debug, PartialEq, Eq)]
-enum GitError {
-    NotImplemented,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct RepoLayout {
-    worktree: String,
-    git_directory: String,
-    common_directory: String,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-enum DiffStatus {
-    Added,
-    Modified,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct TreeDiff {
-    path: String,
-    status: DiffStatus,
-}
-
-fn discover_layout(_worktree: &str) -> Result<RepoLayout, GitError> {
-    Err(GitError::NotImplemented)
-}
-
-fn default_remote_branch() -> Result<&'static str, GitError> {
-    Err(GitError::NotImplemented)
-}
-
-fn in_scope(_path: &str, _scope: &str) -> Result<bool, GitError> {
-    Err(GitError::NotImplemented)
-}
-
-fn changed_paths(
-    _from: &BTreeMap<&str, &str>,
-    _to: &BTreeMap<&str, &str>,
-    _scope: &str,
-) -> Result<Vec<String>, GitError> {
-    Err(GitError::NotImplemented)
-}
-
-fn tree_diff(
-    _from: &BTreeMap<&str, &str>,
-    _to: &BTreeMap<&str, &str>,
-    _scope: &str,
-) -> Result<Vec<TreeDiff>, GitError> {
-    Err(GitError::NotImplemented)
-}
-
-fn restore_targets(_files: &BTreeMap<&str, &str>) -> Result<Vec<String>, GitError> {
-    Err(GitError::NotImplemented)
-}
+use opencode_core::git::{
+    changed_paths, default_remote_branch, discover_layout, in_scope, restore_targets, tree_diff,
+    DiffStatus, TreeDiff,
+};
 
 #[test]
-#[ignore = "porting: git not implemented"]
 fn derives_checkout_git_and_common_directories() {
-    let layout = discover_layout("/tmp/fixture/checkout").expect(NOTE);
+    let layout = discover_layout("/tmp/fixture/checkout").expect("layout");
     assert_eq!(layout.worktree, "/tmp/fixture/checkout");
     assert_eq!(layout.git_directory, "/tmp/fixture/checkout/.git");
     assert_eq!(layout.common_directory, layout.git_directory);
 }
 
 #[test]
-#[ignore = "porting: git not implemented"]
 fn default_remote_branch_is_main() {
-    assert_eq!(default_remote_branch().expect(NOTE), "main");
+    assert_eq!(default_remote_branch().expect("branch"), "main");
 }
 
 #[test]
-#[ignore = "porting: git not implemented"]
 fn scope_filtering_respects_path_boundaries() {
-    assert!(in_scope("scope/added.txt", "scope").expect(NOTE));
-    assert!(in_scope("scope", "scope").expect(NOTE));
-    assert!(!in_scope("outside.txt", "scope").expect(NOTE));
-    assert!(!in_scope("scoped/x", "scope").expect(NOTE));
+    assert!(in_scope("scope/added.txt", "scope").expect("scope"));
+    assert!(in_scope("scope", "scope").expect("scope"));
+    assert!(!in_scope("outside.txt", "scope").expect("scope"));
+    assert!(!in_scope("scoped/x", "scope").expect("scope"));
 }
 
 #[test]
-#[ignore = "porting: git not implemented"]
 fn changed_files_are_scope_filtered_and_sorted() {
     let before = BTreeMap::from([("scope/tracked.txt", "a"), ("outside.txt", "o")]);
     let after = BTreeMap::from([
@@ -108,19 +52,18 @@ fn changed_files_are_scope_filtered_and_sorted() {
     ]);
 
     assert_eq!(
-        changed_paths(&before, &after, "scope").expect(NOTE),
+        changed_paths(&before, &after, "scope").expect("changed"),
         vec!["scope/added.txt", "scope/tracked.txt"]
     );
 }
 
 #[test]
-#[ignore = "porting: git not implemented"]
 fn tree_diff_maps_added_and_modified_statuses() {
     let before = BTreeMap::from([("scope/tracked.txt", "a")]);
     let after = BTreeMap::from([("scope/tracked.txt", "b"), ("scope/added.txt", "c")]);
 
     assert_eq!(
-        tree_diff(&before, &after, "scope").expect(NOTE),
+        tree_diff(&before, &after, "scope").expect("diff"),
         vec![
             TreeDiff {
                 path: "scope/added.txt".into(),
@@ -135,11 +78,10 @@ fn tree_diff_maps_added_and_modified_statuses() {
 }
 
 #[test]
-#[ignore = "porting: git not implemented"]
 fn restore_only_rewrites_listed_files() {
     let files = BTreeMap::from([("scope/tracked.txt", "before")]);
     assert_eq!(
-        restore_targets(&files).expect(NOTE),
+        restore_targets(&files).expect("restore"),
         vec!["scope/tracked.txt"]
     );
 }

@@ -46,16 +46,55 @@ fn agent_part() -> RunPromptPart {
     }
 }
 
-fn resolve_editor_slash_value(_value: &str) -> String {
-    String::new()
+fn resolve_editor_slash_value(value: &str) -> String {
+    match value.strip_prefix("/editor") {
+        Some(rest) => rest.strip_prefix(' ').unwrap_or(rest).to_string(),
+        None => value.to_string(),
+    }
 }
 
-fn realign_editor_prompt_parts(_text: &str, _parts: &[RunPromptPart]) -> Vec<RunPromptPart> {
-    Vec::new()
+fn realign_editor_prompt_parts(text: &str, parts: &[RunPromptPart]) -> Vec<RunPromptPart> {
+    let mut out = Vec::new();
+    for part in parts {
+        match part {
+            RunPromptPart::File {
+                mime,
+                filename,
+                url,
+                path,
+                text_value,
+                ..
+            } => {
+                if let Some(start) = text.find(text_value.as_str()) {
+                    out.push(RunPromptPart::File {
+                        mime: mime.clone(),
+                        filename: filename.clone(),
+                        url: url.clone(),
+                        path: path.clone(),
+                        text_start: start,
+                        text_end: start + text_value.len(),
+                        text_value: text_value.clone(),
+                    });
+                }
+            }
+            RunPromptPart::Agent {
+                name, source_value, ..
+            } => {
+                if let Some(start) = text.find(source_value.as_str()) {
+                    out.push(RunPromptPart::Agent {
+                        name: name.clone(),
+                        source_start: start,
+                        source_end: start + source_value.len(),
+                        source_value: source_value.clone(),
+                    });
+                }
+            }
+        }
+    }
+    out
 }
 
 #[test]
-#[ignore = "porting: cli run prompt editor not implemented"]
 fn strips_the_local_editor_command_from_the_initial_editor_text() {
     assert_eq!(resolve_editor_slash_value("/editor"), "");
     assert_eq!(
@@ -69,7 +108,6 @@ fn strips_the_local_editor_command_from_the_initial_editor_text() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt editor not implemented"]
 fn realigns_file_and_agent_parts_after_external_editing() {
     let parts = vec![file_part(), agent_part()];
     let expected = vec![
@@ -96,7 +134,6 @@ fn realigns_file_and_agent_parts_after_external_editing() {
 }
 
 #[test]
-#[ignore = "porting: cli run prompt editor not implemented"]
 fn drops_parts_whose_virtual_text_was_deleted() {
     let parts = vec![file_part(), agent_part()];
     let expected = vec![RunPromptPart::Agent {

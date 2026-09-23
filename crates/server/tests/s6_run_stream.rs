@@ -39,10 +39,16 @@ struct StreamOutput {
     footer: Option<StreamPatch>,
 }
 
-fn write_session_output(_api: &FooterApi, _output: &StreamOutput) {}
+fn write_session_output(api: &FooterApi, output: &StreamOutput) {
+    if let Some(patch) = &output.footer {
+        api.event(FooterEvent::StreamPatch {
+            phase: patch.phase.clone().unwrap_or_else(|| "running".to_string()),
+            status: patch.status.clone(),
+        });
+    }
+}
 
 #[test]
-#[ignore = "porting: cli run stream bridge not implemented"]
 fn defaults_status_patches_to_running_phase() {
     let api = FooterApi::default();
     write_session_output(

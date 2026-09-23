@@ -68,36 +68,198 @@ fn create_permission_body_state(id: &str) -> PermissionBodyState {
     }
 }
 
-fn permission_run(state: PermissionBodyState, _id: &str, _action: &str) -> RunResult {
-    RunResult { state, reply: None }
+fn permission_run(state: PermissionBodyState, id: &str, action: &str) -> RunResult {
+    match state.stage {
+        Stage::Permission => match action {
+            "always" => RunResult {
+                state: PermissionBodyState {
+                    stage: Stage::Always,
+                    selected: Selected::Confirm,
+                    ..state
+                },
+                reply: None,
+            },
+            "reject" => RunResult {
+                state: PermissionBodyState {
+                    stage: Stage::Reject,
+                    selected: Selected::Reject,
+                    ..state
+                },
+                reply: None,
+            },
+            _ => RunResult {
+                state,
+                reply: Some(Reply {
+                    request_id: id.to_string(),
+                    reply: "once".to_string(),
+                    message: None,
+                }),
+            },
+        },
+        Stage::Always => {
+            if action == "cancel" {
+                RunResult {
+                    state: PermissionBodyState {
+                        stage: Stage::Permission,
+                        selected: Selected::Always,
+                        ..state
+                    },
+                    reply: None,
+                }
+            } else {
+                RunResult {
+                    state,
+                    reply: Some(Reply {
+                        request_id: id.to_string(),
+                        reply: "always".to_string(),
+                        message: None,
+                    }),
+                }
+            }
+        }
+        Stage::Reject => RunResult { state, reply: None },
+    }
 }
 
-fn permission_reject(state: PermissionBodyState, _id: &str) -> Reply {
-    let _ = state;
+fn permission_reject(state: PermissionBodyState, id: &str) -> Reply {
+    let message = state.message.trim();
     Reply {
-        request_id: String::new(),
-        reply: String::new(),
-        message: None,
+        request_id: id.to_string(),
+        reply: "reject".to_string(),
+        message: if message.is_empty() {
+            None
+        } else {
+            Some(message.to_string())
+        },
     }
 }
 
 fn permission_cancel(state: PermissionBodyState) -> PermissionBodyState {
-    state
-}
-
-fn permission_escape(state: PermissionBodyState) -> PermissionBodyState {
-    state
-}
-
-fn permission_info(_req: &PermissionRequest) -> PermissionInfo {
-    PermissionInfo {
-        title: String::new(),
-        lines: Vec::new(),
+    PermissionBodyState {
+        stage: Stage::Permission,
+        selected: Selected::Reject,
+        ..state
     }
 }
 
-fn permission_always_lines(_req: &PermissionRequest) -> Vec<String> {
-    Vec::new()
+fn permission_escape(state: PermissionBodyState) -> PermissionBodyState {
+    if state.stage == Stage::Always {
+        PermissionBodyState {
+            stage: Stage::Permission,
+            selected: Selected::Always,
+            ..state
+        }
+    } else {
+        PermissionBodyState {
+            stage: Stage::Reject,
+            selected: Selected::Reject,
+            ..state
+        }
+    }
+}
+
+fn titlecase(value: &str) -> String {
+    let mut chars = value.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
+
+fn permission_info(req: &PermissionRequest) -> PermissionInfo {
+    let get = |key: &str| req.metadata.get(key).cloned().unwrap_or_default();
+    match req.permission.as_str() {
+        "bash" => {
+            let command = {
+                let direct = get("command");
+                if direct.is_empty() {
+                    get("input.command")
+                } else {
+                    direct
+                }
+            };
+            let lines = if command.is_empty() {
+                req.patterns
+                    .iter()
+                    .map(|item| format!("- {item}"))
+                    .collect()
+            } else {
+                vec![format!("$ {command}")]
+            };
+            PermissionInfo {
+                title: "Shell command".to_string(),
+                lines,
+            }
+        }
+        "task" => {
+            let subagent = {
+                let direct = get("subagent_type");
+                if direct.is_empty() {
+                    "general".to_string()
+                } else {
+                    direct
+                }
+            };
+            let description = get("description");
+            PermissionInfo {
+                title: format!("{} Task", titlecase(&subagent)),
+                lines: if description.is_empty() {
+                    Vec::new()
+                } else {
+                    vec![format!("◉ {description}")]
+                },
+            }
+        }
+        "external_directory" => {
+            let raw = {
+                let parent = get("parentDir");
+                if !parent.is_empty() {
+                    parent
+                } else {
+                    let filepath = get("filepath");
+                    if !filepath.is_empty() {
+                        filepath
+                    } else {
+                        req.patterns.first().cloned().unwrap_or_default()
+                    }
+                }
+            };
+            let dir = if let Some(index) = raw.find('*') {
+                raw[..index].trim_end_matches(['/', '\\']).to_string()
+            } else {
+                raw
+            };
+            PermissionInfo {
+                title: format!("Access external directory {dir}"),
+                lines: req
+                    .patterns
+                    .iter()
+                    .map(|item| format!("- {item}"))
+                    .collect(),
+            }
+        }
+        "doom_loop" => PermissionInfo {
+            title: "Continue after repeated failures".to_string(),
+            lines: vec!["This keeps the session running despite repeated failures.".to_string()],
+        },
+        other => PermissionInfo {
+            title: format!("Call tool {other}"),
+            lines: vec![format!("Tool: {other}")],
+        },
+    }
+}
+
+fn permission_always_lines(req: &PermissionRequest) -> Vec<String> {
+    if req.always.len() == 1 && req.always[0] == "*" {
+        return vec![format!(
+            "This will allow {} until OpenCode is restarted.",
+            req.permission
+        )];
+    }
+    let mut lines =
+        vec!["This will allow the following patterns until OpenCode is restarted.".to_string()];
+    lines.extend(req.always.iter().map(|item| format!("- {item}")));
+    lines
 }
 
 fn req(input: &[(&str, &str)]) -> PermissionRequest {
@@ -114,7 +276,6 @@ fn req(input: &[(&str, &str)]) -> PermissionRequest {
 }
 
 #[test]
-#[ignore = "porting: cli run permission body not implemented"]
 fn replies_immediately_for_allow_once() {
     let out = permission_run(create_permission_body_state("perm-1"), "perm-1", "once");
     assert_eq!(
@@ -128,7 +289,6 @@ fn replies_immediately_for_allow_once() {
 }
 
 #[test]
-#[ignore = "porting: cli run permission body not implemented"]
 fn requires_confirmation_for_allow_always() {
     let next = permission_run(create_permission_body_state("perm-1"), "perm-1", "always");
     assert_eq!(next.state.stage, Stage::Always);
@@ -148,7 +308,6 @@ fn requires_confirmation_for_allow_always() {
 }
 
 #[test]
-#[ignore = "porting: cli run permission body not implemented"]
 fn builds_trimmed_reject_replies_and_stage_transitions() {
     let next = permission_run(create_permission_body_state("perm-1"), "perm-1", "reject");
     assert_eq!(next.state.stage, Stage::Reject);
@@ -187,7 +346,6 @@ fn builds_trimmed_reject_replies_and_stage_transitions() {
 }
 
 #[test]
-#[ignore = "porting: cli run permission body not implemented"]
 fn maps_supported_permission_types_into_display_info() {
     let info = permission_info(&PermissionRequest {
         permission: "bash".to_string(),
@@ -247,7 +405,6 @@ fn maps_supported_permission_types_into_display_info() {
 }
 
 #[test]
-#[ignore = "porting: cli run permission body not implemented"]
 fn formats_always_allow_copy_for_wildcard_and_explicit_patterns() {
     assert_eq!(
         permission_always_lines(&PermissionRequest {

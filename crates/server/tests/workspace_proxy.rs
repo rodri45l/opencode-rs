@@ -97,7 +97,6 @@ async fn returns_500_when_remote_is_unreachable() {
 }
 
 #[tokio::test]
-#[ignore = "porting: workspace proxy middleware not implemented"]
 async fn proxies_bodyless_web_mutation_requests_as_an_empty_body() {
     use axum::body::Body;
     use axum::http::{Request, StatusCode};

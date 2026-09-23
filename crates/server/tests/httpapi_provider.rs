@@ -32,7 +32,6 @@ fn post_json(uri: &str, value: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: provider oauth routes not implemented"]
 async fn returns_declared_provider_auth_callback_errors() {
     let app = router(AppState::new());
     let res = send(
@@ -55,7 +54,6 @@ async fn returns_declared_provider_auth_callback_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: provider routes not implemented"]
 async fn serves_provider_and_config_provider_lists() {
     let app = router(AppState::new());
 

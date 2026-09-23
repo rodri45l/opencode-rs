@@ -66,8 +66,57 @@ struct Latest {
     tasks: Vec<Part>,
 }
 
-fn latest(_msgs: &[WithParts]) -> Result<Latest, S2Error> {
-    Err(S2Error::NotImplemented("MessageV2.latest"))
+fn is_after(info: &Info, other: Option<&Info>) -> bool {
+    match other {
+        None => true,
+        Some(other) => {
+            if info.created != other.created {
+                info.created > other.created
+            } else {
+                info.id > other.id
+            }
+        }
+    }
+}
+
+fn latest(msgs: &[WithParts]) -> Result<Latest, S2Error> {
+    let mut user: Option<Info> = None;
+    let mut assistant: Option<Info> = None;
+    let mut finished: Option<Info> = None;
+    for msg in msgs {
+        let info = &msg.info;
+        if info.role == Role::User && is_after(info, user.as_ref()) {
+            user = Some(info.clone());
+        }
+        if info.role == Role::Assistant && is_after(info, assistant.as_ref()) {
+            assistant = Some(info.clone());
+        }
+        if info.role == Role::Assistant
+            && info.finish.is_some()
+            && is_after(info, finished.as_ref())
+        {
+            finished = Some(info.clone());
+        }
+    }
+    let mut tasks = Vec::new();
+    for msg in msgs {
+        if let Some(finished) = finished.as_ref() {
+            if !is_after(&msg.info, Some(finished)) {
+                continue;
+            }
+        }
+        for part in &msg.parts {
+            if matches!(part, Part::Compaction { .. } | Part::Subtask { .. }) {
+                tasks.push(part.clone());
+            }
+        }
+    }
+    Ok(Latest {
+        user,
+        assistant,
+        finished,
+        tasks,
+    })
 }
 
 fn user(id: &str, created: f64) -> Info {
@@ -100,7 +149,6 @@ fn text_with(id: &str, created: f64) -> WithParts {
 }
 
 #[test]
-#[ignore = "porting: MessageV2.latest not implemented"]
 fn selects_latest_messages_by_creation_time_when_ids_are_nonmonotonic() {
     let old_user = user("msg_z_user", 100.0);
     let new_user = user("msg_a_user", 200.0);
@@ -142,7 +190,6 @@ fn selects_latest_messages_by_creation_time_when_ids_are_nonmonotonic() {
 }
 
 #[test]
-#[ignore = "porting: MessageV2.latest not implemented"]
 fn uses_id_as_deterministic_tie_breaker_for_equal_creation_times() {
     let lower = user("msg_a_user", 100.0);
     let higher = user("msg_z_user", 100.0);
@@ -163,7 +210,6 @@ fn uses_id_as_deterministic_tie_breaker_for_equal_creation_times() {
 }
 
 #[test]
-#[ignore = "porting: MessageV2.latest not implemented"]
 fn finished_is_chronologically_latest_not_array_latest() {
     let tail_user = text_with("msg_001", 0.0);
     let overflow_assistant = WithParts {
@@ -206,7 +252,6 @@ fn finished_is_chronologically_latest_not_array_latest() {
 }
 
 #[test]
-#[ignore = "porting: MessageV2.latest not implemented"]
 fn fresh_compaction_user_newer_than_latest_summary_surfaces_in_tasks() {
     let tail_user = text_with("msg_001", 0.0);
     let overflow_assistant = WithParts {
@@ -263,7 +308,6 @@ fn fresh_compaction_user_newer_than_latest_summary_surfaces_in_tasks() {
 }
 
 #[test]
-#[ignore = "porting: MessageV2.latest not implemented"]
 fn selects_compaction_and_subtask_work_after_finished_boundary_by_creation_time() {
     let finished = assistant("msg_z_finished", "msg_parent", 200.0);
     let old_task = WithParts {

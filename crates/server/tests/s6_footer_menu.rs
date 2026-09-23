@@ -17,7 +17,22 @@ struct FooterMenuState {
 }
 
 impl FooterMenuState {
-    fn move_by(&mut self, _delta: i32) {}
+    fn move_by(&mut self, delta: i32) {
+        if self.count == 0 || self.limit == 0 {
+            return;
+        }
+        let last = self.count - 1;
+        let next = (self.selected as i64 + delta as i64).clamp(0, last as i64) as usize;
+        self.selected = next;
+        if self.limit > 2 {
+            while self.selected.saturating_sub(self.offset) >= self.limit - 2 {
+                self.offset += 1;
+            }
+        }
+        while self.offset > 0 && self.selected <= self.offset + 1 {
+            self.offset -= 1;
+        }
+    }
     fn selected(&self) -> usize {
         self.selected
     }
@@ -26,17 +41,16 @@ impl FooterMenuState {
     }
 }
 
-fn create_footer_menu_state(_count: usize, _limit: usize) -> FooterMenuState {
+fn create_footer_menu_state(count: usize, limit: usize) -> FooterMenuState {
     FooterMenuState {
-        count: 0,
-        limit: 0,
+        count,
+        limit,
         selected: 0,
         offset: 0,
     }
 }
 
 #[test]
-#[ignore = "porting: cli run footer menu not implemented"]
 fn scrolls_before_the_selected_row_hits_the_bottom_edge() {
     let mut menu = create_footer_menu_state(20, FOOTER_MENU_ROWS);
     for _ in 0..6 {
@@ -47,7 +61,6 @@ fn scrolls_before_the_selected_row_hits_the_bottom_edge() {
 }
 
 #[test]
-#[ignore = "porting: cli run footer menu not implemented"]
 fn scrolls_before_the_selected_row_hits_the_top_edge() {
     let mut menu = create_footer_menu_state(20, FOOTER_MENU_ROWS);
     for _ in 0..13 {

@@ -25,7 +25,6 @@ fn post_empty(uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: sync routes not implemented"]
 async fn serves_sync_routes() {
     let app = router(AppState::new());
 
@@ -69,7 +68,6 @@ async fn serves_sync_routes() {
 }
 
 #[tokio::test]
-#[ignore = "porting: sync routes not implemented"]
 async fn validates_seq_values() {
     let app = router(AppState::new());
 

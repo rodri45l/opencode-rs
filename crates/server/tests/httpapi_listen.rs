@@ -30,7 +30,6 @@ fn app() -> axum::Router {
 }
 
 #[tokio::test]
-#[ignore = "porting: Server.listen and PTY routes not implemented"]
 async fn serves_http_routes_through_the_listener() {
     let app = app();
     let res = send(&app, authed("GET", "/pty/shells")).await;
@@ -45,7 +44,6 @@ async fn serves_http_routes_through_the_listener() {
 }
 
 #[tokio::test]
-#[ignore = "porting: Server.listen and PTY routes not implemented"]
 async fn rejects_unsafe_pty_ticket_mint_and_connect_requests() {
     let app = app();
 
@@ -98,7 +96,6 @@ async fn rejects_unsafe_pty_ticket_mint_and_connect_requests() {
 }
 
 #[tokio::test]
-#[ignore = "porting: Server.listen and PTY routes not implemented"]
 async fn requires_auth_for_pty_routes() {
     let app = app();
     let res = send(

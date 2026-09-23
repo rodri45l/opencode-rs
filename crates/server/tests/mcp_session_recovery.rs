@@ -15,7 +15,6 @@ fn request(method: &str, session: Option<&str>) -> RecoveryRequest {
 }
 
 #[test]
-#[ignore = "porting: mcp.session-recovery not implemented"]
 fn reinitializes_and_retries_once_after_a_session_bound_post_returns_404() {
     let plan = session_recovery_plan("expired", "replacement");
 

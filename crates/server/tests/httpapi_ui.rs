@@ -17,7 +17,6 @@ fn get(uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: UI fallback route not implemented"]
 async fn serves_the_web_ui_through_the_http_api_app() {
     let app = router(AppState::new());
     let res = send(&app, get("/")).await;
@@ -30,7 +29,6 @@ async fn serves_the_web_ui_through_the_http_api_app() {
 }
 
 #[tokio::test]
-#[ignore = "porting: UI fallback route not implemented"]
 async fn requires_server_password_for_the_web_ui() {
     let app = router_with_options(
         AppState::new(),
@@ -46,7 +44,6 @@ async fn requires_server_password_for_the_web_ui() {
 }
 
 #[tokio::test]
-#[ignore = "porting: UI fallback route not implemented"]
 async fn allows_web_ui_preflight_without_auth() {
     let app = router_with_options(
         AppState::new(),

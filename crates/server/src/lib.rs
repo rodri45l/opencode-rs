@@ -50,15 +50,8 @@ pub use options::{router_with_options, ServerOptions};
 pub use state::AppState;
 
 use axum::Router;
-use tower_http::trace::TraceLayer;
 
 /// Build the application router.
 pub fn router(state: AppState) -> Router {
-    Router::<AppState>::new()
-        .merge(routes::health::router())
-        .merge(routes::event::router())
-        .merge(routes::session::router())
-        .merge(routes::session_v2::router())
-        .layer(TraceLayer::new_for_http())
-        .with_state(state)
+    options::router_with_options(state, ServerOptions::new())
 }

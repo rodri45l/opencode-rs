@@ -1,132 +1,50 @@
 //! Port of packages/core/test/util/flock.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 //!
-//! Re-derived: process-contention cases are expressed against a typed
-//! synchronous lock stub. Deterministic pieces (lock path derivation, staleness,
-//! owner metadata shape, error-message contract) are pure and stay faithful.
+//! Re-derived: the Effect `EffectFlock`/`LayerNode` runtime is replaced by the
+//! real [`opencode_core::flock`] file lock. Lock path derivation, staleness,
+//! owner metadata, error-message contract, mutual exclusion, stale recovery,
+//! compromise and permission failures are exercised against the filesystem.
 
 #![allow(dead_code)]
 
-mod flock {
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, SystemTime};
 
-    impl std::fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "not implemented: {}", self.0)
-        }
-    }
+use opencode_core::flock;
 
-    impl std::error::Error for NotImplemented {}
+static COUNTER: AtomicU64 = AtomicU64::new(0);
 
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct LockError {
-        pub message: String,
-    }
-
-    impl LockError {
-        pub fn not_implemented() -> Self {
-            LockError {
-                message: "not implemented: flock".to_string(),
-            }
-        }
-        pub fn timed_out() -> Self {
-            LockError {
-                message: "Timed out waiting for lock".to_string(),
-            }
-        }
-        pub fn token_mismatch() -> Self {
-            LockError {
-                message: "lock token mismatch".to_string(),
-            }
-        }
-        pub fn compromised() -> Self {
-            LockError {
-                message: "lock dir was compromised (removed while held)".to_string(),
-            }
-        }
-    }
-
-    impl std::fmt::Display for LockError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.message)
-        }
-    }
-
-    impl std::error::Error for LockError {}
-
-    /// FNV-1a 64-bit, rendered as lowercase hex. Only needs to be deterministic
-    /// so the lock path is stable across processes.
-    pub fn fast_hash(key: &str) -> String {
-        let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
-        for byte in key.as_bytes() {
-            hash ^= u64::from(*byte);
-            hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
-        }
-        format!("{hash:016x}")
-    }
-
-    pub fn lock_path(dir: &str, key: &str) -> String {
-        format!("{}/{}.lock", dir.trim_end_matches('/'), fast_hash(key))
-    }
-
-    pub fn breaker_path(lock_dir: &str) -> String {
-        format!("{lock_dir}.breaker")
-    }
-
-    pub fn heartbeat_path(lock_dir: &str) -> String {
-        format!("{lock_dir}/heartbeat")
-    }
-
-    pub fn meta_path(lock_dir: &str) -> String {
-        format!("{lock_dir}/meta.json")
-    }
-
-    /// A lock is stale once its age strictly exceeds the configured threshold.
-    pub fn is_stale(age_ms: u64, stale_ms: u64) -> bool {
-        age_ms > stale_ms
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct OwnerMeta {
-        pub token: String,
-        pub pid: u32,
-        pub hostname: String,
-        pub created_at: String,
-    }
-
-    pub fn owner_meta() -> Result<OwnerMeta, NotImplemented> {
-        Err(NotImplemented("flock owner metadata"))
-    }
-
-    pub struct LockGuard {
-        pub held: bool,
-    }
-
-    pub fn acquire(
-        _key: &str,
-        _dir: &str,
-        _stale_ms: u64,
-        _timeout_ms: u64,
-    ) -> Result<LockGuard, LockError> {
-        Err(LockError::not_implemented())
-    }
-
-    pub fn with_lock(
-        _key: &str,
-        _dir: &str,
-        _stale_ms: u64,
-        _timeout_ms: u64,
-        _body: impl FnOnce() -> Result<(), LockError>,
-    ) -> Result<(), LockError> {
-        Err(LockError::not_implemented())
-    }
+fn root(tag: &str) -> String {
+    let dir = std::env::temp_dir().join(format!(
+        "opencode-flock-{tag}-{}-{}",
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).expect("root");
+    dir.to_string_lossy().into_owned()
 }
 
-const NOTE: &str = "porting: flock not implemented";
+fn age(path: &Path) {
+    let file = std::fs::File::open(path).expect("open");
+    let past = SystemTime::now() - Duration::from_secs(30);
+    file.set_times(std::fs::FileTimes::new().set_modified(past))
+        .expect("set_times");
+}
+
+fn hold(lock_dir: &str) {
+    std::fs::create_dir_all(lock_dir).expect("lock dir");
+    std::fs::write(
+        flock::meta_path(lock_dir),
+        r#"{"token":"held","pid":1,"hostname":"h","createdAt":"0"}"#,
+    )
+    .expect("meta");
+    std::fs::write(flock::heartbeat_path(lock_dir), "held").expect("heartbeat");
+}
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn lock_path_is_derived_from_the_key_hash() {
     let dir = "/tmp/locks";
     let key = "flock:meta";
@@ -138,7 +56,6 @@ fn lock_path_is_derived_from_the_key_hash() {
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn auxiliary_paths_are_derived_from_the_lock_dir() {
     let lock_dir = "/tmp/locks/abc.lock";
     assert_eq!(flock::breaker_path(lock_dir), "/tmp/locks/abc.lock.breaker");
@@ -150,7 +67,6 @@ fn auxiliary_paths_are_derived_from_the_lock_dir() {
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn staleness_is_strictly_greater_than_the_threshold() {
     assert!(!flock::is_stale(199, 200));
     assert!(!flock::is_stale(200, 200));
@@ -158,7 +74,6 @@ fn staleness_is_strictly_greater_than_the_threshold() {
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn timeout_error_message_contract() {
     assert!(flock::LockError::timed_out()
         .to_string()
@@ -166,7 +81,6 @@ fn timeout_error_message_contract() {
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn token_mismatch_and_compromise_message_contract() {
     assert!(flock::LockError::token_mismatch()
         .to_string()
@@ -177,75 +91,108 @@ fn token_mismatch_and_compromise_message_contract() {
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn enforces_mutual_exclusion_under_process_contention() {
+    let dir = root("stress");
     let mut completed = Vec::new();
     for _ in 0..16 {
-        let outcome = flock::with_lock("flock:stress", "/tmp/locks", 1_000, 15_000, || Ok(()));
+        let outcome = flock::with_lock("flock:stress", &dir, 1_000, 15_000, || Ok(()));
         completed.push(outcome.is_ok());
     }
     assert!(completed.iter().all(|ok| *ok));
     assert_eq!(completed.len(), 16);
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn times_out_while_waiting_when_lock_is_still_healthy() {
-    let err =
-        flock::with_lock("flock:timeout", "/tmp/locks", 10_000, 1_000, || Ok(())).expect_err(NOTE);
+    let dir = root("healthy");
+    let key = "flock:timeout";
+    let lock_dir = flock::lock_path(&dir, key);
+    hold(&lock_dir);
+
+    let err = flock::with_lock(key, &dir, 10_000, 500, || Ok(())).expect_err("timeout");
     assert!(err.to_string().contains("Timed out waiting for lock"));
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn recovers_after_a_crashed_lock_owner() {
+    let dir = root("crash");
+    let key = "flock:crash";
+    let lock_dir = flock::lock_path(&dir, key);
+    hold(&lock_dir);
+    age(Path::new(&flock::heartbeat_path(&lock_dir)));
+
     let mut hit = false;
-    let result = flock::with_lock("flock:crash", "/tmp/locks", 500, 8_000, || {
+    let result = flock::with_lock(key, &dir, 500, 8_000, || {
         hit = true;
         Ok(())
     });
     assert!(result.is_ok());
     assert!(hit);
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn breaks_stale_lock_dirs_when_heartbeat_is_missing() {
+    let dir = root("missing-heartbeat");
+    let key = "flock:missing-heartbeat";
+    let lock_dir = flock::lock_path(&dir, key);
+    std::fs::create_dir_all(&lock_dir).expect("lock dir");
+    age(Path::new(&lock_dir));
+
     let mut hit = false;
-    let result = flock::with_lock("flock:missing-heartbeat", "/tmp/locks", 200, 3_000, || {
+    let result = flock::with_lock(key, &dir, 200, 3_000, || {
         hit = true;
         Ok(())
     });
     assert!(result.is_ok());
     assert!(hit);
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn recovers_when_a_stale_breaker_claim_was_left_behind() {
+    let dir = root("stale-breaker");
+    let key = "flock:stale-breaker";
+    let lock_dir = flock::lock_path(&dir, key);
+    hold(&lock_dir);
+    age(Path::new(&flock::heartbeat_path(&lock_dir)));
+
+    let breaker = flock::breaker_path(&lock_dir);
+    std::fs::write(&breaker, "stale").expect("breaker");
+    age(Path::new(&breaker));
+
     let mut hit = false;
-    let result = flock::with_lock("flock:stale-breaker", "/tmp/locks", 200, 3_000, || {
+    let result = flock::with_lock(key, &dir, 200, 3_000, || {
         hit = true;
         Ok(())
     });
     assert!(result.is_ok());
     assert!(hit);
-    let breaker = flock::breaker_path(&flock::lock_path("/tmp/locks", "flock:stale-breaker"));
-    assert!(!std::path::Path::new(&breaker).exists());
+    assert!(!Path::new(&breaker).exists());
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn fails_clearly_if_lock_dir_is_removed_while_held() {
-    let err = flock::with_lock("flock:compromised", "/tmp/locks", 1_000, 3_000, || Ok(()))
-        .expect_err(NOTE);
+    let dir = root("compromised");
+    let key = "flock:compromised";
+    let lock_dir = flock::lock_path(&dir, key);
+    let target = PathBuf::from(&lock_dir);
+
+    let err = flock::with_lock(key, &dir, 1_000, 3_000, || {
+        std::fs::remove_dir_all(&target).expect("remove held lock");
+        Ok(())
+    })
+    .expect_err("compromised");
     assert!(err.to_string().contains("compromised"));
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn writes_owner_metadata_while_lock_is_held() {
-    let meta = flock::owner_meta().expect(NOTE);
+    let meta = flock::owner_meta();
     assert!(!meta.token.is_empty());
     assert!(meta.pid > 0);
     assert!(!meta.hostname.is_empty());
@@ -253,31 +200,72 @@ fn writes_owner_metadata_while_lock_is_held() {
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn supports_acquire_with_await_using() {
-    let guard = flock::acquire("flock:acquire", "/tmp/locks", 1_000, 3_000).expect(NOTE);
+    let dir = root("acquire");
+    let guard = flock::acquire("flock:acquire", &dir, 1_000, 3_000).expect("acquire");
     assert!(guard.held);
+    drop(guard);
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn refuses_token_mismatch_release_and_recovers_from_stale() {
-    let err = flock::with_lock("flock:token", "/tmp/locks", 500, 3_000, || Ok(())).expect_err(NOTE);
+    let dir = root("token");
+    let key = "flock:token";
+    let lock_dir = flock::lock_path(&dir, key);
+    let meta = flock::meta_path(&lock_dir);
+
+    let err = flock::with_lock(key, &dir, 500, 3_000, || {
+        std::fs::write(
+            &meta,
+            r#"{"token":"tampered","pid":1,"hostname":"h","createdAt":"0"}"#,
+        )
+        .expect("tamper");
+        Ok(())
+    })
+    .expect_err("token mismatch");
     assert!(err.to_string().contains("token mismatch"));
 
     let mut hit = false;
-    let result = flock::with_lock("flock:token", "/tmp/locks", 500, 6_000, || {
+    let result = flock::with_lock(key, &dir, 500, 6_000, || {
         hit = true;
         Ok(())
     });
     assert!(result.is_ok());
     assert!(hit);
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-#[ignore = "porting: flock not implemented"]
 fn fails_clearly_on_unwritable_lock_roots() {
-    let err = flock::with_lock("flock:perm", "/tmp/locks", 100, 500, || Ok(())).expect_err(NOTE);
+    let parent = std::env::temp_dir().join(format!(
+        "opencode-flock-perm-{}-{}",
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    let _ = std::fs::remove_dir_all(&parent);
+    let locks = parent.join("locks");
+    std::fs::create_dir_all(&locks).expect("locks root");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&locks, std::fs::Permissions::from_mode(0o555)).expect("chmod");
+    }
+    let err = flock::with_lock(
+        "flock:perm",
+        locks.to_str().expect("utf8"),
+        100,
+        500,
+        || Ok(()),
+    )
+    .expect_err("permission");
     let text = err.to_string();
-    assert!(text.contains("EACCES") || text.contains("EPERM"));
+    assert!(text.contains("EACCES") || text.contains("EPERM"), "{text}");
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = std::fs::set_permissions(&locks, std::fs::Permissions::from_mode(0o755));
+    }
+    let _ = std::fs::remove_dir_all(&parent);
 }

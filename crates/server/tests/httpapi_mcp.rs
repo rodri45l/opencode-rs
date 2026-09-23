@@ -23,7 +23,6 @@ fn req(method: &str, uri: &str) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: mcp routes not implemented"]
 async fn serves_status_endpoint() {
     let app = router(AppState::new());
     let res = send(&app, req("GET", "/mcp")).await;
@@ -36,7 +35,6 @@ async fn serves_status_endpoint() {
 }
 
 #[tokio::test]
-#[ignore = "porting: mcp routes not implemented"]
 async fn serves_add_connect_and_disconnect_endpoints() {
     let app = router(AppState::new());
 
@@ -68,7 +66,6 @@ async fn serves_add_connect_and_disconnect_endpoints() {
 }
 
 #[tokio::test]
-#[ignore = "porting: mcp routes not implemented"]
 async fn returns_typed_not_found_errors_for_missing_mcp_servers() {
     let app = router(AppState::new());
 

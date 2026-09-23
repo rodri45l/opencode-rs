@@ -33,15 +33,31 @@ const INTERACTIVE_INPUT_ERROR: &str = "no interactive terminal available";
 struct StdinError;
 
 fn resolve_interactive_stdin(
-    _stdin: StdinHandle,
-    _open: &mut dyn FnMut(&str) -> std::io::Result<StdinHandle>,
-    _platform: &str,
+    stdin: StdinHandle,
+    open: &mut dyn FnMut(&str) -> std::io::Result<StdinHandle>,
+    platform: &str,
 ) -> Result<ResolveResult, StdinError> {
-    Err(StdinError)
+    if stdin.is_tty {
+        return Ok(ResolveResult {
+            stdin,
+            cleanup: None,
+        });
+    }
+    let path = if platform == "win32" {
+        "CONIN$"
+    } else {
+        "/dev/tty"
+    };
+    match open(path) {
+        Ok(handle) => Ok(ResolveResult {
+            stdin: handle,
+            cleanup: Some(()),
+        }),
+        Err(_) => Err(StdinError),
+    }
 }
 
 #[test]
-#[ignore = "porting: cli run interactive stdin not implemented"]
 fn reuses_stdin_when_it_is_already_a_tty() {
     let stdin = StdinHandle::new(true);
     let mut seen: Vec<String> = Vec::new();
@@ -60,7 +76,6 @@ fn reuses_stdin_when_it_is_already_a_tty() {
 }
 
 #[test]
-#[ignore = "porting: cli run interactive stdin not implemented"]
 fn opens_the_controlling_terminal_when_stdin_is_piped() {
     let mut seen: Vec<String> = Vec::new();
     let result = resolve_interactive_stdin(
@@ -77,7 +92,6 @@ fn opens_the_controlling_terminal_when_stdin_is_piped() {
 }
 
 #[test]
-#[ignore = "porting: cli run interactive stdin not implemented"]
 fn uses_conin_on_windows() {
     let mut seen: Vec<String> = Vec::new();
     let _ = resolve_interactive_stdin(
@@ -92,7 +106,6 @@ fn uses_conin_on_windows() {
 }
 
 #[test]
-#[ignore = "porting: cli run interactive stdin not implemented"]
 fn errors_when_no_controlling_terminal_is_available() {
     let result = resolve_interactive_stdin(
         StdinHandle::new(false),

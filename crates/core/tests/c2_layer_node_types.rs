@@ -9,143 +9,78 @@
 
 #![allow(dead_code)]
 
-mod layer_node_types {
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl std::fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "not implemented: {}", self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    pub enum Scope {
-        Global,
-        Location,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct TagConfig {
-        pub name: String,
-        pub deps: Vec<String>,
-    }
-
-    /// Declare the tag scopes; each tag may only reference declared tags.
-    pub fn tags(specs: &[(&str, &[&str])]) -> Result<Vec<TagConfig>, NotImplemented> {
-        let _ = specs;
-        Err(NotImplemented("layer-node tags"))
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Node {
-        pub service: Option<String>,
-        pub name: Option<String>,
-        pub scope: Scope,
-        pub deps: Vec<Node>,
-    }
-
-    /// Build a node, rejecting invalid service/name/dependency combinations.
-    pub fn make(
-        scope: Scope,
-        service: Option<&str>,
-        name: Option<&str>,
-        deps: Vec<Node>,
-    ) -> Result<Node, NotImplemented> {
-        let _ = (scope, service, name, deps);
-        Err(NotImplemented("layer-node make"))
-    }
-
-    /// Validate a replacement layer for a node.
-    pub fn validate_replacement(
-        _node: &Node,
-        _replacement_service: &str,
-    ) -> Result<(), NotImplemented> {
-        Err(NotImplemented("layer-node replacement"))
-    }
-}
-
-use layer_node_types::{make, tags, Scope};
-
-const NOTE: &str = "porting: layer-node types not implemented";
+use opencode_core::layer_node_types::{make, tags, validate_replacement, Node, Scope};
 
 fn global(
     service: &str,
-    deps: Vec<layer_node_types::Node>,
-) -> Result<layer_node_types::Node, layer_node_types::NotImplemented> {
+    deps: Vec<Node>,
+) -> Result<Node, opencode_core::layer_node_types::NodeError> {
     make(Scope::Global, Some(service), None, deps)
 }
 
 fn location(
     service: &str,
-    deps: Vec<layer_node_types::Node>,
-) -> Result<layer_node_types::Node, layer_node_types::NotImplemented> {
+    deps: Vec<Node>,
+) -> Result<Node, opencode_core::layer_node_types::NodeError> {
     make(Scope::Location, Some(service), None, deps)
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn tags_accept_declared_references() {
-    let declared = tags(&[("app", &[])]).expect(NOTE);
+    let declared = tags(&[("app", &[])]).expect("tags");
     assert_eq!(declared.len(), 1);
     assert_eq!(declared[0].name, "app");
 
-    let scoped = tags(&[("request", &["global"]), ("global", &[])]).expect(NOTE);
+    let scoped = tags(&[("request", &["global"]), ("global", &[])]).expect("tags");
     assert_eq!(scoped.len(), 2);
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn tags_reject_undeclared_references() {
-    let err = tags(&[("request", &["missing"]), ("global", &[])]).expect_err(NOTE);
+    let err = tags(&[("request", &["missing"]), ("global", &[])]).expect_err("undeclared");
     assert!(err
         .to_string()
         .contains("Tag configuration can only reference declared tags"));
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn make_requires_a_service_or_name() {
-    let err = make(Scope::Global, None, None, vec![]).expect_err(NOTE);
+    let err = make(Scope::Global, None, None, vec![]).expect_err("missing");
     assert!(err
         .to_string()
         .contains("A node must have a service or name"));
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn make_rejects_service_and_name_together() {
-    let err = make(Scope::Global, Some("test/LayerNodeA"), Some("a"), vec![]).expect_err(NOTE);
+    let err =
+        make(Scope::Global, Some("test/LayerNodeA"), Some("a"), vec![]).expect_err("exclusive");
     assert!(err
         .to_string()
         .contains("Service and name are mutually exclusive"));
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn make_rejects_a_missing_dependency() {
-    let a = global("test/LayerNodeA", vec![]).expect(NOTE);
-    let err = global("test/LayerNodeB", vec![]).expect_err(NOTE);
+    let a = global("test/LayerNodeA", vec![]).expect("a");
+    let named = make(Scope::Global, None, Some("manual-a"), vec![]).expect("named");
+    let err = global("test/LayerNodeB", vec![named]).expect_err("missing");
     assert!(err.to_string().contains("requires"));
-    let ok = global("test/LayerNodeB", vec![a]).expect(NOTE);
+    let ok = global("test/LayerNodeB", vec![a]).expect("b");
     assert_eq!(ok.service.as_deref(), Some("test/LayerNodeB"));
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn global_cannot_depend_on_location() {
-    let request_a = location("test/TagA", vec![]).expect(NOTE);
-    let err = global("test/TagB", vec![request_a]).expect_err(NOTE);
+    let request_a = location("test/TagA", vec![]).expect("location");
+    let err = global("test/TagB", vec![request_a]).expect_err("direction");
     assert!(err.to_string().contains("Global cannot depend on location"));
 }
 
 #[test]
-#[ignore = "porting: layer-node types not implemented"]
 fn replacement_must_provide_the_same_service() {
-    let node = global("test/LayerNodeA", vec![]).expect(NOTE);
-    let err = layer_node_types::validate_replacement(&node, "test/LayerNodeB").expect_err(NOTE);
+    let node = global("test/LayerNodeA", vec![]).expect("node");
+    let err = validate_replacement(&node, "test/LayerNodeB").expect_err("replacement");
     assert!(err
         .to_string()
         .contains("Replacement must provide test/LayerNodeA"));

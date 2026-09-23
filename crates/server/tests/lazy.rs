@@ -15,12 +15,24 @@ enum PortError {
 
 type PortResult<T> = Result<T, PortError>;
 
-fn lazy<T, F: Fn() -> T>(_f: F) -> impl Fn() -> PortResult<T> {
-    move || Err(PortError::NotImplemented("lazy"))
+use std::cell::RefCell;
+
+fn lazy<T, F: Fn() -> T>(f: F) -> impl Fn() -> PortResult<T>
+where
+    T: Clone,
+{
+    let cache: RefCell<Option<T>> = RefCell::new(None);
+    move || {
+        if let Some(value) = cache.borrow().as_ref() {
+            return Ok(value.clone());
+        }
+        let value = f();
+        *cache.borrow_mut() = Some(value.clone());
+        Ok(value)
+    }
 }
 
 #[test]
-#[ignore = "porting: lazy not implemented"]
 fn should_call_function_only_once() {
     let call_count = std::cell::Cell::new(0);
     let get_value = || {
@@ -41,7 +53,6 @@ fn should_call_function_only_once() {
 }
 
 #[test]
-#[ignore = "porting: lazy not implemented"]
 fn should_preserve_the_same_reference() {
     let obj = "value";
     let lazy_obj = lazy(|| obj);
@@ -54,7 +65,6 @@ fn should_preserve_the_same_reference() {
 }
 
 #[test]
-#[ignore = "porting: lazy not implemented"]
 fn should_work_with_different_return_types() {
     let lazy_string = lazy(|| "string");
     let lazy_number = lazy(|| 123);

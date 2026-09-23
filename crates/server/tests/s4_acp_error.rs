@@ -10,6 +10,7 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
@@ -58,8 +59,62 @@ impl RequestError {
     }
 }
 
-fn to_request_error(_error: AcpError) -> Result<RequestError, NotImplemented> {
-    nope("acp error")
+fn to_request_error(error: AcpError) -> Result<RequestError, NotImplemented> {
+    let (code, message, data) = match error {
+        AcpError::SessionNotFound { session_id } => (
+            -32602,
+            format!("Invalid params: session not found: {session_id}"),
+            json!({ "sessionId": session_id }),
+        ),
+        AcpError::InvalidConfigOption { config_id } => (
+            -32602,
+            format!("Invalid params: unknown config option: {config_id}"),
+            json!({ "configId": config_id }),
+        ),
+        AcpError::InvalidModel { model_id, .. } => (
+            -32602,
+            format!("Invalid params: model not found: {model_id}"),
+            json!({ "modelId": model_id }),
+        ),
+        AcpError::InvalidEffort { effort } => (
+            -32602,
+            format!("Invalid params: effort not found: {effort}"),
+            json!({ "effort": effort }),
+        ),
+        AcpError::InvalidMode { mode } => (
+            -32602,
+            format!("Invalid params: mode not found: {mode}"),
+            json!({ "mode": mode }),
+        ),
+        AcpError::AuthRequired { provider_id } => (
+            -32000,
+            "Authentication required: provider authentication required".to_string(),
+            json!({ "providerId": provider_id }),
+        ),
+        AcpError::UnsupportedOperation { method } => (
+            -32601,
+            format!("Method not found: {method}"),
+            json!({ "method": method }),
+        ),
+        AcpError::ServiceFailure {
+            service,
+            safe_message,
+        } => (
+            -32603,
+            format!("Internal error: {safe_message}"),
+            json!({ "service": service }),
+        ),
+        AcpError::UnknownDefect => (
+            -32603,
+            "Internal error: Internal service failure".to_string(),
+            json!({}),
+        ),
+    };
+    Ok(RequestError {
+        code,
+        message,
+        data,
+    })
 }
 
 fn from_unknown_defect(_detail: &str) -> AcpError {
@@ -67,7 +122,6 @@ fn from_unknown_defect(_detail: &str) -> AcpError {
 }
 
 #[test]
-#[ignore = "porting: acp error not implemented"]
 fn maps_validation_failures_to_invalid_params() {
     let cases = vec![
         AcpError::SessionNotFound {
@@ -95,7 +149,6 @@ fn maps_validation_failures_to_invalid_params() {
 }
 
 #[test]
-#[ignore = "porting: acp error not implemented"]
 fn includes_safe_validation_details() {
     let session = to_request_error(AcpError::SessionNotFound {
         session_id: "ses_123".into(),
@@ -113,7 +166,6 @@ fn includes_safe_validation_details() {
 }
 
 #[test]
-#[ignore = "porting: acp error not implemented"]
 fn maps_auth_required_to_the_sdk_auth_error() {
     let request_error = to_request_error(AcpError::AuthRequired {
         provider_id: "anthropic".into(),
@@ -128,7 +180,6 @@ fn maps_auth_required_to_the_sdk_auth_error() {
 }
 
 #[test]
-#[ignore = "porting: acp error not implemented"]
 fn maps_unsupported_operations_to_method_not_found() {
     let request_error = to_request_error(AcpError::UnsupportedOperation {
         method: "session/new".into(),
@@ -139,7 +190,6 @@ fn maps_unsupported_operations_to_method_not_found() {
 }
 
 #[test]
-#[ignore = "porting: acp error not implemented"]
 fn maps_service_failures_to_safe_internal_errors() {
     let request_error = to_request_error(AcpError::ServiceFailure {
         service: "provider".into(),
@@ -155,7 +205,6 @@ fn maps_service_failures_to_safe_internal_errors() {
 }
 
 #[test]
-#[ignore = "porting: acp error not implemented"]
 fn wraps_unknown_defects_without_leaking_raw_details() {
     let request_error = to_request_error(from_unknown_defect(
         "stack has sk-ant-secret and oauth refresh token",

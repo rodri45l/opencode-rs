@@ -31,7 +31,6 @@ fn glob(path: &Path) -> String {
 }
 
 #[test]
-#[ignore = "porting: tool.assertExternalDirectory not implemented"]
 fn no_ops_for_empty_target() -> Result<(), ToolError> {
     let dir = temp_dir("empty");
     let mut ctx = context(&dir);
@@ -41,7 +40,6 @@ fn no_ops_for_empty_target() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.assertExternalDirectory not implemented"]
 fn no_ops_for_paths_inside_the_instance_directory() -> Result<(), ToolError> {
     let dir = temp_dir("inside");
     let mut ctx = context(&dir);
@@ -56,7 +54,6 @@ fn no_ops_for_paths_inside_the_instance_directory() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.assertExternalDirectory not implemented"]
 fn asks_with_a_single_canonical_glob() -> Result<(), ToolError> {
     let base = temp_dir("outside");
     let dir = base.join("project");
@@ -82,7 +79,6 @@ fn asks_with_a_single_canonical_glob() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.assertExternalDirectory not implemented"]
 fn uses_target_directory_when_kind_is_directory() -> Result<(), ToolError> {
     let base = temp_dir("dir-kind");
     let dir = base.join("project");
@@ -111,7 +107,6 @@ fn uses_target_directory_when_kind_is_directory() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.assertExternalDirectory not implemented"]
 fn skips_prompting_when_bypass_is_true() -> Result<(), ToolError> {
     let dir = temp_dir("bypass");
     let mut ctx = context(&dir);

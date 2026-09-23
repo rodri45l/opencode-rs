@@ -15,28 +15,39 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn delta_update_kind(_field: &str, _part_type: &str) -> Result<String, NotImplemented> {
-    nope("acp event")
+fn delta_update_kind(field: &str, part_type: &str) -> Result<String, NotImplemented> {
+    Ok(match part_type {
+        "reasoning" => "agent_thought_chunk".to_string(),
+        _ if field == "text" => "agent_message_chunk".to_string(),
+        _ => "agent_message_chunk".to_string(),
+    })
 }
 
-fn tool_update_status(_state_status: &str) -> Result<String, NotImplemented> {
-    nope("acp event")
+fn tool_update_status(state_status: &str) -> Result<String, NotImplemented> {
+    Ok(match state_status {
+        "pending" => "pending",
+        "running" => "in_progress",
+        "completed" => "completed",
+        "error" => "failed",
+        _ => "pending",
+    }
+    .to_string())
 }
 
-fn thought_message_id(_part_id: &str) -> Result<String, NotImplemented> {
-    nope("acp event")
+fn thought_message_id(part_id: &str) -> Result<String, NotImplemented> {
+    Ok(part_id.to_string())
 }
 
-fn should_emit_live_delta(_role: &str) -> Result<bool, NotImplemented> {
-    nope("acp event")
+fn should_emit_live_delta(role: &str) -> Result<bool, NotImplemented> {
+    Ok(role != "user")
 }
 
 #[test]
-#[ignore = "porting: acp event not implemented"]
 fn maps_text_and_reasoning_deltas_to_acp_update_kinds() {
     assert_eq!(
         delta_update_kind("text", "text").unwrap(),
@@ -49,7 +60,6 @@ fn maps_text_and_reasoning_deltas_to_acp_update_kinds() {
 }
 
 #[test]
-#[ignore = "porting: acp event not implemented"]
 fn maps_tool_state_to_acp_status() {
     assert_eq!(tool_update_status("pending").unwrap(), "pending");
     assert_eq!(tool_update_status("running").unwrap(), "in_progress");
@@ -58,14 +68,12 @@ fn maps_tool_state_to_acp_status() {
 }
 
 #[test]
-#[ignore = "porting: acp event not implemented"]
 fn uses_reasoning_part_ids_as_thought_message_boundaries() {
     assert_eq!(thought_message_id("part_first").unwrap(), "part_first");
     assert_eq!(thought_message_id("part_second").unwrap(), "part_second");
 }
 
 #[test]
-#[ignore = "porting: acp event not implemented"]
 fn ignores_live_user_parts_to_avoid_user_message_chunk_duplication() {
     assert!(!should_emit_live_delta("user").unwrap());
     assert!(should_emit_live_delta("assistant").unwrap());

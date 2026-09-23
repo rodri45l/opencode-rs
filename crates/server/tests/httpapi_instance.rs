@@ -28,7 +28,6 @@ fn post_json(uri: &str, value: &serde_json::Value) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: OpenAPI document route not implemented"]
 async fn serves_the_openapi_document() {
     let app = router(AppState::new());
     let res = send(
@@ -50,7 +49,6 @@ async fn serves_the_openapi_document() {
 }
 
 #[tokio::test]
-#[ignore = "porting: permission/question routes not implemented"]
 async fn rejects_malformed_permission_and_question_request_ids() {
     let app = router(AppState::new());
 
@@ -86,7 +84,6 @@ async fn rejects_malformed_permission_and_question_request_ids() {
 }
 
 #[tokio::test]
-#[ignore = "porting: permission/question routes not implemented"]
 async fn returns_typed_not_found_bodies_for_missing_permission_and_question_requests() {
     let app = router(AppState::new());
     let permission_id = PermissionId::generate();
@@ -149,7 +146,6 @@ async fn returns_typed_not_found_bodies_for_missing_permission_and_question_requ
 }
 
 #[tokio::test]
-#[ignore = "porting: project routes not implemented"]
 async fn returns_typed_not_found_bodies_for_missing_projects() {
     let app = router(AppState::new());
     let req = with_directory(json_body(

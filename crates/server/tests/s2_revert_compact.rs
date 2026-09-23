@@ -49,12 +49,36 @@ struct Revert {
     part_id: Option<String>,
 }
 
-fn revert_cleanup(_msgs: &[Msg], _revert: Option<&Revert>) -> Result<Vec<Msg>, S2Error> {
-    Err(S2Error::NotImplemented("SessionRevert.cleanup"))
+fn revert_cleanup(msgs: &[Msg], revert: Option<&Revert>) -> Result<Vec<Msg>, S2Error> {
+    let Some(revert) = revert else {
+        return Ok(msgs.to_vec());
+    };
+    let Some(target) = msgs.iter().position(|msg| msg.id == revert.message_id) else {
+        return Ok(msgs.to_vec());
+    };
+    let mut result: Vec<Msg> = msgs[..target].to_vec();
+    if let Some(part_id) = &revert.part_id {
+        let mut kept = msgs[target].clone();
+        let cut = kept
+            .parts
+            .iter()
+            .position(|part| &part.id == part_id)
+            .unwrap_or(kept.parts.len());
+        kept.parts.truncate(cut);
+        result.push(kept);
+    }
+    Ok(result)
 }
 
-fn revert_kept_ids(_msgs: &[Msg], _target_id: &str) -> Result<Vec<String>, S2Error> {
-    Err(S2Error::NotImplemented("SessionRevert.revert"))
+fn revert_kept_ids(msgs: &[Msg], target_id: &str) -> Result<Vec<String>, S2Error> {
+    let Some(target) = msgs.iter().find(|msg| msg.id == target_id) else {
+        return Ok(ids(msgs));
+    };
+    Ok(msgs
+        .iter()
+        .filter(|msg| msg.created < target.created)
+        .map(|msg| msg.id.clone())
+        .collect())
 }
 
 fn part(id: &str, kind: PartKind) -> Part {
@@ -77,7 +101,6 @@ fn ids(msgs: &[Msg]) -> Vec<String> {
 }
 
 #[test]
-#[ignore = "porting: SessionRevert.cleanup not implemented"]
 fn cleanup_with_part_id_removes_parts_from_the_revert_point_onward() {
     let msgs = vec![msg(
         "u1",
@@ -100,7 +123,6 @@ fn cleanup_with_part_id_removes_parts_from_the_revert_point_onward() {
 }
 
 #[test]
-#[ignore = "porting: SessionRevert.cleanup not implemented"]
 fn cleanup_removes_messages_after_revert_point_but_keeps_earlier_ones() {
     let msgs = vec![
         msg("u1", 1.0, vec![part("p1", PartKind::Text)]),
@@ -118,7 +140,6 @@ fn cleanup_removes_messages_after_revert_point_but_keeps_earlier_ones() {
 }
 
 #[test]
-#[ignore = "porting: SessionRevert.revert not implemented"]
 fn reverts_chronological_suffixes_on_both_sides_of_mixed_message_id_ordering() {
     let msgs = vec![
         msg("msg_z9-before", 1.0, vec![part("p1", PartKind::Text)]),
@@ -142,7 +163,6 @@ fn creates_from_ids(msgs: &[Msg], kept: &[String]) -> Vec<f64> {
 }
 
 #[test]
-#[ignore = "porting: SessionRevert.cleanup not implemented"]
 fn cleanup_is_a_no_op_when_session_has_no_revert_state() {
     let msgs = vec![msg("u1", 1.0, vec![part("p1", PartKind::Text)])];
     let result = revert_cleanup(&msgs, None).expect("cleanup");

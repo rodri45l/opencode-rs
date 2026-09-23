@@ -18,20 +18,31 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn gateway_route(_api_id: &str) -> Result<Value, NotImplemented> {
-    nope("cf-ai-gateway")
+fn gateway_route(api_id: &str) -> Result<Value, NotImplemented> {
+    let (provider, endpoint, model) = if let Some(rest) = api_id.strip_prefix("openai/") {
+        ("openai", "v1/responses", rest.to_string())
+    } else if let Some(rest) = api_id.strip_prefix("anthropic/") {
+        ("anthropic", "v1/messages", native_slug(rest)?)
+    } else {
+        ("compat", "chat/completions", api_id.to_string())
+    };
+    Ok(json!({
+        "provider": provider,
+        "endpoint": endpoint,
+        "upstreamModel": model,
+    }))
 }
 
-fn native_slug(_api_id: &str) -> Result<String, NotImplemented> {
-    nope("cf-ai-gateway")
+fn native_slug(api_id: &str) -> Result<String, NotImplemented> {
+    Ok(api_id.replace('.', "-"))
 }
 
 #[test]
-#[ignore = "porting: cf-ai-gateway not implemented"]
 fn openai_rides_the_native_openai_passthrough_on_the_responses_api() {
     let route = gateway_route("openai/gpt-5.4").unwrap();
     assert_eq!(route["provider"], json!("openai"));
@@ -40,7 +51,6 @@ fn openai_rides_the_native_openai_passthrough_on_the_responses_api() {
 }
 
 #[test]
-#[ignore = "porting: cf-ai-gateway not implemented"]
 fn anthropic_rides_the_native_anthropic_passthrough_on_the_messages_api() {
     let route = gateway_route("anthropic/claude-sonnet-4-6").unwrap();
     assert_eq!(route["provider"], json!("anthropic"));
@@ -49,7 +59,6 @@ fn anthropic_rides_the_native_anthropic_passthrough_on_the_messages_api() {
 }
 
 #[test]
-#[ignore = "porting: cf-ai-gateway not implemented"]
 fn anthropic_dotted_models_dev_id_reaches_anthropic_as_a_dashed_native_slug() {
     let route = gateway_route("anthropic/claude-haiku-4.5").unwrap();
     assert_eq!(route["provider"], json!("anthropic"));
@@ -59,7 +68,6 @@ fn anthropic_dotted_models_dev_id_reaches_anthropic_as_a_dashed_native_slug() {
 }
 
 #[test]
-#[ignore = "porting: cf-ai-gateway not implemented"]
 fn workers_ai_models_stay_on_the_unified_compat_route() {
     let route = gateway_route("workers-ai/@cf/moonshotai/kimi-k2.6").unwrap();
     assert_eq!(route["provider"], json!("compat"));

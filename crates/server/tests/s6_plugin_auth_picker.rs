@@ -47,8 +47,35 @@ fn pp(id: &str, name: &str) -> PluginProvider {
     }
 }
 
-fn resolve_plugin_providers(_options: &ResolveOptions) -> Vec<PluginProvider> {
-    Vec::new()
+fn resolve_plugin_providers(options: &ResolveOptions) -> Vec<PluginProvider> {
+    let mut seen = BTreeSet::new();
+    let mut result = Vec::new();
+    for hook in &options.hooks {
+        let Some(id) = &hook.auth_provider else {
+            continue;
+        };
+        if options.existing_providers.contains(id) || options.disabled.contains(id) {
+            continue;
+        }
+        if let Some(enabled) = &options.enabled {
+            if !enabled.contains(id) {
+                continue;
+            }
+        }
+        if !seen.insert(id.clone()) {
+            continue;
+        }
+        let name = options
+            .provider_names
+            .get(id)
+            .cloned()
+            .unwrap_or_else(|| id.clone());
+        result.push(PluginProvider {
+            id: id.clone(),
+            name,
+        });
+    }
+    result
 }
 
 fn set(items: &[&str]) -> BTreeSet<String> {
@@ -56,7 +83,6 @@ fn set(items: &[&str]) -> BTreeSet<String> {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn returns_plugin_providers_not_in_models_dev() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("portkey")],
@@ -66,7 +92,6 @@ fn returns_plugin_providers_not_in_models_dev() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn skips_providers_already_in_models_dev() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("anthropic")],
@@ -77,7 +102,6 @@ fn skips_providers_already_in_models_dev() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn deduplicates_across_plugins() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("portkey"), hook_with_auth("portkey")],
@@ -87,7 +111,6 @@ fn deduplicates_across_plugins() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn respects_disabled_providers() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("portkey")],
@@ -98,7 +121,6 @@ fn respects_disabled_providers() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn respects_enabled_providers_when_provider_is_absent() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("portkey")],
@@ -109,7 +131,6 @@ fn respects_enabled_providers_when_provider_is_absent() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn includes_provider_when_in_enabled_set() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("portkey")],
@@ -120,7 +141,6 @@ fn includes_provider_when_in_enabled_set() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn resolves_name_from_provider_names() {
     let mut names = BTreeMap::new();
     names.insert("portkey".to_string(), "Portkey AI".to_string());
@@ -133,7 +153,6 @@ fn resolves_name_from_provider_names() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn falls_back_to_id_when_no_name_configured() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![hook_with_auth("portkey")],
@@ -143,7 +162,6 @@ fn falls_back_to_id_when_no_name_configured() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn skips_hooks_without_auth() {
     let result = resolve_plugin_providers(&ResolveOptions {
         hooks: vec![
@@ -157,7 +175,6 @@ fn skips_hooks_without_auth() {
 }
 
 #[test]
-#[ignore = "porting: cli plugin auth picker not implemented"]
 fn returns_empty_for_no_hooks() {
     let result = resolve_plugin_providers(&ResolveOptions::default());
     assert_eq!(result, Vec::<PluginProvider>::new());

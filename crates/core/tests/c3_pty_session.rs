@@ -14,81 +14,12 @@
 
 #![allow(dead_code)]
 
-const NOTE: &str = "porting: pty session not implemented";
-
-#[derive(Debug, PartialEq, Eq)]
-enum PtyError {
-    NotImplemented,
-    NotFound(String),
-    Exited(String),
-}
-
-#[derive(Debug, PartialEq, Eq)]
-enum PtyOp {
-    Get,
-    Update,
-    Remove,
-    Write,
-    Attach,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct Replay {
-    data: String,
-    cursor: i64,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct ExitEvent {
-    exit_code: Option<i32>,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct CreateDefaults {
-    command: String,
-    args: Vec<String>,
-    cwd: String,
-}
-
-#[allow(dead_code)]
-#[derive(Default)]
-struct OutputBuffer {
-    data: String,
-}
-
-impl OutputBuffer {
-    fn new() -> Self {
-        Self::default()
-    }
-
-    fn append(&mut self, _chunk: &str) {}
-
-    fn replay(&self, _cursor: Option<i64>) -> Result<Replay, PtyError> {
-        Err(PtyError::NotImplemented)
-    }
-}
-
-fn op_on_missing(_op: PtyOp, _id: &str) -> Result<(), PtyError> {
-    Err(PtyError::NotImplemented)
-}
-
-fn attach_after_exit(_id: &str, _exited: bool) -> Result<(), PtyError> {
-    Err(PtyError::NotImplemented)
-}
-
-fn exit_event(_exit_code: Option<i32>) -> Result<ExitEvent, PtyError> {
-    Err(PtyError::NotImplemented)
-}
-
-fn create_defaults(
-    _configured_shell: Option<&str>,
-    _cwd: &str,
-) -> Result<CreateDefaults, PtyError> {
-    Err(PtyError::NotImplemented)
-}
+use opencode_core::pty_session::{
+    attach_after_exit, create_defaults, exit_event, op_on_missing, CreateDefaults, ExitEvent,
+    OutputBuffer, PtyError, PtyOp,
+};
 
 #[test]
-#[ignore = "porting: pty session not implemented"]
 fn missing_sessions_return_typed_not_found_errors() {
     for op in [
         PtyOp::Get,
@@ -105,7 +36,6 @@ fn missing_sessions_return_typed_not_found_errors() {
 }
 
 #[test]
-#[ignore = "porting: pty session not implemented"]
 fn rejects_attach_after_the_session_has_exited() {
     assert_eq!(
         attach_after_exit("pty_1", true),
@@ -115,47 +45,43 @@ fn rejects_attach_after_the_session_has_exited() {
 }
 
 #[test]
-#[ignore = "porting: pty session not implemented"]
 fn fresh_attachments_replay_the_buffered_output() {
     let mut buffer = OutputBuffer::new();
     buffer.append("AAA\n");
     buffer.append("BBB\n");
 
-    let replay = buffer.replay(None).expect(NOTE);
+    let replay = buffer.replay(None).expect("replay");
     assert_eq!(replay.data, "AAA\nBBB\n");
     assert_eq!(replay.cursor, 8);
 }
 
 #[test]
-#[ignore = "porting: pty session not implemented"]
 fn tail_attachments_skip_the_buffer_but_keep_the_cursor() {
     let mut buffer = OutputBuffer::new();
     buffer.append("AAA\n");
     buffer.append("BBB\n");
 
-    let full = buffer.replay(None).expect(NOTE);
-    let tail = buffer.replay(Some(-1)).expect(NOTE);
+    let full = buffer.replay(None).expect("replay");
+    let tail = buffer.replay(Some(-1)).expect("replay");
     assert_eq!(tail.data, "");
     assert_eq!(tail.cursor, full.cursor);
 }
 
 #[test]
-#[ignore = "porting: pty session not implemented"]
 fn exit_events_carry_the_process_exit_code() {
     assert_eq!(
-        exit_event(Some(3)).expect(NOTE),
+        exit_event(Some(3)).expect("exit"),
         ExitEvent { exit_code: Some(3) }
     );
     assert_eq!(
-        exit_event(Some(0)).expect(NOTE),
+        exit_event(Some(0)).expect("exit"),
         ExitEvent { exit_code: Some(0) }
     );
 }
 
 #[test]
-#[ignore = "porting: pty session not implemented"]
 fn create_defaults_the_shell_login_args_and_cwd() {
-    let defaults = create_defaults(Some("/bin/bash"), "/tmp").expect(NOTE);
+    let defaults = create_defaults(Some("/bin/bash"), "/tmp").expect("defaults");
     assert_eq!(
         defaults,
         CreateDefaults {

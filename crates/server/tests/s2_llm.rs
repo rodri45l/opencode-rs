@@ -45,8 +45,13 @@ struct ModelMessage {
     content: MsgContent,
 }
 
-fn has_tool_calls(_messages: &[ModelMessage]) -> Result<bool, S2Error> {
-    Err(S2Error::NotImplemented("LLM.hasToolCalls"))
+fn has_tool_calls(messages: &[ModelMessage]) -> Result<bool, S2Error> {
+    Ok(messages.iter().any(|message| match &message.content {
+        MsgContent::Text => false,
+        MsgContent::Parts(pieces) => pieces
+            .iter()
+            .any(|piece| matches!(piece, ContentPiece::ToolCall | ContentPiece::ToolResult)),
+    }))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -197,15 +202,173 @@ enum LlmEvent {
     },
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone)]
 struct AdapterState {
     text_index: u64,
     reasoning_index: u64,
     step_index: u64,
+    current_text_id: Option<String>,
+    current_reasoning_id: Option<String>,
 }
 
-fn to_llm_events(_state: &mut AdapterState, _chunks: &[Chunk]) -> Result<Vec<LlmEvent>, S2Error> {
-    Err(S2Error::NotImplemented("LLMAISDK.toLLMEvents"))
+fn finish_reason(reason: &str) -> String {
+    match reason {
+        "stop" | "length" | "tool-calls" | "content-filter" | "error" => reason.to_string(),
+        _ => "unknown".to_string(),
+    }
+}
+
+fn usage(value: &Option<LlmUsage>) -> Option<LlmUsage> {
+    let usage = value.as_ref()?;
+    let any = usage.input_tokens.is_some()
+        || usage.output_tokens.is_some()
+        || usage.total_tokens.is_some()
+        || usage.reasoning_tokens.is_some()
+        || usage.cache_read_input_tokens.is_some()
+        || usage.cache_write_input_tokens.is_some();
+    if any {
+        Some(usage.clone())
+    } else {
+        None
+    }
+}
+
+fn current_text_id(state: &mut AdapterState, id: Option<String>) -> String {
+    if let Some(id) = id {
+        state.current_text_id = Some(id);
+    } else if state.current_text_id.is_none() {
+        let id = format!("text-{}", state.text_index);
+        state.text_index += 1;
+        state.current_text_id = Some(id);
+    }
+    state.current_text_id.clone().unwrap_or_default()
+}
+
+fn current_reasoning_id(state: &mut AdapterState, id: Option<String>) -> String {
+    if let Some(id) = id {
+        state.current_reasoning_id = Some(id);
+    } else if state.current_reasoning_id.is_none() {
+        let id = format!("reasoning-{}", state.reasoning_index);
+        state.reasoning_index += 1;
+        state.current_reasoning_id = Some(id);
+    }
+    state.current_reasoning_id.clone().unwrap_or_default()
+}
+
+fn to_llm_events(state: &mut AdapterState, chunks: &[Chunk]) -> Result<Vec<LlmEvent>, S2Error> {
+    let mut events = Vec::new();
+    for chunk in chunks {
+        match chunk {
+            Chunk::StepStart => events.push(LlmEvent::StepStart {
+                index: state.step_index,
+            }),
+            Chunk::TextStart { id, metadata } => {
+                let id = current_text_id(state, id.clone());
+                events.push(LlmEvent::TextStart {
+                    id,
+                    metadata: metadata.clone(),
+                });
+            }
+            Chunk::TextDelta { id, text, metadata } => {
+                let id = current_text_id(state, id.clone());
+                events.push(LlmEvent::TextDelta {
+                    id,
+                    text: text.clone(),
+                    metadata: metadata.clone(),
+                });
+            }
+            Chunk::TextEnd { id, metadata } => {
+                let id = current_text_id(state, id.clone());
+                state.current_text_id = None;
+                events.push(LlmEvent::TextEnd {
+                    id,
+                    metadata: metadata.clone(),
+                });
+            }
+            Chunk::ReasoningStart { id, metadata } => {
+                let id = current_reasoning_id(state, id.clone());
+                events.push(LlmEvent::ReasoningStart {
+                    id,
+                    metadata: metadata.clone(),
+                });
+            }
+            Chunk::ReasoningDelta { id, text, metadata } => {
+                let id = current_reasoning_id(state, id.clone());
+                events.push(LlmEvent::ReasoningDelta {
+                    id,
+                    text: text.clone(),
+                    metadata: metadata.clone(),
+                });
+            }
+            Chunk::ReasoningEnd { id, metadata } => {
+                let id = current_reasoning_id(state, id.clone());
+                state.current_reasoning_id = None;
+                events.push(LlmEvent::ReasoningEnd {
+                    id,
+                    metadata: metadata.clone(),
+                });
+            }
+            Chunk::ToolInputStart { id, name, metadata } => events.push(LlmEvent::ToolInputStart {
+                id: id.clone(),
+                name: name.clone(),
+                metadata: metadata.clone(),
+            }),
+            Chunk::ToolInputDelta { id, name, delta } => events.push(LlmEvent::ToolInputDelta {
+                id: id.clone(),
+                name: name.clone(),
+                text: delta.clone(),
+            }),
+            Chunk::ToolInputEnd { id, name, metadata } => events.push(LlmEvent::ToolInputEnd {
+                id: id.clone(),
+                name: name.clone(),
+                metadata: metadata.clone(),
+            }),
+            Chunk::ToolCall {
+                id,
+                name,
+                input,
+                metadata,
+            } => events.push(LlmEvent::ToolCall {
+                id: id.clone(),
+                name: name.clone(),
+                input: input.clone(),
+                metadata: metadata.clone(),
+            }),
+            Chunk::ToolResult {
+                id,
+                name,
+                result,
+                metadata,
+            } => events.push(LlmEvent::ToolResult {
+                id: id.clone(),
+                name: name.clone(),
+                result: result.clone(),
+                metadata: metadata.clone(),
+            }),
+            Chunk::StepFinish {
+                reason,
+                usage: chunk_usage,
+                metadata,
+            } => {
+                events.push(LlmEvent::StepFinish {
+                    index: state.step_index,
+                    reason: finish_reason(reason),
+                    usage: usage(chunk_usage),
+                    metadata: metadata.clone(),
+                });
+                state.step_index += 1;
+            }
+            Chunk::Finish {
+                reason,
+                usage: chunk_usage,
+            } => events.push(LlmEvent::Finish {
+                reason: finish_reason(reason),
+                usage: usage(chunk_usage),
+            }),
+            Chunk::Ignored => {}
+        }
+    }
+    Ok(events)
 }
 
 fn parts(pieces: &[ContentPiece]) -> ModelMessage {
@@ -221,20 +384,17 @@ fn text_msg() -> ModelMessage {
 }
 
 #[test]
-#[ignore = "porting: LLM.hasToolCalls not implemented"]
 fn has_tool_calls_returns_false_for_empty_messages() {
     assert!(!has_tool_calls(&[]).expect("hasToolCalls"));
 }
 
 #[test]
-#[ignore = "porting: LLM.hasToolCalls not implemented"]
 fn has_tool_calls_returns_false_for_text_only_messages() {
     let messages = vec![parts(&[ContentPiece::Text]), parts(&[ContentPiece::Text])];
     assert!(!has_tool_calls(&messages).expect("hasToolCalls"));
 }
 
 #[test]
-#[ignore = "porting: LLM.hasToolCalls not implemented"]
 fn has_tool_calls_returns_true_when_messages_contain_tool_call() {
     let messages = vec![
         parts(&[ContentPiece::Text]),
@@ -244,28 +404,24 @@ fn has_tool_calls_returns_true_when_messages_contain_tool_call() {
 }
 
 #[test]
-#[ignore = "porting: LLM.hasToolCalls not implemented"]
 fn has_tool_calls_returns_true_when_messages_contain_tool_result() {
     let messages = vec![parts(&[ContentPiece::ToolResult])];
     assert!(has_tool_calls(&messages).expect("hasToolCalls"));
 }
 
 #[test]
-#[ignore = "porting: LLM.hasToolCalls not implemented"]
 fn has_tool_calls_returns_false_for_string_content() {
     let messages = vec![text_msg(), text_msg()];
     assert!(!has_tool_calls(&messages).expect("hasToolCalls"));
 }
 
 #[test]
-#[ignore = "porting: LLM.hasToolCalls not implemented"]
 fn has_tool_calls_returns_true_when_tool_call_is_mixed_with_text() {
     let messages = vec![parts(&[ContentPiece::Text, ContentPiece::ToolCall])];
     assert!(has_tool_calls(&messages).expect("hasToolCalls"));
 }
 
 #[test]
-#[ignore = "porting: LLMAISDK.toLLMEvents not implemented"]
 fn maps_ai_sdk_stream_chunks_without_losing_session_visible_fields() {
     let mut state = AdapterState::default();
     let metadata = Some(json!({ "openai": { "itemID": "item-1" } }));
@@ -462,7 +618,6 @@ fn maps_ai_sdk_stream_chunks_without_losing_session_visible_fields() {
 }
 
 #[test]
-#[ignore = "porting: LLMAISDK.toLLMEvents not implemented"]
 fn creates_stable_block_ids_when_ai_sdk_omits_them() {
     let mut state = AdapterState::default();
     let chunks = vec![
@@ -513,7 +668,6 @@ fn creates_stable_block_ids_when_ai_sdk_omits_them() {
 }
 
 #[test]
-#[ignore = "porting: LLMAISDK.toLLMEvents not implemented"]
 fn explicitly_ignores_non_session_visible_ai_sdk_chunks() {
     let mut state = AdapterState::default();
     let chunks = vec![
@@ -529,7 +683,6 @@ fn explicitly_ignores_non_session_visible_ai_sdk_chunks() {
 }
 
 #[test]
-#[ignore = "porting: LLMAISDK.toLLMEvents not implemented"]
 fn emits_undefined_usage_when_every_usage_field_is_missing() {
     let mut state = AdapterState::default();
     let chunks = vec![Chunk::StepFinish {
@@ -554,7 +707,6 @@ fn emits_undefined_usage_when_every_usage_field_is_missing() {
 }
 
 #[test]
-#[ignore = "porting: LLMAISDK.toLLMEvents not implemented"]
 fn preserves_provider_metadata_on_step_finish_for_anthropic_cache_writes() {
     let mut state = AdapterState::default();
     let provider_metadata = json!({ "anthropic": { "cacheCreationInputTokens": 300 } });

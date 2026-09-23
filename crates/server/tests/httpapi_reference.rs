@@ -14,7 +14,6 @@ use opencode_server::{router, AppState};
 const DIRECTORY: &str = "/tmp/opencode-httpapi-reference-port";
 
 #[tokio::test]
-#[ignore = "porting: reference routes not implemented"]
 async fn lists_usable_references_resolved_in_the_server_workspace() {
     let app = router(AppState::new());
     let req = common::header(

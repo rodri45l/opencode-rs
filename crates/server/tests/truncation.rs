@@ -12,7 +12,6 @@ fn default_options() -> TruncateOptions {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn truncates_large_content_by_bytes() {
     let svc = Truncate::new();
     let content = "x".repeat(60 * 1024);
@@ -24,7 +23,6 @@ fn truncates_large_content_by_bytes() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn returns_content_unchanged_when_under_limits() {
     let svc = Truncate::new();
     let content = "line1\nline2\nline3";
@@ -35,7 +33,6 @@ fn returns_content_unchanged_when_under_limits() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn truncates_by_line_count() {
     let svc = Truncate::new();
     let lines = (0..100)
@@ -55,7 +52,6 @@ fn truncates_by_line_count() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn truncates_by_byte_count() {
     let svc = Truncate::new();
     let content = "a".repeat(1000);
@@ -72,7 +68,6 @@ fn truncates_by_byte_count() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn truncates_from_head_by_default() {
     let svc = Truncate::new();
     let lines = (0..10)
@@ -95,7 +90,6 @@ fn truncates_from_head_by_default() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn truncates_from_tail_when_direction_is_tail() {
     let svc = Truncate::new();
     let lines = (0..10)
@@ -119,14 +113,12 @@ fn truncates_from_tail_when_direction_is_tail() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn uses_default_max_lines_and_max_bytes() {
     assert_eq!(Truncate::MAX_LINES, 2000);
     assert_eq!(Truncate::MAX_BYTES, 50 * 1024);
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn limits_falls_back_to_defaults() {
     let svc = Truncate::new();
     let resolved = svc.limits();
@@ -135,7 +127,6 @@ fn limits_falls_back_to_defaults() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn limits_reflects_config_overrides() {
     let svc = Truncate::with_limits(TruncateLimits {
         max_lines: 123,
@@ -147,7 +138,6 @@ fn limits_reflects_config_overrides() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn output_truncates_to_configured_max_lines() {
     let svc = Truncate::with_limits(TruncateLimits {
         max_lines: 10,
@@ -164,7 +154,6 @@ fn output_truncates_to_configured_max_lines() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn output_truncates_to_configured_max_bytes() {
     let svc = Truncate::with_limits(TruncateLimits {
         max_lines: 1_000_000,
@@ -178,7 +167,6 @@ fn output_truncates_to_configured_max_bytes() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn per_call_options_override_config() {
     let svc = Truncate::with_limits(TruncateLimits {
         max_lines: 10,
@@ -201,7 +189,6 @@ fn per_call_options_override_config() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn large_single_line_content_truncates_with_byte_message() {
     let svc = Truncate::new();
     let content = "x".repeat(60 * 1024);
@@ -213,7 +200,6 @@ fn large_single_line_content_truncates_with_byte_message() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn writes_full_output_to_file_when_truncated() {
     let svc = Truncate::new();
     let lines = (0..100)
@@ -241,7 +227,6 @@ fn writes_full_output_to_file_when_truncated() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn suggests_task_tool_when_agent_has_task_permission() {
     let svc = Truncate::new();
     let lines = (0..100)
@@ -263,7 +248,6 @@ fn suggests_task_tool_when_agent_has_task_permission() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn omits_task_tool_hint_when_agent_lacks_task_permission() {
     let svc = Truncate::new();
     let lines = (0..100)
@@ -285,7 +269,6 @@ fn omits_task_tool_hint_when_agent_lacks_task_permission() {
 }
 
 #[test]
-#[ignore = "porting: tool.truncate not implemented"]
 fn does_not_write_file_when_not_truncated() {
     let svc = Truncate::new();
     let result = svc.output("short content", default_options());

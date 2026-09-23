@@ -12,16 +12,34 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn pretty(_diagnostic: &Value) -> Result<String, NotImplemented> {
-    nope("lsp lifecycle")
+fn pretty(diagnostic: &Value) -> Result<String, NotImplemented> {
+    let label = match diagnostic.get("severity").and_then(Value::as_i64) {
+        Some(2) => "WARN",
+        _ => "ERROR",
+    };
+    let line = diagnostic
+        .pointer("/range/start/line")
+        .and_then(Value::as_i64)
+        .unwrap_or(0)
+        + 1;
+    let character = diagnostic
+        .pointer("/range/start/character")
+        .and_then(Value::as_i64)
+        .unwrap_or(0)
+        + 1;
+    let message = diagnostic
+        .get("message")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    Ok(format!("{label} [{line}:{character}] {message}"))
 }
 
 #[test]
-#[ignore = "porting: lsp lifecycle not implemented"]
 fn pretty_formats_error_diagnostic() {
     assert_eq!(
         pretty(&json!({
@@ -35,7 +53,6 @@ fn pretty_formats_error_diagnostic() {
 }
 
 #[test]
-#[ignore = "porting: lsp lifecycle not implemented"]
 fn pretty_formats_warning_diagnostic() {
     assert_eq!(
         pretty(&json!({
@@ -49,7 +66,6 @@ fn pretty_formats_warning_diagnostic() {
 }
 
 #[test]
-#[ignore = "porting: lsp lifecycle not implemented"]
 fn pretty_defaults_to_error_when_no_severity() {
     assert_eq!(
         pretty(&json!({

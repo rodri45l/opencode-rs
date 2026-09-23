@@ -97,24 +97,349 @@ fn base_description() -> &'static str {
 }
 
 fn parameters_json_schema() -> Result<Value> {
-    Err(CodeModeError::NotImplemented("code-mode parameters schema"))
+    Ok(json!({
+        "type": "object",
+        "properties": {
+            "code": {
+                "type": "string",
+                "description": "Script body executed by the confined interpreter."
+            }
+        },
+        "required": ["code"]
+    }))
 }
 
-fn validate_parameters(_input: &Value) -> Result<Value> {
-    Err(CodeModeError::NotImplemented(
-        "code-mode parameters validation",
-    ))
+fn validate_parameters(input: &Value) -> Result<Value> {
+    match input.get("code").and_then(Value::as_str) {
+        Some(_) => Ok(input.clone()),
+        None => Err(CodeModeError::InvalidParameters("code is required")),
+    }
 }
 
-fn visible_tools(
-    _tools: &[CatalogTool],
-    _permission: &[PermissionRule],
-) -> Result<Vec<CatalogTool>> {
-    Err(CodeModeError::NotImplemented("Permission.visibleTools"))
+fn visible_tools(tools: &[CatalogTool], permission: &[PermissionRule]) -> Result<Vec<CatalogTool>> {
+    let denied = |key: &str| {
+        permission.iter().any(|rule| {
+            rule.action == "deny"
+                && rule.permission == key
+                && (rule.pattern == "*" || rule.pattern == key)
+        })
+    };
+    Ok(tools
+        .iter()
+        .filter(|tool| !denied(&tool.key))
+        .cloned()
+        .collect())
 }
 
-fn describe_catalog(_tools: &[CatalogTool], _servers: &[String]) -> Result<String> {
-    Err(CodeModeError::NotImplemented("CodeMode.describeCatalog"))
+#[derive(Debug, Clone)]
+struct ToolDescription {
+    path: String,
+    description: String,
+    signature: String,
+}
+
+fn path_expression(path: &str) -> String {
+    let mut out = String::from("tools");
+    for segment in path.split('.') {
+        let ident = !segment.is_empty()
+            && segment
+                .chars()
+                .next()
+                .map(|c| c.is_ascii_alphabetic() || c == '_' || c == '$')
+                .unwrap_or(false)
+            && segment
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '$');
+        if ident {
+            out.push('.');
+            out.push_str(segment);
+        } else {
+            out.push('[');
+            out.push_str(&serde_json::to_string(segment).unwrap_or_default());
+            out.push(']');
+        }
+    }
+    out
+}
+
+fn render_ts(schema: Option<&Value>, pretty: bool, depth: usize) -> String {
+    let Some(schema) = schema else {
+        return "unknown".to_string();
+    };
+    if let Some(any) = schema.get("anyOf").and_then(Value::as_array) {
+        let members: Vec<String> = any
+            .iter()
+            .map(|member| render_ts(Some(member), pretty, depth + 1))
+            .collect();
+        return members.join(" | ");
+    }
+    if let Some(types) = schema.get("type").and_then(Value::as_array) {
+        return types
+            .iter()
+            .map(|t| render_ts(Some(&json!({ "type": t })), pretty, depth + 1))
+            .collect::<Vec<_>>()
+            .join(" | ");
+    }
+    match schema.get("type").and_then(Value::as_str) {
+        Some("string") => "string".to_string(),
+        Some("number") | Some("integer") => "number".to_string(),
+        Some("boolean") => "boolean".to_string(),
+        Some("null") => "null".to_string(),
+        Some("array") => format!(
+            "Array<{}>",
+            render_ts(schema.get("items"), pretty, depth + 1)
+        ),
+        _ => {
+            let Some(properties) = schema.get("properties").and_then(Value::as_object) else {
+                return "unknown".to_string();
+            };
+            let required: Vec<&str> = schema
+                .get("required")
+                .and_then(Value::as_array)
+                .map(|items| items.iter().filter_map(Value::as_str).collect())
+                .unwrap_or_default();
+            if properties.is_empty() {
+                return "{}".to_string();
+            }
+            if !pretty {
+                let fields: Vec<String> = properties
+                    .iter()
+                    .map(|(name, value)| {
+                        let optional = if required.contains(&name.as_str()) {
+                            ""
+                        } else {
+                            "?"
+                        };
+                        format!(
+                            "{name}{optional}: {}",
+                            render_ts(Some(value), pretty, depth + 1)
+                        )
+                    })
+                    .collect();
+                return format!("{{ {} }}", fields.join("; "));
+            }
+            let pad = "  ".repeat(depth + 1);
+            let mut lines = Vec::new();
+            for (name, value) in properties {
+                if let Some(description) = value.get("description").and_then(Value::as_str) {
+                    lines.push(format!("{pad}/** {description} */"));
+                }
+                let optional = if required.contains(&name.as_str()) {
+                    ""
+                } else {
+                    "?"
+                };
+                lines.push(format!(
+                    "{pad}{name}{optional}: {},",
+                    render_ts(Some(value), pretty, depth + 1)
+                ));
+            }
+            format!("{{\n{}\n{}}}", lines.join("\n"), "  ".repeat(depth))
+        }
+    }
+}
+
+fn group_tools(tools: &[CatalogTool], servers: &[String]) -> Vec<(String, Vec<ToolDescription>)> {
+    let mut sorted_servers: Vec<&String> = servers.iter().collect();
+    sorted_servers.sort_by_key(|server| std::cmp::Reverse(server.len()));
+    let mut keys: Vec<&CatalogTool> = tools.iter().collect();
+    keys.sort_by(|a, b| a.key.cmp(&b.key));
+    let mut groups: Vec<(String, Vec<ToolDescription>)> = Vec::new();
+    for tool in keys {
+        let server = sorted_servers
+            .iter()
+            .find(|name| tool.key.starts_with(&format!("{name}_")))
+            .map(|name| name.to_string())
+            .unwrap_or_else(|| tool.key.split('_').next().unwrap_or(&tool.key).to_string());
+        let local = tool
+            .key
+            .strip_prefix(&format!("{server}_"))
+            .unwrap_or(&tool.key)
+            .to_string();
+        let path = format!("{server}.{local}");
+        let signature = format!(
+            "{}(input: {}): Promise<{}>",
+            path_expression(&path),
+            render_ts(Some(&tool.input_schema), true, 0),
+            render_ts(tool.output_schema.as_ref(), true, 0)
+        );
+        let description = ToolDescription {
+            path,
+            description: tool.description.clone(),
+            signature,
+        };
+        match groups.iter_mut().find(|(name, _)| name == &server) {
+            Some((_, group)) => group.push(description),
+            None => groups.push((server, vec![description])),
+        }
+    }
+    groups.sort_by(|a, b| a.0.cmp(&b.0));
+    groups
+}
+
+fn catalog_line(tool: &ToolDescription) -> String {
+    let line = tool.description.split('\n').next().unwrap_or("").trim();
+    let description = if line.chars().count() > 120 {
+        format!("{}...", line.chars().take(119).collect::<String>())
+    } else {
+        line.to_string()
+    };
+    if description.is_empty() {
+        format!("  - {}", tool.signature)
+    } else {
+        format!("  - {} // {}", tool.signature, description)
+    }
+}
+
+fn catalog_cost(tool: &ToolDescription) -> i64 {
+    (catalog_line(tool).len() as f64 / 4.0).round() as i64
+}
+
+fn search_signature() -> &'static str {
+    "tools.$codemode.search(input: {\n  query?: string,\n  namespace?: string,\n  limit?: number,\n  offset?: number,\n}): Promise<{\n  items: Array<{\n      path: string,\n      description: string,\n      signature: string,\n    }>,\n  remaining: number,\n  next: {\n      offset: number,\n    } | null,\n}>"
+}
+
+fn describe_catalog(tools: &[CatalogTool], servers: &[String]) -> Result<String> {
+    let groups = group_tools(tools, servers);
+    let described: usize = groups.iter().map(|(_, group)| group.len()).sum();
+
+    let budget: i64 = 2000;
+    #[allow(clippy::type_complexity)]
+    let mut selections: Vec<(String, Vec<ToolDescription>, Vec<bool>, Vec<usize>)> = groups
+        .into_iter()
+        .map(|(namespace, group)| {
+            let mut queue: Vec<usize> = (0..group.len()).collect();
+            queue.sort_by(|&a, &b| {
+                catalog_cost(&group[a])
+                    .cmp(&catalog_cost(&group[b]))
+                    .then(group[a].path.cmp(&group[b].path))
+            });
+            let picked = vec![false; group.len()];
+            (namespace, group, picked, queue)
+        })
+        .collect();
+
+    let mut used: i64 = 0;
+    let mut active: Vec<usize> = (0..selections.len())
+        .filter(|&i| !selections[i].3.is_empty())
+        .collect();
+    while !active.is_empty() {
+        let mut still: Vec<usize> = Vec::new();
+        for &i in &active {
+            let next = selections[i].3[0];
+            let cost = catalog_cost(&selections[i].1[next]);
+            if used + cost > budget {
+                continue;
+            }
+            selections[i].3.remove(0);
+            selections[i].2[next] = true;
+            used += cost;
+            if !selections[i].3.is_empty() {
+                still.push(i);
+            }
+        }
+        active = still;
+    }
+    let total_shown: usize = selections
+        .iter()
+        .map(|(_, _, picked, _)| picked.iter().filter(|p| **p).count())
+        .sum();
+    let complete = total_shown == described;
+    let empty = described == 0;
+
+    let mut lines: Vec<String> = Vec::new();
+    lines.push(if empty {
+        "This is a restricted JavaScript language for calling tools, not a general-purpose runtime.".to_string()
+    } else if complete {
+        "This is a restricted JavaScript language for calling tools, not a general-purpose runtime. Inside the confined interpreter, `tools` contains the Code Mode tools listed below and internal runtime tools; surrounding agent tools are not available.".to_string()
+    } else {
+        "This is a restricted JavaScript language for calling tools, not a general-purpose runtime. Inside the confined interpreter, `tools` contains the Code Mode tools listed or searchable below and internal runtime tools; surrounding agent tools are not available.".to_string()
+    });
+    if !empty {
+        lines.push("Do not infer or normalize tool names; use only exact signatures shown below or returned by search.".to_string());
+    }
+
+    if !empty {
+        lines.push(String::new());
+        lines.push("## Workflow".to_string());
+        lines.push(String::new());
+        if complete {
+            lines.push("1. Pick a tool from the list under `## Available tools` - each line is the exact call signature; use it as-is rather than guessing segments.".to_string());
+            lines.push("2. Call it using the exact signature shown: `const result = await tools.<namespace>.<tool>(input)`; bracket notation and quotes are part of the path.".to_string());
+            lines.push("3. Return only the fields you need from structured results; narrow unknown results before reading fields, and avoid returning large raw payloads.".to_string());
+        } else {
+            lines.push("1. If needed, discover tools: `return await tools.$codemode.search({ query: \"<intent + key nouns>\" })`.".to_string());
+            lines.push("2. In the next execution, copy a returned path exactly, call it, and return only the needed fields.".to_string());
+        }
+
+        lines.push(String::new());
+        lines.push("## Rules".to_string());
+        lines.push(String::new());
+        lines.push(if complete {
+            "- Only Code Mode tools listed here and internal runtime tools are available; surrounding agent tools are not implicitly exposed.".to_string()
+        } else {
+            "- Only Code Mode tools listed here or returned by `tools.$codemode.search` and internal runtime tools are available; surrounding agent tools are not implicitly exposed.".to_string()
+        });
+        lines.push("- Filter, aggregate, and transform collections in code - never return them raw or call a tool per item across messages.".to_string());
+        lines.push("- A result typed `Promise<unknown>` may be structured data or text. Before reading fields, check that it is a non-null object and not an array; otherwise handle the returned text or primitive directly.".to_string());
+        lines.push("- Run independent calls in parallel: `await Promise.all(items.map((item) => tools.<namespace>.<tool>(item)))`, or use `tools.<namespace>[\"tool-name\"](item)` when the listed signature uses bracket notation.".to_string());
+        lines.push("- `Object.keys(tools)` lists namespaces; `Object.keys(tools.<namespace>)` lists its tools; `for...in` works on both.".to_string());
+        if !complete {
+            lines.push("- Browse one namespace: `await tools.$codemode.search({ query: \"\", namespace: \"<name>\" })`.".to_string());
+            lines.push(
+                "- If search returns `next`, repeat the same search with `offset: next.offset`."
+                    .to_string(),
+            );
+        }
+
+        lines.push(String::new());
+        lines.push("## Language".to_string());
+        lines.push(String::new());
+        lines.push("Use common JavaScript data operations, functions, control flow, selected standard-library methods, and awaited tool calls. Built-ins include Date, RegExp, Map, Set, URL, URLSearchParams, and URI encoding helpers.".to_string());
+        lines.push("Modules/imports, classes, generators, timers, fetch, eval, prototype access, unlisted methods, and promise chaining are unavailable. Use Code Mode tools for external operations. Use await with try/catch.".to_string());
+        lines.push("Dates and URLs serialize to strings at data boundaries; Map/Set/RegExp/URLSearchParams serialize to `{}`.".to_string());
+    }
+
+    lines.push(String::new());
+    if empty {
+        lines.push("## Available tools".to_string());
+        lines.push(String::new());
+        lines.push("No tools are currently available.".to_string());
+    } else {
+        if complete {
+            lines.push("## Available tools (COMPLETE list - every tool is shown below with its full call signature)".to_string());
+        } else {
+            lines.push(format!(
+                "## Available tools (PARTIAL - {total_shown} of {described} shown; find the rest with tools.$codemode.search)"
+            ));
+        }
+        lines.push(String::new());
+        for (namespace, group, picked, _) in &selections {
+            let count = group.len();
+            let noun = if count == 1 { "tool" } else { "tools" };
+            let shown = picked.iter().filter(|p| **p).count();
+            let label = if shown == count {
+                format!("{count} {noun}")
+            } else if shown == 0 {
+                format!("{count} {noun}, none shown")
+            } else {
+                format!("{count} {noun}, {shown} shown")
+            };
+            lines.push(format!("- {namespace} ({label})"));
+            for (index, tool) in group.iter().enumerate() {
+                if picked[index] {
+                    lines.push(catalog_line(tool));
+                }
+            }
+        }
+        if !complete {
+            lines.push(String::new());
+            lines.push("Search returns complete callable signatures:".to_string());
+            lines.push(format!("- {}", search_signature()));
+        }
+    }
+
+    Ok(lines.join("\n"))
 }
 
 fn describe_for(
@@ -126,16 +451,91 @@ fn describe_for(
     describe_catalog(&visible, servers)
 }
 
-fn project_mcp_result(_blocks: &[McpBlock], _structured: Option<Value>) -> Result<Projected> {
-    Err(CodeModeError::NotImplemented(
-        "code-mode MCP result projection",
-    ))
+fn last_segment(uri: &str) -> Option<String> {
+    let trimmed = uri
+        .split(['?', '#'])
+        .next()
+        .unwrap_or(uri)
+        .trim_end_matches('/');
+    let segment = trimmed.rsplit('/').next().unwrap_or("");
+    if segment.is_empty() {
+        None
+    } else {
+        Some(segment.to_string())
+    }
 }
 
-fn metadata_input(_input: &Value) -> Result<Option<Value>> {
-    Err(CodeModeError::NotImplemented(
-        "code-mode tool-call metadata input",
-    ))
+fn project_mcp_result(blocks: &[McpBlock], structured: Option<Value>) -> Result<Projected> {
+    if let Some(value) = structured {
+        return Ok(Projected {
+            value,
+            attachments: Vec::new(),
+        });
+    }
+    let mut text: Vec<String> = Vec::new();
+    let mut attachments: Vec<Value> = Vec::new();
+    let mut files = 0usize;
+    let mut images = 0usize;
+    #[allow(unused_mut)]
+    let mut push = |attachments: &mut Vec<Value>,
+                    files: &mut usize,
+                    images: &mut usize,
+                    mime: &str,
+                    url: String,
+                    filename: Option<&str>| {
+        *files += 1;
+        if mime.starts_with("image/") {
+            *images += 1;
+        }
+        attachments.push(attachment(mime, &url, filename));
+    };
+    for block in blocks {
+        match block {
+            McpBlock::Text(value) => text.push(value.clone()),
+            McpBlock::Image { data, mime } => {
+                let url = format!("data:{mime};base64,{data}");
+                push(&mut attachments, &mut files, &mut images, mime, url, None);
+            }
+            McpBlock::Resource { uri, mime, blob } => {
+                let mime = mime
+                    .clone()
+                    .unwrap_or_else(|| "application/octet-stream".to_string());
+                let url = format!("data:{mime};base64,{blob}");
+                let filename = last_segment(uri);
+                push(
+                    &mut attachments,
+                    &mut files,
+                    &mut images,
+                    &mime,
+                    url,
+                    filename.as_deref(),
+                );
+            }
+            McpBlock::ResourceLink { uri, name } => {
+                text.push(format!("{name}: {uri}"));
+            }
+        }
+    }
+    let value = if !text.is_empty() {
+        Value::String(text.join("\n"))
+    } else if files > 0 {
+        let noun = if files == images { "image" } else { "file" };
+        Value::String(format!(
+            "[{files} {noun}{} attached to the result]",
+            if files == 1 { "" } else { "s" }
+        ))
+    } else {
+        Value::Null
+    };
+    Ok(Projected { value, attachments })
+}
+
+fn metadata_input(input: &Value) -> Result<Option<Value>> {
+    match input {
+        Value::Object(map) if map.is_empty() => Ok(None),
+        Value::Object(_) => Ok(Some(input.clone())),
+        _ => Ok(Some(json!({ "input": input.clone() }))),
+    }
 }
 
 fn tool(key: &str, description: &str) -> CatalogTool {
@@ -155,7 +555,6 @@ fn attachment(mime: &str, url: &str, filename: Option<&str>) -> Value {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn parameters_require_code_with_description() {
     assert_eq!(
         validate_parameters(&json!({ "code": "return 1" })).expect("code-mode ported"),
@@ -173,7 +572,6 @@ fn parameters_require_code_with_description() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn groups_multi_underscore_server_by_longest_prefix() {
     let description = describe_for(
         &[tool("my_server_do_thing", "do thing")],
@@ -186,7 +584,6 @@ fn groups_multi_underscore_server_by_longest_prefix() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn group_by_server_uses_whole_key_when_no_underscore() {
     let description =
         describe_for(&[tool("standalone", "standalone")], &[], &[]).expect("code-mode ported");
@@ -195,7 +592,6 @@ fn group_by_server_uses_whole_key_when_no_underscore() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn catalog_carries_raw_mcp_schemas() {
     let description = describe_for(
         &[CatalogTool::new(
@@ -214,7 +610,6 @@ fn catalog_carries_raw_mcp_schemas() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn static_base_description_carries_no_catalog() {
     assert_eq!(
         base_description(),
@@ -225,7 +620,6 @@ fn static_base_description_carries_no_catalog() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn small_catalog_inlines_every_full_signature() {
     let tools = vec![
         CatalogTool::new(
@@ -264,7 +658,6 @@ fn small_catalog_inlines_every_full_signature() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn signatures_render_declared_output_schema_as_return_type() {
     let description = describe_for(
         &[CatalogTool::new(
@@ -287,7 +680,6 @@ fn signatures_render_declared_output_schema_as_return_type() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn large_catalogs_inline_budgeted_partial_list_plus_search() {
     let mut tools = Vec::new();
     let filler =
@@ -336,7 +728,6 @@ fn large_catalogs_inline_budgeted_partial_list_plus_search() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn hard_denied_tool_never_enters_the_catalog() {
     let tools = vec![
         tool("github_create_issue", "create_issue"),
@@ -354,7 +745,6 @@ fn hard_denied_tool_never_enters_the_catalog() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn ask_level_tool_stays_fully_visible() {
     let tools = vec![
         tool("github_create_issue", "create_issue"),
@@ -372,7 +762,6 @@ fn ask_level_tool_stays_fully_visible() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn visible_tools_hides_only_hard_denies() {
     let tools = vec![
         tool("a_tool", "a"),
@@ -395,7 +784,6 @@ fn visible_tools_hides_only_hard_denies() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn structured_content_is_exposed_natively() {
     let projected = project_mcp_result(
         &[McpBlock::Text("ignored".to_string())],
@@ -407,7 +795,6 @@ fn structured_content_is_exposed_natively() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn media_only_result_returns_a_marker() {
     let projected = project_mcp_result(
         &[McpBlock::Image {
@@ -429,7 +816,6 @@ fn media_only_result_returns_a_marker() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn media_only_markers_distinguish_images_from_mixed_files() {
     let images = project_mcp_result(
         &[
@@ -477,7 +863,6 @@ fn media_only_markers_distinguish_images_from_mixed_files() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn resource_links_flow_to_the_program_as_text() {
     let projected = project_mcp_result(
         &[
@@ -501,7 +886,6 @@ fn resource_links_flow_to_the_program_as_text() {
 }
 
 #[test]
-#[ignore = "porting: code-mode not implemented"]
 fn empty_object_input_is_omitted_from_call_metadata() {
     assert_eq!(metadata_input(&json!({})).expect("code-mode ported"), None);
     assert_eq!(

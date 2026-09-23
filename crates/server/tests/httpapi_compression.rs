@@ -37,7 +37,6 @@ fn get_with_encoding(uri: &str, encoding: Option<&str>) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: compression middleware not implemented"]
 async fn gzips_json_when_accept_encoding_includes_gzip_and_body_exceeds_threshold() {
     let _ = fat_config();
     let app = router(AppState::new());
@@ -48,7 +47,6 @@ async fn gzips_json_when_accept_encoding_includes_gzip_and_body_exceeds_threshol
 }
 
 #[tokio::test]
-#[ignore = "porting: compression middleware not implemented"]
 async fn uses_deflate_when_only_deflate_is_acceptable() {
     let _ = fat_config();
     let app = router(AppState::new());
@@ -59,7 +57,6 @@ async fn uses_deflate_when_only_deflate_is_acceptable() {
 }
 
 #[tokio::test]
-#[ignore = "porting: compression middleware not implemented"]
 async fn prefers_gzip_when_both_gzip_and_deflate_are_acceptable() {
     let _ = fat_config();
     let app = router(AppState::new());
@@ -69,7 +66,6 @@ async fn prefers_gzip_when_both_gzip_and_deflate_are_acceptable() {
 }
 
 #[tokio::test]
-#[ignore = "porting: compression middleware not implemented"]
 async fn skips_when_no_accept_encoding_header_is_present() {
     let _ = fat_config();
     let app = router(AppState::new());
@@ -79,7 +75,6 @@ async fn skips_when_no_accept_encoding_header_is_present() {
 }
 
 #[tokio::test]
-#[ignore = "porting: compression middleware not implemented"]
 async fn skips_when_accept_encoding_only_allows_unsupported_encodings() {
     let _ = fat_config();
     let app = router(AppState::new());
@@ -89,7 +84,6 @@ async fn skips_when_accept_encoding_only_allows_unsupported_encodings() {
 }
 
 #[tokio::test]
-#[ignore = "porting: compression middleware not implemented"]
 async fn skips_head_requests() {
     let _ = fat_config();
     let app = router(AppState::new());
@@ -113,7 +107,6 @@ async fn event_sse_is_not_compressed() {
 }
 
 #[tokio::test]
-#[ignore = "porting: global event route not implemented"]
 async fn global_event_sse_is_not_compressed() {
     let app = router(AppState::new());
     let res = send(&app, get_with_encoding("/global/event", Some("gzip"))).await;

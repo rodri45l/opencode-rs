@@ -26,7 +26,6 @@ fn first_prompt(api_id: &str) -> String {
 }
 
 #[test]
-#[ignore = "porting: session.system not implemented"]
 fn selects_the_meta_prompt_for_muse_spark_model_ids() {
     for id in [
         "meta/muse-spark-preview",
@@ -41,7 +40,6 @@ fn selects_the_meta_prompt_for_muse_spark_model_ids() {
 }
 
 #[test]
-#[ignore = "porting: session.system not implemented"]
 fn selects_the_meta_prompt_for_muse_glimmer_model_ids() {
     for id in [
         "meta/muse-glimmer",
@@ -56,7 +54,6 @@ fn selects_the_meta_prompt_for_muse_glimmer_model_ids() {
 }
 
 #[test]
-#[ignore = "porting: session.system not implemented"]
 fn selects_the_kimi_prompt_for_official_provider_model_ids() {
     for provider_id in ["kimi-for-coding", "moonshotai", "moonshotai-cn"] {
         let _ = provider_id;
@@ -66,7 +63,6 @@ fn selects_the_kimi_prompt_for_official_provider_model_ids() {
 }
 
 #[test]
-#[ignore = "porting: session.system not implemented"]
 fn skills_output_is_sorted_by_name_and_stable_across_calls() -> Result<(), CoreError> {
     let prompt = SystemPrompt::new();
     let agent = build_agent();
@@ -90,7 +86,6 @@ fn skills_output_is_sorted_by_name_and_stable_across_calls() -> Result<(), CoreE
 }
 
 #[test]
-#[ignore = "porting: session.system not implemented"]
 fn mcp_output_includes_connected_server_instructions() -> Result<(), CoreError> {
     let prompt = SystemPrompt::new();
     let output = prompt.mcp(&build_agent(), &Ruleset::new())?;
@@ -113,7 +108,6 @@ fn mcp_output_includes_connected_server_instructions() -> Result<(), CoreError> 
 }
 
 #[test]
-#[ignore = "porting: session.system not implemented"]
 fn mcp_output_omits_servers_when_all_advertised_tools_are_denied() -> Result<(), CoreError> {
     let prompt = SystemPrompt::new();
     let permission = from_config(&serde_json::json!({ "tool-server_*": "deny" }));

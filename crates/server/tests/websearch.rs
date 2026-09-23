@@ -20,7 +20,6 @@ fn no_flags() -> WebSearchFlags {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn selects_a_stable_provider_per_session() {
     let _guard = ENV_LOCK.lock().expect("env lock");
     assert_eq!(
@@ -30,7 +29,6 @@ fn selects_a_stable_provider_per_session() {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn supports_an_operational_override() {
     let _guard = ENV_LOCK.lock().expect("env lock");
     let original = std::env::var("OPENCODE_WEBSEARCH_PROVIDER").ok();
@@ -51,7 +49,6 @@ fn supports_an_operational_override() {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn routes_to_exa_when_the_exa_flag_is_enabled() {
     let _guard = ENV_LOCK.lock().expect("env lock");
     assert_eq!(
@@ -67,7 +64,6 @@ fn routes_to_exa_when_the_exa_flag_is_enabled() {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn routes_to_parallel_when_the_parallel_flag_is_enabled() {
     let _guard = ENV_LOCK.lock().expect("env lock");
     assert_eq!(
@@ -83,7 +79,6 @@ fn routes_to_parallel_when_the_parallel_flag_is_enabled() {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn is_enabled_for_opencode_providers_or_explicit_flags() {
     assert!(web_search_enabled("opencode", no_flags()));
     assert!(web_search_enabled("opencode-go", no_flags()));
@@ -105,7 +100,6 @@ fn is_enabled_for_opencode_providers_or_explicit_flags() {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn uses_branded_labels() {
     assert_eq!(
         web_search_provider_label(Some("parallel")),
@@ -116,7 +110,6 @@ fn uses_branded_labels() {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn uses_the_provider_api_model_id_for_analytics() {
     assert_eq!(web_search_model_name("claude-opus-4.7"), "claude-opus-4.7");
 }
@@ -133,7 +126,6 @@ fn payload() -> String {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn parses_plain_json_rpc_responses() -> Result<(), ToolError> {
     let result = parse_response(&payload())?;
     assert_eq!(result, "search results");
@@ -141,7 +133,6 @@ fn parses_plain_json_rpc_responses() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn parses_sse_json_rpc_responses() -> Result<(), ToolError> {
     let result = parse_response(&format!("event: message\ndata: {}\n\n", payload()))?;
     assert_eq!(result, "search results");
@@ -149,7 +140,6 @@ fn parses_sse_json_rpc_responses() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.websearch not implemented"]
 fn ignores_non_json_sse_data_frames() -> Result<(), ToolError> {
     let result = parse_response(&format!("data: [DONE]\ndata: {}\n\n", payload()))?;
     assert_eq!(result, "search results");

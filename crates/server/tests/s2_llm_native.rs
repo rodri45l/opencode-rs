@@ -15,12 +15,14 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum S2Error {
     NotImplemented(&'static str),
+    Unsupported(String),
 }
 
 impl std::fmt::Display for S2Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             S2Error::NotImplemented(what) => write!(f, "not implemented: {what}"),
+            S2Error::Unsupported(message) => write!(f, "{message}"),
         }
     }
 }
@@ -33,8 +35,23 @@ struct Route {
     base_url: String,
 }
 
-fn native_model(_npm: &str, _url: &str) -> Result<Route, S2Error> {
-    Err(S2Error::NotImplemented("LLMNative.model"))
+fn native_model(npm: &str, url: &str) -> Result<Route, S2Error> {
+    let route = match npm {
+        "@ai-sdk/openai" => ("openai-responses", "https://api.openai.com/v1"),
+        "@ai-sdk/anthropic" => ("anthropic-messages", "https://api.anthropic.com/v1"),
+        "@ai-sdk/google" => ("gemini", "https://generativelanguage.googleapis.com/v1beta"),
+        "@ai-sdk/openai-compatible" => ("openai-compatible-chat", url),
+        "@openrouter/ai-sdk-provider" => ("openrouter", "https://openrouter.ai/api/v1"),
+        other => {
+            return Err(S2Error::Unsupported(format!(
+                "Native LLM request adapter does not support provider package {other}"
+            )));
+        }
+    };
+    Ok(Route {
+        id: route.0.to_string(),
+        base_url: route.1.to_string(),
+    })
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,11 +82,52 @@ enum Auth {
 }
 
 fn runtime_status(
-    _model: &RuntimeModel,
-    _provider: &RuntimeProvider,
-    _auth: &Auth,
+    model: &RuntimeModel,
+    provider: &RuntimeProvider,
+    auth: &Auth,
 ) -> Result<RuntimeStatus, S2Error> {
-    Err(S2Error::NotImplemented("LLMNativeRuntime.status"))
+    if !matches!(provider.id.as_str(), "openai" | "opencode" | "anthropic") {
+        return Ok(RuntimeStatus::Unsupported {
+            reason: "provider is not openai, opencode, or anthropic".to_string(),
+        });
+    }
+    if !matches!(
+        model.npm.as_str(),
+        "@ai-sdk/openai" | "@ai-sdk/openai-compatible" | "@ai-sdk/anthropic"
+    ) {
+        return Ok(RuntimeStatus::Unsupported {
+            reason: "provider package is not OpenAI, OpenAI-compatible, or Anthropic".to_string(),
+        });
+    }
+    match auth {
+        Auth::Oauth => {
+            if provider.has_fetch_override {
+                Ok(RuntimeStatus::Supported {
+                    api_key: "opencode-oauth".to_string(),
+                })
+            } else {
+                Ok(RuntimeStatus::Unsupported {
+                    reason: "OAuth auth requires a provider fetch override".to_string(),
+                })
+            }
+        }
+        _ => {
+            let api_key = provider
+                .options_api_key
+                .clone()
+                .or_else(|| provider.key.clone())
+                .or_else(|| match auth {
+                    Auth::Api { key } => Some(key.clone()),
+                    _ => None,
+                });
+            match api_key {
+                Some(api_key) => Ok(RuntimeStatus::Supported { api_key }),
+                None => Ok(RuntimeStatus::Unsupported {
+                    reason: "API key is not configured".to_string(),
+                }),
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -147,12 +205,39 @@ struct RequestInput {
     tool_choice: Option<String>,
 }
 
-fn native_request(_input: &RequestInput) -> Result<RequestProjection, S2Error> {
-    Err(S2Error::NotImplemented("LLMNative.request"))
+fn native_request(input: &RequestInput) -> Result<RequestProjection, S2Error> {
+    let mut system = input.system.clone();
+    for message in &input.messages {
+        if message.role == "system" {
+            for part in &message.content {
+                if let NativePart::Text { text, .. } = part {
+                    system.push(text.clone());
+                }
+            }
+        }
+    }
+    let messages: Vec<NativeMessage> = input
+        .messages
+        .iter()
+        .filter(|message| message.role != "system")
+        .cloned()
+        .collect();
+    Ok(RequestProjection {
+        system,
+        generation: Generation {
+            temperature: input.temperature.clone(),
+            top_p: input.top_p.clone(),
+            top_k: input.top_k,
+            max_tokens: input.max_output_tokens,
+        },
+        provider_options: input.provider_options.clone(),
+        tool_choice: input.tool_choice.clone(),
+        tools: input.tools.clone(),
+        messages,
+    })
 }
 
 #[test]
-#[ignore = "porting: LLMNative.model not implemented"]
 fn selects_native_request_routes_for_provider_packages() {
     let openai = native_model("@ai-sdk/openai", "").expect("openai route");
     assert_eq!(openai.id, "openai-responses");
@@ -180,7 +265,6 @@ fn selects_native_request_routes_for_provider_packages() {
 }
 
 #[test]
-#[ignore = "porting: LLMNative.model not implemented"]
 fn fails_fast_for_unsupported_provider_packages() {
     let error = native_model("unknown-provider", "").expect_err("unsupported");
     assert!(error
@@ -205,7 +289,6 @@ fn openai_provider(api_key: Option<&str>) -> RuntimeProvider {
 }
 
 #[test]
-#[ignore = "porting: LLMNativeRuntime.status not implemented"]
 fn enables_native_runtime_for_supported_openai_api_key_models() {
     assert_eq!(
         runtime_status(
@@ -247,7 +330,6 @@ fn enables_native_runtime_for_supported_openai_api_key_models() {
 }
 
 #[test]
-#[ignore = "porting: LLMNativeRuntime.status not implemented"]
 fn reports_unsupported_reasons_for_native_runtime() {
     let google = RuntimeModel {
         provider_id: "google".to_string(),
@@ -307,7 +389,6 @@ fn reports_unsupported_reasons_for_native_runtime() {
 }
 
 #[test]
-#[ignore = "porting: LLMNativeRuntime.status not implemented"]
 fn enables_native_runtime_for_anthropic_api_key_models() {
     let anthropic = RuntimeModel {
         provider_id: "anthropic".to_string(),
@@ -328,7 +409,6 @@ fn enables_native_runtime_for_anthropic_api_key_models() {
 }
 
 #[test]
-#[ignore = "porting: LLMNativeRuntime.status not implemented"]
 fn prefers_console_provider_api_key_over_stored_auth() {
     let provider = RuntimeProvider {
         id: "opencode".to_string(),
@@ -365,13 +445,19 @@ fn prefers_console_provider_api_key_over_stored_auth() {
 }
 
 #[test]
-#[ignore = "porting: LLMNative.request not implemented"]
 fn maps_normalized_stream_inputs_to_a_native_llm_request() {
     let input = RequestInput {
         npm: "@ai-sdk/openai".to_string(),
         url: "https://api.openai.com/v1".to_string(),
         system: vec!["agent system".to_string()],
         messages: vec![
+            NativeMessage {
+                role: "system".to_string(),
+                content: vec![NativePart::Text {
+                    text: "system from messages".to_string(),
+                    provider_metadata: None,
+                }],
+            },
             NativeMessage {
                 role: "user".to_string(),
                 content: vec![
@@ -459,5 +545,11 @@ fn maps_normalized_stream_inputs_to_a_native_llm_request() {
     );
     assert_eq!(request.tool_choice.as_deref(), Some("required"));
     assert_eq!(request.tools, input.tools);
-    assert_eq!(request.messages, input.messages);
+    let expected_messages: Vec<NativeMessage> = input
+        .messages
+        .iter()
+        .filter(|message| message.role != "system")
+        .cloned()
+        .collect();
+    assert_eq!(request.messages, expected_messages);
 }

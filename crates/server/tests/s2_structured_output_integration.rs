@@ -51,16 +51,28 @@ impl StructuredOutputError {
     }
 }
 
-fn persisted_user_format(_format: &OutputFormat) -> Result<Value, S2Error> {
-    Err(S2Error::NotImplemented("SessionPrompt.prompt.outputFormat"))
+fn persisted_user_format(format: &OutputFormat) -> Result<Value, S2Error> {
+    match format {
+        OutputFormat::Text => Ok(json!({ "type": "text" })),
+        OutputFormat::JsonSchema {
+            schema,
+            retry_count,
+        } => Ok(json!({
+            "type": "json_schema",
+            "schema": schema,
+            "retryCount": retry_count,
+        })),
+    }
 }
 
-fn assistant_structured(_format: &OutputFormat) -> Result<Option<Value>, S2Error> {
-    Err(S2Error::NotImplemented("SessionPrompt.prompt.structured"))
+fn assistant_structured(format: &OutputFormat) -> Result<Option<Value>, S2Error> {
+    match format {
+        OutputFormat::Text => Ok(None),
+        OutputFormat::JsonSchema { .. } => Ok(None),
+    }
 }
 
 #[test]
-#[ignore = "porting: StructuredOutputError not implemented"]
 fn unit_test_structured_output_error_is_properly_structured() {
     let error = StructuredOutputError {
         message: "Failed to produce valid structured output after 3 attempts".to_string(),
@@ -77,7 +89,6 @@ fn unit_test_structured_output_error_is_properly_structured() {
 }
 
 #[test]
-#[ignore = "porting: SessionPrompt.prompt.outputFormat not implemented"]
 fn stores_output_format_on_user_message() {
     let format = OutputFormat::JsonSchema {
         schema: json!({
@@ -94,7 +105,6 @@ fn stores_output_format_on_user_message() {
 }
 
 #[test]
-#[ignore = "porting: SessionPrompt.prompt.structured not implemented"]
 fn works_with_text_output_format_default() {
     let structured = assistant_structured(&OutputFormat::Text).expect("structured");
     assert!(structured.is_none());

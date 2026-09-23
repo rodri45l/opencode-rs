@@ -49,7 +49,6 @@ fn decodes_event_v2_location_refs_without_resolved_project_metadata() {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 command/skill location routes not implemented"]
 async fn returns_command_and_skill_snapshots_with_resolved_locations() {
     let dir = "/tmp/opencode-v2-location-port";
     let app = router(AppState::new());
@@ -75,7 +74,6 @@ async fn returns_command_and_skill_snapshots_with_resolved_locations() {
 }
 
 #[tokio::test]
-#[ignore = "porting: v2 event location streaming not implemented"]
 async fn streams_native_event_v2_payloads_across_locations() {
     let subscriber = "/tmp/opencode-v2-location-subscriber";
     let publisher = "/tmp/opencode-v2-location-publisher";

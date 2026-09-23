@@ -5,50 +5,14 @@
 //! and intersections preserved, and cyclic/deep schemas staying total.
 //! Re-derived: Effect `Schema.Struct` inputs are represented as the JSON Schema they
 //! emit; the `$codemode.search`/`instructions` cases run through `CodeMode::execute`.
-//! Red-first: the schema renderer and interpreter are not implemented.
+//! The schema renderer is implemented; the two search cases remain red until the
+//! interpreter lands.
 
-#[allow(dead_code)]
-mod tool_schema {
-    use serde_json::Value;
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: code-mode tool schema rendering not implemented";
-
-    #[derive(Debug, Clone)]
-    pub struct Tool {
-        pub input: Value,
-        pub output: Option<Value>,
-    }
-
-    pub fn json_schema_to_type_script(_schema: &Value, _pretty: bool) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn input_type_script(_tool: &Tool, _pretty: bool) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn output_type_script(_tool: &Tool, _pretty: bool) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
+use opencode_codemode::tool_schema::{
+    input_type_script, json_schema_to_type_script, output_type_script, Tool,
+};
 use opencode_codemode::{CodeMode, CodeModeResult};
 use serde_json::{json, Value};
-use tool_schema::{input_type_script, json_schema_to_type_script, output_type_script, Tool, NOTE};
 
 const INTERP_NOTE: &str = "porting: code-mode interpreter not implemented";
 
@@ -98,7 +62,6 @@ fn lookup_order() -> Tool {
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn described_fields_get_jsdoc_comments_undescribed_and_untagged_fields_get_none() {
     let expected = [
         "{",
@@ -121,31 +84,26 @@ fn described_fields_get_jsdoc_comments_undescribed_and_untagged_fields_get_none(
         "}",
     ]
     .join("\n");
-    assert_eq!(
-        input_type_script(&list_issues(), true).expect(NOTE),
-        expected
-    );
+    assert_eq!(input_type_script(&list_issues(), true), expected);
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn compact_mode_output_is_unchanged_by_the_pretty_machinery() {
     assert_eq!(
-        input_type_script(&list_issues(), false).expect(NOTE),
+        input_type_script(&list_issues(), false),
         "{ owner: string; after?: string; perPage?: number; labels?: Array<string>; state?: \"open\" | \"closed\" }"
     );
     assert_eq!(
-        input_type_script(&lookup_order(), false).expect(NOTE),
+        input_type_script(&lookup_order(), false),
         "{ id: string; verbose?: boolean }"
     );
     assert_eq!(
-        output_type_script(&lookup_order(), false).expect(NOTE),
+        output_type_script(&lookup_order(), false),
         "{ status: string }"
     );
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn nested_objects_recurse_with_increasing_indent_and_their_own_jsdoc() {
     let schema = json!({
         "type": "object",
@@ -167,17 +125,13 @@ fn nested_objects_recurse_with_increasing_indent_and_their_own_jsdoc() {
         "}",
     ]
     .join("\n");
-    assert_eq!(
-        json_schema_to_type_script(&schema, true).expect(NOTE),
-        expected
-    );
+    assert_eq!(json_schema_to_type_script(&schema, true), expected);
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn effect_schema_annotations_become_jsdoc_on_input_and_output_fields() {
     assert_eq!(
-        input_type_script(&lookup_order(), true).expect(NOTE),
+        input_type_script(&lookup_order(), true),
         [
             "{",
             "  /** Order identifier */",
@@ -188,7 +142,7 @@ fn effect_schema_annotations_become_jsdoc_on_input_and_output_fields() {
         .join("\n")
     );
     assert_eq!(
-        output_type_script(&lookup_order(), true).expect(NOTE),
+        output_type_script(&lookup_order(), true),
         [
             "{",
             "  /** Current order status */",
@@ -200,7 +154,6 @@ fn effect_schema_annotations_become_jsdoc_on_input_and_output_fields() {
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn constraints_typescript_cannot_express_surface_as_jsdoc_tags() {
     let schema = json!({
         "type": "object",
@@ -210,7 +163,7 @@ fn constraints_typescript_cannot_express_surface_as_jsdoc_tags() {
             "tags": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 5, "default": ["a", "b"] }
         }
     });
-    let pretty = json_schema_to_type_script(&schema, true).expect(NOTE);
+    let pretty = json_schema_to_type_script(&schema, true);
     assert!(pretty.contains("  /** @deprecated */\n  legacy?: string"));
     assert!(pretty.contains("  /** @format uri */\n  homepage?: string"));
     assert!(pretty.contains(
@@ -228,19 +181,17 @@ fn constraints_typescript_cannot_express_surface_as_jsdoc_tags() {
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn neutralizes_comment_closers_inside_descriptions() {
     let schema = json!({
         "type": "object",
         "properties": { "note": { "type": "string", "description": "Ends */ early" } }
     });
-    let pretty = json_schema_to_type_script(&schema, true).expect(NOTE);
+    let pretty = json_schema_to_type_script(&schema, true);
     assert!(pretty.contains("  /** Ends * / early */"));
     assert!(!pretty.contains("Ends */"));
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn multiline_descriptions_become_star_prefixed_blocks_with_blank_edges_trimmed() {
     let schema = json!({
         "type": "object",
@@ -257,40 +208,33 @@ fn multiline_descriptions_become_star_prefixed_blocks_with_blank_edges_trimmed()
         "}",
     ]
     .join("\n");
-    assert_eq!(
-        json_schema_to_type_script(&schema, true).expect(NOTE),
-        expected
-    );
+    assert_eq!(json_schema_to_type_script(&schema, true), expected);
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn stays_total_on_cyclic_refs_and_pathological_nesting_in_both_modes() {
     let cyclic = json!({
         "$ref": "#/$defs/Node",
         "$defs": { "Node": { "type": "object", "properties": { "child": { "$ref": "#/$defs/Node" }, "name": { "type": "string" } } } }
     });
     assert_eq!(
-        json_schema_to_type_script(&cyclic, false).expect(NOTE),
+        json_schema_to_type_script(&cyclic, false),
         "{ child?: unknown; name?: string }"
     );
-    assert!(json_schema_to_type_script(&cyclic, true)
-        .expect(NOTE)
-        .contains("child?: unknown"));
+    assert!(json_schema_to_type_script(&cyclic, true).contains("child?: unknown"));
 
     let mut deep = json!({ "type": "string" });
     for _ in 0..12 {
         deep = json!({ "type": "object", "properties": { "next": deep } });
     }
     for pretty in [false, true] {
-        let rendered = json_schema_to_type_script(&deep, pretty).expect(NOTE);
+        let rendered = json_schema_to_type_script(&deep, pretty);
         assert!(rendered.contains("unknown"));
         assert!(rendered.contains("next?:"));
     }
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn intersects_ref_and_union_siblings_instead_of_discarding_them() {
     assert_eq!(
         json_schema_to_type_script(
@@ -301,8 +245,7 @@ fn intersects_ref_and_union_siblings_instead_of_discarding_them() {
                 "$defs": { "User": { "type": "object", "properties": { "id": { "type": "string" } }, "required": ["id"] } }
             }),
             false
-        )
-        .expect(NOTE),
+        ),
         "{ id: string } & { active: boolean }"
     );
     assert_eq!(
@@ -317,13 +260,11 @@ fn intersects_ref_and_union_siblings_instead_of_discarding_them() {
                 ]
             }),
             false
-        )
-        .expect(NOTE),
+        ),
         "({ name: string } | { count: number }) & { common: boolean }"
     );
     assert_eq!(
-        json_schema_to_type_script(&json!({ "$ref": "https://example.com/schema.json" }), false)
-            .expect(NOTE),
+        json_schema_to_type_script(&json!({ "$ref": "https://example.com/schema.json" }), false),
         "unknown"
     );
     assert_eq!(
@@ -333,31 +274,27 @@ fn intersects_ref_and_union_siblings_instead_of_discarding_them() {
                 "$defs": { "User": { "type": "object" }, "id": { "type": "string" } }
             }),
             false
-        )
-        .expect(NOTE),
+        ),
         "unknown"
     );
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "type": ["object", "null"], "properties": { "name": { "type": "string" } } }),
             false
-        )
-        .expect(NOTE),
+        ),
         "{ name?: string } | null"
     );
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn compact_rendering_quotes_non_identifier_keys_and_leaves_identifiers_bare() {
     assert_eq!(
-        json_schema_to_type_script(&raw_schema(), false).expect(NOTE),
+        json_schema_to_type_script(&raw_schema(), false),
         "{ \"123\"?: number; \"foo-bar\"?: string; \"@type\": string; \"x.y\"?: number; plain?: boolean }"
     );
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn pretty_rendering_quotes_non_identifier_keys_and_keeps_their_jsdoc() {
     let expected = [
         "{",
@@ -370,14 +307,10 @@ fn pretty_rendering_quotes_non_identifier_keys_and_keeps_their_jsdoc() {
         "}",
     ]
     .join("\n");
-    assert_eq!(
-        json_schema_to_type_script(&raw_schema(), true).expect(NOTE),
-        expected
-    );
+    assert_eq!(json_schema_to_type_script(&raw_schema(), true), expected);
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn json_schema_input_and_output_signatures_of_a_tool_both_quote() {
     let tool = Tool {
         input: raw_schema(),
@@ -387,21 +320,18 @@ fn json_schema_input_and_output_signatures_of_a_tool_both_quote() {
             "required": ["content-type"]
         })),
     };
-    assert!(input_type_script(&tool, false)
-        .expect(NOTE)
-        .contains("\"foo-bar\"?: string"));
+    assert!(input_type_script(&tool, false).contains("\"foo-bar\"?: string"));
     assert_eq!(
-        output_type_script(&tool, false).expect(NOTE),
+        output_type_script(&tool, false),
         "{ \"content-type\": string }"
     );
     assert_eq!(
-        output_type_script(&tool, true).expect(NOTE),
+        output_type_script(&tool, true),
         ["{", "  \"content-type\": string,", "}"].join("\n")
     );
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn effect_schema_structs_with_non_identifier_field_names_quote_too() {
     let tool = Tool {
         input: json!({
@@ -412,32 +342,29 @@ fn effect_schema_structs_with_non_identifier_field_names_quote_too() {
         output: None,
     };
     assert_eq!(
-        input_type_script(&tool, false).expect(NOTE),
+        input_type_script(&tool, false),
         "{ \"foo-bar\": string; plain?: number }"
     );
     assert_eq!(
-        input_type_script(&tool, true).expect(NOTE),
+        input_type_script(&tool, true),
         ["{", "  \"foo-bar\": string,", "  plain?: number,", "}"].join("\n")
     );
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn union_schemas_render_every_alternative() {
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "anyOf": [{ "type": "string" }, { "type": "number" }] }),
             false
-        )
-        .expect(NOTE),
+        ),
         "string | number"
     );
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "oneOf": [{ "type": "number" }, { "type": "null" }] }),
             false
-        )
-        .expect(NOTE),
+        ),
         "number | null"
     );
     let tool = Tool {
@@ -448,48 +375,40 @@ fn union_schemas_render_every_alternative() {
         output: Some(json!({ "anyOf": [{ "type": "number" }, { "type": "boolean" }] })),
     };
     assert_eq!(
-        input_type_script(&tool, false).expect(NOTE),
+        input_type_script(&tool, false),
         "{ value?: string | number }"
     );
-    assert_eq!(
-        output_type_script(&tool, false).expect(NOTE),
-        "number | boolean"
-    );
+    assert_eq!(output_type_script(&tool, false), "number | boolean");
 }
 
 #[test]
-#[ignore = "porting: code-mode tool schema rendering not implemented"]
 fn allof_renders_intersections_with_parenthesized_union_members() {
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "allOf": [{ "type": "object", "properties": { "id": { "type": "string" } } }, { "type": ["string", "null"] }] }),
             false
-        )
-        .expect(NOTE),
+        ),
         "{ id?: string } & (string | null)"
     );
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "allOf": [{ "type": "string" }, { "$ref": "https://example.com/external.json" }] }),
             false
-        )
-        .expect(NOTE),
+        ),
         "unknown"
     );
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "allOf": [{ "type": "string" }, { "allOf": [{ "$ref": "https://example.com/external.json" }] }] }),
             false
-        )
-        .expect(NOTE),
+        ),
         "unknown"
     );
     assert_eq!(
         json_schema_to_type_script(
             &json!({ "type": "string", "allOf": [{ "$ref": "#/$defs/Constraint" }], "$defs": { "Constraint": { "description": "TypeScript-neutral constraint" } } }),
             false
-        )
-        .expect(NOTE),
+        ),
         "string"
     );
 }

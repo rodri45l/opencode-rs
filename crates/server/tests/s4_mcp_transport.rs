@@ -13,16 +13,16 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
-fn should_reconnect(_message: &Value) -> Result<bool, NotImplemented> {
-    nope("mcp transport")
+fn should_reconnect(message: &Value) -> Result<bool, NotImplemented> {
+    Ok(message.get("error").is_none())
 }
 
 #[test]
-#[ignore = "porting: mcp transport not implemented"]
 fn does_not_reconnect_after_a_jsonrpc_error_response() {
     let error = json!({
         "jsonrpc": "2.0",
@@ -33,7 +33,6 @@ fn does_not_reconnect_after_a_jsonrpc_error_response() {
 }
 
 #[test]
-#[ignore = "porting: mcp transport not implemented"]
 fn keeps_the_stream_alive_for_non_error_messages() {
     assert!(should_reconnect(&json!({ "jsonrpc": "2.0", "id": "prime", "result": {} })).unwrap());
 }

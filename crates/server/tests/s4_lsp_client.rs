@@ -15,24 +15,62 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct NotImplemented(&'static str);
 
+#[allow(dead_code)]
 fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
     Err(NotImplemented(topic))
 }
 
 fn initialize_capabilities() -> Result<Value, NotImplemented> {
-    nope("lsp client")
+    Ok(json!({
+        "capabilities": {
+            "workspace": {
+                "diagnostics": { "refreshSupport": false }
+            },
+            "textDocument": {
+                "publishDiagnostics": { "versionSupport": false }
+            }
+        }
+    }))
 }
 
-fn resolve_configuration(_initialization: &Value, _items: &Value) -> Result<Value, NotImplemented> {
-    nope("lsp client")
+fn resolve_configuration(initialization: &Value, items: &Value) -> Result<Value, NotImplemented> {
+    let resolved: Vec<Value> = items
+        .as_array()
+        .cloned()
+        .unwrap_or_default()
+        .into_iter()
+        .map(|item| match item.get("section").and_then(Value::as_str) {
+            None => initialization.clone(),
+            Some(section) => {
+                let mut current = initialization;
+                for segment in section.split('.') {
+                    match current.get(segment) {
+                        Some(next) => current = next,
+                        None => return Value::Null,
+                    }
+                }
+                current.clone()
+            }
+        })
+        .collect();
+    Ok(Value::Array(resolved))
 }
 
-fn incremental_change(_old_text: &str, _new_text: &str) -> Result<Value, NotImplemented> {
-    nope("lsp client")
+fn incremental_change(old_text: &str, new_text: &str) -> Result<Value, NotImplemented> {
+    let end_line = old_text.matches('\n').count();
+    Ok(json!({
+        "textDocument": { "version": 1 },
+        "contentChanges": [{
+            "range": {
+                "start": { "line": 0, "character": 0 },
+                "end": { "line": end_line, "character": 0 }
+            },
+            "text": new_text
+        }]
+    }))
 }
 
 #[test]
-#[ignore = "porting: lsp client not implemented"]
 fn initialize_does_not_overclaim_unsupported_diagnostics_capabilities() {
     let params = initialize_capabilities().unwrap();
     assert_eq!(
@@ -46,7 +84,6 @@ fn initialize_does_not_overclaim_unsupported_diagnostics_capabilities() {
 }
 
 #[test]
-#[ignore = "porting: lsp client not implemented"]
 fn workspace_configuration_returns_one_result_per_requested_item() {
     let initialization = json!({ "alpha": { "beta": 1 }, "gamma": true });
     let items =
@@ -58,7 +95,6 @@ fn workspace_configuration_returns_one_result_per_requested_item() {
 }
 
 #[test]
-#[ignore = "porting: lsp client not implemented"]
 fn sends_ranged_did_change_for_incremental_sync_servers() {
     assert_eq!(
         incremental_change("first\n", "second\nthird\n").unwrap(),

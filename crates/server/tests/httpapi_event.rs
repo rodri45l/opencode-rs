@@ -14,7 +14,6 @@ fn event_stream() -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: server.connected bootstrap event not implemented"]
 async fn serves_event_stream() {
     let app = router(AppState::new());
     let res = send(&app, event_stream()).await;
@@ -38,14 +37,11 @@ async fn serves_event_stream() {
     let event = next_sse_data(&mut stream, &mut buffer, Duration::from_secs(5))
         .await
         .expect("timed out waiting for server.connected");
-    assert_eq!(
-        event,
-        serde_json::json!({ "type": "server.connected", "properties": {} })
-    );
+    assert_eq!(event["type"], "server.connected");
+    assert_eq!(event["properties"], serde_json::json!({}));
 }
 
 #[tokio::test]
-#[ignore = "porting: server.connected bootstrap event not implemented"]
 async fn keeps_the_event_stream_open_after_the_initial_event() {
     let app = router(AppState::new());
     let res = send(&app, event_stream()).await;
@@ -64,7 +60,6 @@ async fn keeps_the_event_stream_open_after_the_initial_event() {
 }
 
 #[tokio::test]
-#[ignore = "porting: server.connected bootstrap event not implemented"]
 async fn delivers_instance_events_after_the_initial_event() {
     let app = router(AppState::new());
     let res = send(&app, event_stream()).await;

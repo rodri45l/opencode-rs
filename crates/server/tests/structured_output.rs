@@ -15,14 +15,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn parses_text_format() {
     let result = parse_output_format(&json!({ "type": "text" })).expect("valid");
     assert_eq!(result, OutputFormat::Text);
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn parses_json_schema_format_with_defaults() {
     let result = parse_output_format(&json!({
         "type": "json_schema",
@@ -39,7 +37,6 @@ fn parses_json_schema_format_with_defaults() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn parses_json_schema_format_with_custom_retry_count() {
     let result = parse_output_format(&json!({
         "type": "json_schema",
@@ -55,19 +52,16 @@ fn parses_json_schema_format_with_custom_retry_count() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn rejects_invalid_type() {
     assert!(parse_output_format(&json!({ "type": "invalid" })).is_err());
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn rejects_json_schema_without_schema() {
     assert!(parse_output_format(&json!({ "type": "json_schema" })).is_err());
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn rejects_negative_retry_count() {
     assert!(parse_output_format(&json!({
         "type": "json_schema",
@@ -78,7 +72,6 @@ fn rejects_negative_retry_count() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn creates_error_with_message_and_retries() {
     let error = StructuredOutputError::new("Failed to validate", 3);
 
@@ -88,7 +81,6 @@ fn creates_error_with_message_and_retries() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn converts_error_to_object() {
     let error = StructuredOutputError::new("Test error", 2);
     let object = error.to_object();
@@ -99,7 +91,6 @@ fn converts_error_to_object() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn is_instance_identifies_error() {
     let error = StructuredOutputError::new("Test", 1);
     assert!(StructuredOutputError::is_instance(&error.to_object()));
@@ -109,14 +100,12 @@ fn is_instance_identifies_error() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn creates_tool_with_description() {
     let tool = create_structured_output_tool(json!({ "type": "object" }), |_| {});
     assert!(tool.description.contains("structured format"));
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn creates_tool_with_schema_as_input_schema() {
     let schema = json!({
         "type": "object",
@@ -133,7 +122,6 @@ fn creates_tool_with_schema_as_input_schema() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn strips_schema_property_from_input_schema() {
     let schema = json!({
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -146,7 +134,6 @@ fn strips_schema_property_from_input_schema() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn execute_calls_on_success_with_valid_args() {
     let captured: Rc<RefCell<Option<serde_json::Value>>> = Rc::new(RefCell::new(None));
     let sink = Rc::clone(&captured);
@@ -164,7 +151,6 @@ fn execute_calls_on_success_with_valid_args() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn validates_required_fields_in_the_projected_schema() {
     let tool = create_structured_output_tool(
         json!({
@@ -183,7 +169,6 @@ fn validates_required_fields_in_the_projected_schema() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn preserves_property_types_in_the_projected_schema() {
     let tool = create_structured_output_tool(
         json!({
@@ -201,7 +186,6 @@ fn preserves_property_types_in_the_projected_schema() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn execute_handles_nested_objects() {
     let captured: Rc<RefCell<Option<serde_json::Value>>> = Rc::new(RefCell::new(None));
     let sink = Rc::clone(&captured);
@@ -239,7 +223,6 @@ fn execute_handles_nested_objects() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn execute_handles_arrays() {
     let captured: Rc<RefCell<Option<serde_json::Value>>> = Rc::new(RefCell::new(None));
     let sink = Rc::clone(&captured);
@@ -268,7 +251,6 @@ fn execute_handles_arrays() {
 }
 
 #[test]
-#[ignore = "porting: session.structured-output not implemented"]
 fn to_model_output_returns_text_value() {
     let tool = create_structured_output_tool(json!({ "type": "object" }), |_| {});
     let output = tool.to_model_output("Test output");

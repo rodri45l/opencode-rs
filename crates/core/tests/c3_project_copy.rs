@@ -13,59 +13,15 @@
 
 #![allow(dead_code)]
 
-const NOTE: &str = "porting: project copy not implemented";
-
-#[derive(Debug, PartialEq, Eq)]
-enum CopyError {
-    NotImplemented,
-    InvalidStrategyId,
-    DuplicateStrategy,
-    StrategyUnavailable(String),
-    DestinationExists(String),
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct StrategyId(String);
-
-#[derive(Debug, PartialEq, Eq)]
-struct RefreshDiff {
-    updated: Vec<String>,
-    removed: Vec<String>,
-}
-
-fn parse_strategy_id(_input: &str) -> Result<StrategyId, CopyError> {
-    Err(CopyError::NotImplemented)
-}
-
-fn register_strategy(_known: &[String], _id: &str) -> Result<(), CopyError> {
-    Err(CopyError::NotImplemented)
-}
-
-fn require_strategy(_known: &[String], _id: &str) -> Result<(), CopyError> {
-    Err(CopyError::NotImplemented)
-}
-
-fn candidate_directory_name(_name: &str, _index: u32) -> Result<String, CopyError> {
-    Err(CopyError::NotImplemented)
-}
-
-fn resolve_directory(
-    _parent: &str,
-    _name: &str,
-    _exists: impl Fn(&str) -> bool,
-) -> Result<String, CopyError> {
-    Err(CopyError::NotImplemented)
-}
-
-fn refresh_diff(_stored: &[&str], _present: &[&str]) -> Result<RefreshDiff, CopyError> {
-    Err(CopyError::NotImplemented)
-}
+use opencode_core::project_copy::{
+    candidate_directory_name, parse_strategy_id, refresh_diff, register_strategy, require_strategy,
+    resolve_directory, CopyError,
+};
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn accepts_arbitrary_non_empty_strategy_ids() {
     assert_eq!(
-        parse_strategy_id("acme/snapshot").expect(NOTE).0,
+        parse_strategy_id("acme/snapshot").expect("id").0,
         "acme/snapshot"
     );
     assert_eq!(
@@ -76,7 +32,6 @@ fn accepts_arbitrary_non_empty_strategy_ids() {
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn rejects_duplicate_strategies_and_reports_unavailable_ids() {
     let known = vec!["test/duplicate".to_string()];
 
@@ -92,22 +47,20 @@ fn rejects_duplicate_strategies_and_reports_unavailable_ids() {
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn numbers_copy_directories_after_the_first() {
-    assert_eq!(candidate_directory_name("copy", 1).expect(NOTE), "copy");
-    assert_eq!(candidate_directory_name("copy", 3).expect(NOTE), "copy-3");
+    assert_eq!(candidate_directory_name("copy", 1).expect("name"), "copy");
+    assert_eq!(candidate_directory_name("copy", 3).expect("name"), "copy-3");
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn adds_a_numeric_suffix_when_the_copy_directory_exists() {
     let existing = ["/p/copy", "/p/copy-2"];
-    let resolved = resolve_directory("/p", "copy", |path| existing.contains(&path)).expect(NOTE);
+    let resolved =
+        resolve_directory("/p", "copy", |path| existing.contains(&path)).expect("resolve");
     assert_eq!(resolved, "/p/copy-3");
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn fails_after_ten_copy_directory_conflicts() {
     let existing = [
         "/p/copy",
@@ -129,25 +82,22 @@ fn fails_after_ten_copy_directory_conflicts() {
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn refresh_reports_removed_missing_checkouts() {
-    let diff = refresh_diff(&["/root", "/root-missing"], &["/root"]).expect(NOTE);
+    let diff = refresh_diff(&["/root", "/root-missing"], &["/root"]).expect("diff");
     assert_eq!(diff.updated, Vec::<String>::new());
     assert_eq!(diff.removed, vec!["/root-missing"]);
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn refresh_with_no_roots_is_a_noop() {
-    let diff = refresh_diff(&[], &[]).expect(NOTE);
+    let diff = refresh_diff(&[], &[]).expect("diff");
     assert!(diff.updated.is_empty());
     assert!(diff.removed.is_empty());
 }
 
 #[test]
-#[ignore = "porting: project copy not implemented"]
 fn refresh_without_changes_reports_nothing() {
-    let diff = refresh_diff(&["/root"], &["/root"]).expect(NOTE);
+    let diff = refresh_diff(&["/root"], &["/root"]).expect("diff");
     assert!(diff.updated.is_empty());
     assert!(diff.removed.is_empty());
 }
