@@ -110,11 +110,17 @@ writer.
 Waves were too slow because agents shared `src/lib.rs` / `port-map.json` and had to
 be serialised to one-per-crate. Instead:
 
-1. **Local stubs.** A red-first ported test defines the types/functions it needs
-   **inside its own `tests/<name>.rs`** as private stubs. Do **not** touch
-   `src/**`, `src/lib.rs`, `port-map.json`, or `Cargo.toml`. That makes every test
-   file an independent unit, so many agents can write into one crate at once.
-   (When the real module is later implemented, tests switch to importing it.)
+1. **Local stubs by default.** A red-first test defines the types it needs locally
+   and does **not** touch shared files (`src/lib.rs`, `port-map.json`,
+   `Cargo.toml`). That makes every test file independent, so many agents can write
+   into one crate at once.
+   - If the behaviour is **self-contained pure logic** and you want the test green,
+     put the logic in a **uniquely-named** `src/<module>.rs` (one module per
+     writer) and import it from the test. Do **not** edit `src/lib.rs`; the
+     orchestrator/fixer wires `pub mod` declarations at integration.
+   - Never inline a fake implementation inside a test to satisfy its own
+     assertions. A green test **must exercise the crate's real API**
+     (`opencode_<crate>::…`). Otherwise leave it red (`#[ignore = "porting: …"]`).
 2. **Disjoint files only.** A writer owns a set of *reference paths* and writes
    one `tests/<stem>.rs` per path. Never edit a file another writer may touch.
 3. **No cargo.** Writers run `rustfmt --edition 2021` at most (parse/format only).
@@ -128,6 +134,18 @@ be serialised to one-per-crate. Instead:
 
 This allows a single wave of 10-16 writers across the large crates (server, core,
 tui, app) with no shared-file contention.
+
+## Metrics: ported vs implemented
+
+Two different numbers, not one:
+
+- **ported** — a Rust test file exists for the reference test row (docs/TEST-PORT.md).
+- **implemented (green)** — the behaviour is actually implemented and the test
+  passes. Pure logic is implemented on contact, so early greens are expected and
+  legitimate; module-dependent tests stay red (`#[ignore = "porting: …"]`) until
+  their phase.
+
+CI reports both. Do not present "green" as "ported" (or vice versa).
 
 ## Git flow
 
