@@ -1,7 +1,7 @@
 {
   "source": "anomalyco/opencode test files under packages/**",
   "commit": "18ef3cc7c5a25b82114c953a80ccc09f4988f74e",
-  "extracted_at": "2026-09-23T09:59:38.507418+00:00",
+  "extracted_at": "2026-09-23T10:01:42.510899+00:00",
   "test_file_count": 740,
   "by_tier": {
     "C": 130,
@@ -9,8 +9,8 @@
     "W": 277
   },
   "by_status": {
-    "pending": 589,
-    "ported": 151
+    "pending": 587,
+    "ported": 153
   },
   "by_crate": {
     "crates/server": 254,
@@ -1572,7 +1572,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/location-layer.test.ts",
@@ -4288,7 +4288,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/global-session-list.test.ts",

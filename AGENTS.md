@@ -57,6 +57,47 @@ merge gate:
 - Define the API surface as stubs returning a typed `NotImplemented` error. Do
   **not** use `panic!`/`todo!()` in library code.
 
+## Central services — do NOT re-implement these
+
+To keep agents fast, the following are provided once. Use them; do not duplicate
+them per crate (this was a real source of waste in early waves):
+
+- **`opencode-test-support`** (dev-dependency): `fixture()`, `fixture_json()`,
+  `repo_root()`, `reference_root()`, `encode_b64url()`/`decode_b64url()`,
+  `sse_data_payloads()`, `first_sse_json()`. Do **not** hand-roll base64, fixture
+  paths, JSON loading, or SSE parsing. `use opencode_test_support as ts;`
+- **Curated workspace deps**: `base64`, `url`, `regex`, `serde`, `serde_json`,
+  `uuid`, `thiserror`, `tokio`, `axum`, `reqwest`, `futures`, `async-stream`.
+  Declare them as `foo.workspace = true` in your crate. Do not hand-write
+  codec/URL/error plumbing, and do not add brand-new crates without asking.
+- **`crates/<crate>/port-map.json`** (or central `tests/fixtures/port-map.json`):
+  maps a reference test path to your Rust test file stem when names differ. Use
+  it instead of renaming awkwardly or skipping a file because another crate has a
+  same-named test. You own your crate's file.
+- **`scripts/sync_fixtures.py`**: copy reference fixtures into `crates/<crate>/testdata`
+  (don't copy by hand).
+
+The **orchestrator** owns `docs/**`, `tests/fixtures/**` (except port-map),
+`Cargo.lock`, root `Cargo.toml`, and `.github/**`. Writer agents never touch them.
+
+## Writer agent brief (canonical)
+
+Every writer agent gets this contract:
+
+1. Read `AGENTS.md`, `docs/PORTING.md`, `docs/CONTRACT.md`, `docs/TEST-PORT.md`.
+2. **Writer mode**: write code only. Run **no** cargo (or at most one
+   `cargo check -p <crate>` with a private `CARGO_TARGET_DIR`). The orchestrator
+   compiles the workspace once per wave.
+3. Use the central services above; add no dependencies.
+4. Port tests **red-first**: `#[ignore = "porting: <topic> not implemented"]`,
+   typed `NotImplemented` stubs (never `panic!`/`todo!` in library code), never
+   weaken an assertion, never copy upstream source.
+5. Provenance header on every ported test file.
+6. Record renames/mappings in your `crates/<crate>/port-map.json`.
+7. Stay inside `crates/<crate>/`.
+8. Return a concise report: files, tests (red/green), covered vs skipped + why,
+   compile risks, blockers. Do not commit or push.
+
 ## Git flow
 
 - `main` is protected: no direct pushes, PRs only, required status check **`gate`**.
