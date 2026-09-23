@@ -6,6 +6,7 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+thiserror.workspace = true
 
 [dev-dependencies]
 opencode-test-support.workspace = true

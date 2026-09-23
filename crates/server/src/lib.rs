@@ -7,8 +7,12 @@
 pub mod agent;
 pub mod auth;
 pub mod error;
+pub mod lsp_config;
+pub mod mcp_oauth;
+pub mod mdns;
 pub mod options;
 pub mod permission;
+pub mod port;
 pub mod proxy_util;
 pub mod retry;
 pub mod routes;
@@ -19,6 +23,7 @@ pub mod system_prompt;
 pub mod tools;
 pub mod truncate;
 pub mod websearch;
+pub mod workspace_routing;
 
 pub use auth::AuthConfig;
 pub use error::ApiErrorResponse;

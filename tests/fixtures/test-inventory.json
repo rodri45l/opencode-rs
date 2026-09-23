@@ -1,7 +1,7 @@
 {
   "source": "anomalyco/opencode test files under packages/**",
   "commit": "18ef3cc7c5a25b82114c953a80ccc09f4988f74e",
-  "extracted_at": "2026-09-23T10:01:42.510899+00:00",
+  "extracted_at": "2026-09-23T10:29:15.382186+00:00",
   "test_file_count": 740,
   "by_tier": {
     "C": 130,
@@ -9,8 +9,8 @@
     "W": 277
   },
   "by_status": {
-    "pending": 587,
-    "ported": 153
+    "pending": 517,
+    "ported": 223
   },
   "by_crate": {
     "crates/server": 254,
@@ -1411,7 +1411,7 @@
       "package": "codemode",
       "crate": "crates/codemode",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/codemode/test/openapi.test.ts",
@@ -1425,14 +1425,14 @@
       "package": "codemode",
       "crate": "crates/codemode",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/codemode/test/stdlib.test.ts",
       "package": "codemode",
       "crate": "crates/codemode",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/codemode/test/enumeration.test.ts",
@@ -1985,7 +1985,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-amazon-bedrock.test.ts",
@@ -1999,28 +1999,28 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-azure-cognitive-services.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-azure.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-cerebras.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-cloudflare-ai-gateway.test.ts",
@@ -2041,14 +2041,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-deepinfra.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-dynamic.test.ts",
@@ -2062,35 +2062,35 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-github-copilot.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-gitlab.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-google-vertex-anthropic.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-google.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-groq.test.ts",
@@ -2104,7 +2104,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-mistral.test.ts",
@@ -2118,21 +2118,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-openai-compatible.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-openai.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-opencode.test.ts",
@@ -2146,56 +2146,56 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-perplexity.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-sap-ai-core.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-togetherai.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-venice.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-vercel.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-xai.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/skill.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/variant.test.ts",
@@ -2398,7 +2398,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/snapshot.test.ts",
@@ -2650,28 +2650,28 @@
       "package": "function",
       "crate": "crates/function",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/http-recorder/test/record-replay.test.ts",
       "package": "http-recorder",
       "crate": "crates/http-recorder",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/enterprise/test/core/share.test.ts",
       "package": "enterprise",
       "crate": "crates/integrations",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/enterprise/test/core/storage.test.ts",
       "package": "enterprise",
       "crate": "crates/integrations",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/llm/test/adapter.test.ts",
@@ -2951,7 +2951,7 @@
       "package": "sdk",
       "crate": "crates/sdk",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/sdk-next/test/import-boundaries.test.ts",
@@ -2979,7 +2979,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/control-plane/workspace.test.ts",
@@ -3000,7 +3000,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/lifecycle.test.ts",
@@ -3028,7 +3028,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/codex.test.ts",
@@ -3070,7 +3070,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/provider/provider.test.ts",
@@ -3112,7 +3112,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-instance-route-auth.test.ts",
@@ -3133,14 +3133,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-promptasync-context.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-provider.test.ts",
@@ -3189,7 +3189,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-session.test.ts",
@@ -3217,7 +3217,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-workspace.test.ts",
@@ -3245,7 +3245,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/compaction.test.ts",
@@ -3329,7 +3329,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/code-mode-integration.test.ts",
@@ -3490,7 +3490,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/transport.test.ts",
@@ -4036,21 +4036,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/catalog.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/oauth-provider.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/patch/patch.test.ts",
@@ -4099,14 +4099,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/cloudflare.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/github-copilot-models.test.ts",
@@ -4120,7 +4120,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/install-concurrency.test.ts",
@@ -4155,14 +4155,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/shared.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/trigger.test.ts",
@@ -4176,7 +4176,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/xai.test.ts",
@@ -4267,7 +4267,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/provider/gitlab-duo.test.ts",
@@ -4330,7 +4330,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-experimental.test.ts",
@@ -4372,7 +4372,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-sync.test.ts",
@@ -4456,7 +4456,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/worktree-endpoint-repro.test.ts",
@@ -4470,7 +4470,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/messages-pagination.test.ts",
@@ -4505,7 +4505,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/snapshot-tool-race.test.ts",
@@ -4540,7 +4540,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/snapshot/snapshot.test.ts",
@@ -4561,7 +4561,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/external-directory.test.ts",
@@ -4575,7 +4575,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/grep.test.ts",
@@ -4589,21 +4589,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/question.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/read.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/shell.test.ts",
@@ -4617,7 +4617,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/task.test.ts",
@@ -4757,21 +4757,21 @@
       "package": "stats",
       "crate": "crates/stats",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/stats/core/src/domain/inference.test.ts",
       "package": "stats",
       "crate": "crates/stats",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/stats/core/src/r2-sql.test.ts",
       "package": "stats",
       "crate": "crates/stats",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/data.test.tsx",

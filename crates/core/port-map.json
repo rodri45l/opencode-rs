@@ -1,0 +1,4 @@
+{
+  "_comment": "Maps reference test paths to Rust test file stems when they differ or collide within this crate.",
+  "packages/core/test/plugin/skill.test.ts": ["plugin_skill"]
+}
