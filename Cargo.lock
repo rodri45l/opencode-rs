@@ -756,6 +756,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 
 [[package]]
+name = "opencode-app"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
 name = "opencode-cli"
 version = "0.1.0"
 dependencies = [
@@ -783,6 +790,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "opencode-codemode"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-console"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
 name = "opencode-core"
 version = "0.1.0"
 dependencies = [
@@ -793,6 +814,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "opencode-desktop"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-function"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-http-recorder"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-identity"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-integrations"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
 name = "opencode-llm"
 version = "0.1.0"
 dependencies = [
@@ -800,6 +856,13 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "opencode-plugin"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
 ]
 
 [[package]]
@@ -824,6 +887,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "opencode-sdk"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
 name = "opencode-server"
 version = "0.1.0"
 dependencies = [
@@ -843,11 +913,55 @@ dependencies = [
 ]
 
 [[package]]
+name = "opencode-session-ui"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-sqlite"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-stats"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
 name = "opencode-test-support"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "regex",
  "serde_json",
+ "url",
+]
+
+[[package]]
+name = "opencode-tui"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-ui"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
+]
+
+[[package]]
+name = "opencode-web"
+version = "0.1.0"
+dependencies = [
+ "opencode-test-support",
 ]
 
 [[package]]
@@ -933,7 +1047,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -975,6 +1089,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "caa0f4137e1c0a72f4c651489402276c8e8e1cf081f3b0ba156d2cbeef09e86a"
 dependencies = [
  "rand_core",
+]
+
+[[package]]
+name = "regex"
+version = "1.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f020237b6c8eed93db2e2cb53c00c60a8e1bc73da7d073199a1180401450218d"
+dependencies = [
+ "aho-corasick",
+ "memchr",
+ "regex-automata",
+ "regex-syntax",
 ]
 
 [[package]]

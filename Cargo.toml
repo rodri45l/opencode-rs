@@ -9,6 +9,22 @@ members = [
   "crates/client",
   "crates/cli",
   "crates/test-support",
+  "crates/plugin",
+  "crates/http-recorder",
+  "crates/sqlite",
+  "crates/function",
+  "crates/identity",
+  "crates/codemode",
+  "crates/sdk",
+  "crates/stats",
+  "crates/integrations",
+  "crates/tui",
+  "crates/ui",
+  "crates/session-ui",
+  "crates/app",
+  "crates/desktop",
+  "crates/console",
+  "crates/web",
 ]
 
 [workspace.package]
