@@ -42,6 +42,20 @@ macro_rules! prefixed_id {
                 Self(format!("{}{}", Self::PREFIX, uuid::Uuid::now_v7().simple()))
             }
 
+            /// Generate a new id with the canonical `prefix_` separator.
+            ///
+            /// The reference constructors always insert an underscore between
+            /// the prefix and the sortable body (e.g. `que_`, `pty_`).
+            pub fn create() -> Self {
+                let separator = if Self::PREFIX.ends_with('_') { "" } else { "_" };
+                Self(format!(
+                    "{}{}{}",
+                    Self::PREFIX,
+                    separator,
+                    uuid::Uuid::now_v7().simple()
+                ))
+            }
+
             /// Borrow the underlying string.
             pub fn as_str(&self) -> &str {
                 &self.0

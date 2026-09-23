@@ -20,6 +20,14 @@ This document lists where that behaviour is pinned and how to regenerate fixture
 | `tests/fixtures/UPSTREAM` | `scripts/extract_contract.py` | drift job |
 | `tests/fixtures/cassettes/*.json` | reference `http-recorder` | provider adapter tests |
 
+## Known stale reference tests
+
+- `packages/schema/test/event-manifest.test.ts` asserts `55/85/85/32` but is
+  **not wired into CI** (no test script/task) and is stale at the pinned commit.
+  The authoritative composition is `58/88/88/35`; `packages/opencode/test/
+  event-manifest.test.ts` and the OpenAPI `V2Event` fixture both pin `88`. Our
+  port asserts the authoritative values (`crates/schema/tests/event_manifest_surface.rs`).
+
 ## Regenerating
 
 ```sh

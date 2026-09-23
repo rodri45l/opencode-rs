@@ -11,8 +11,11 @@ Tiers:
   W  white-box (imports internal src; re-derive against the Rust design)
   n/a content-only package, not ported
 
-The classification is heuristic and is refined as each phase starts; the
-invariant it enforces is that *every* test file has a row and a disposition.
+Status is auto-detected: a reference test is `ported` when a matching Rust test
+file exists under the mapped crate. A small exceptions map covers renamed ports.
+
+The classification is heuristic and refined as each phase starts; the invariant
+is that every test file has a row and a disposition.
 """
 from __future__ import annotations
 
@@ -84,11 +87,20 @@ CONTRACT_SIGNALS = (
 SRC_IMPORT = re.compile(r'from "(\.\./)+src|from "@/')
 TEST_GLOB = re.compile(r"\.(test|spec)\.(ts|tsx)$")
 
+# reference test path -> rust test file stem, for ports whose names differ
+EXCEPTIONS = {
+    "packages/schema/test/event.test.ts": "event_registry",
+    "packages/httpapi-codegen/test/generate.test.ts": "httpapi_codegen_generate",
+    "packages/httpapi-codegen/test/write.test.ts": "httpapi_codegen_write",
+}
+
 
 def reference_commit(reference: pathlib.Path) -> str | None:
     try:
         return subprocess.check_output(
-            ["git", "-C", str(reference), "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+            ["git", "-C", str(reference), "rev-parse", "HEAD"],
+            text=True,
+            stderr=subprocess.DEVNULL,
         ).strip()
     except Exception:
         return None
@@ -104,6 +116,15 @@ def classify(package: str, text: str) -> str:
     return "P"
 
 
+def rust_test_exists(crate: str, path: str) -> bool:
+    basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
+    stem = EXCEPTIONS.get(path, basename.replace("-", "_"))
+    tests_dir = REPO / crate / "tests"
+    if not tests_dir.is_dir():
+        return False
+    return (tests_dir / f"{stem}.rs").is_file()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reference", type=pathlib.Path, required=True)
@@ -117,22 +138,21 @@ def main() -> int:
     files = []
     for path in tests:
         package = path.split("/")[1] if len(path.split("/")) > 1 else ""
-        try:
-            text = (args.reference / path).read_text(errors="ignore")
-        except Exception:
-            text = ""
+        crate = PACKAGE_CRATE.get(package, "?")
+        tier = classify(package, (args.reference / path).read_text(errors="ignore"))
+        if tier == "n/a":
+            status = "n/a"
+        elif rust_test_exists(crate, path):
+            status = "ported"
+        else:
+            status = "pending"
         files.append(
-            {
-                "path": path,
-                "package": package,
-                "crate": PACKAGE_CRATE.get(package, "?"),
-                "tier": classify(package, text),
-                "status": "pending",
-            }
+            {"path": path, "package": package, "crate": crate, "tier": tier, "status": status}
         )
     files.sort(key=lambda f: (f["crate"], f["tier"], f["path"]))
 
     by_tier = collections.Counter(f["tier"] for f in files)
+    by_status = collections.Counter(f["status"] for f in files)
     by_crate = collections.Counter(f["crate"] for f in files)
 
     inventory = {
@@ -141,6 +161,7 @@ def main() -> int:
         "extracted_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "test_file_count": len(files),
         "by_tier": dict(sorted(by_tier.items())),
+        "by_status": dict(sorted(by_status.items())),
         "by_crate": dict(sorted(by_crate.items(), key=lambda kv: -kv[1])),
         "files": files,
     }
@@ -155,7 +176,7 @@ def main() -> int:
         f"- Reference commit: `{inventory['commit']}`",
         f"- Test files: **{len(files)}**",
         "- Tiers: **C** contract · **P** pure logic · **W** white-box (re-derive) · **n/a** not code",
-        "- Status: `pending` → `ported` / `re-derived` / `n/a`",
+        "- Status is auto-detected from the presence of the ported Rust test file.",
         "",
         "## Summary by tier",
         "",
@@ -164,9 +185,13 @@ def main() -> int:
     ]
     for tier, count in sorted(by_tier.items()):
         lines.append(f"| {tier} | {count} |")
-    lines += ["", "## Summary by crate", "", "| Crate | Files |", "|---|---:|"]
+    lines += ["", "## Summary by status", "", "| Status | Files |", "|---|---:|"]
+    for status, count in sorted(by_status.items()):
+        lines.append(f"| {status} | {count} |")
+    lines += ["", "## Summary by crate", "", "| Crate | Files | Ported |", "|---|---:|---:|"]
     for crate, count in sorted(by_crate.items(), key=lambda kv: -kv[1]):
-        lines.append(f"| `{crate}` | {count} |")
+        ported = sum(1 for f in files if f["crate"] == crate and f["status"] == "ported")
+        lines.append(f"| `{crate}` | {count} | {ported} |")
 
     lines += ["", "## Checklist", ""]
     grouped: dict[str, list[dict]] = collections.defaultdict(list)
@@ -174,18 +199,18 @@ def main() -> int:
         grouped[entry["crate"]].append(entry)
     for crate in sorted(grouped):
         entries = grouped[crate]
-        lines.append(f"### `{crate}` ({len(entries)})")
+        ported = sum(1 for e in entries if e["status"] == "ported")
+        lines.append(f"### `{crate}` ({ported}/{len(entries)})")
         lines.append("")
         for entry in entries:
-            lines.append(
-                f"- [ ] `{entry['tier']}` `{entry['path']}`"
-            )
+            box = "x" if entry["status"] != "pending" else " "
+            lines.append(f"- [{box}] `{entry['tier']}` `{entry['path']}`")
         lines.append("")
 
     (REPO / "docs" / "TEST-PORT.md").write_text("\n".join(lines) + "\n")
     print(
         f"test files={len(files)} tiers={dict(sorted(by_tier.items()))} "
-        f"crates={len(by_crate)} commit={inventory['commit']}"
+        f"status={dict(sorted(by_status.items()))} commit={inventory['commit']}"
     )
     return 0
 
