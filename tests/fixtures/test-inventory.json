@@ -1,12 +1,16 @@
 {
   "source": "anomalyco/opencode test files under packages/**",
   "commit": "18ef3cc7c5a25b82114c953a80ccc09f4988f74e",
-  "extracted_at": "2026-09-23T08:57:44.002647+00:00",
+  "extracted_at": "2026-09-23T09:20:46.102891+00:00",
   "test_file_count": 740,
   "by_tier": {
     "C": 130,
     "P": 333,
     "W": 277
+  },
+  "by_status": {
+    "pending": 714,
+    "ported": 26
   },
   "by_crate": {
     "crates/server": 254,
@@ -1533,21 +1537,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/command.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/config.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/plugin.test.ts",
@@ -1589,7 +1593,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-google-vertex.test.ts",
@@ -1715,7 +1719,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/application-tools.test.ts",
@@ -1736,14 +1740,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/command.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/provider-options.test.ts",
@@ -1757,7 +1761,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/database-migration.test.ts",
@@ -1806,7 +1810,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/file-mutation.test.ts",
@@ -1820,7 +1824,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/filesystem/ignore.test.ts",
@@ -1876,7 +1880,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/instruction-context.test.ts",
@@ -1904,14 +1908,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/models.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/move-session.test.ts",
@@ -1939,7 +1943,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/permission.test.ts",
@@ -1960,7 +1964,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/models-dev.test.ts",
@@ -2205,7 +2209,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/preload.test.ts",
@@ -2373,7 +2377,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/skill-discovery.test.ts",
@@ -2884,63 +2888,63 @@
       "package": "httpapi-codegen",
       "crate": "crates/protocol",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/protocol/test/session-cursor.test.ts",
       "package": "protocol",
       "crate": "crates/protocol",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/httpapi-codegen/test/write.test.ts",
       "package": "httpapi-codegen",
       "crate": "crates/protocol",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/schema/test/contract-hygiene.test.ts",
       "package": "schema",
       "crate": "crates/schema",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/schema/test/event-manifest.test.ts",
       "package": "schema",
       "crate": "crates/schema",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/schema/test/compatibility.test.ts",
       "package": "schema",
       "crate": "crates/schema",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/schema/test/event.test.ts",
       "package": "schema",
       "crate": "crates/schema",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/schema/test/legacy-event.test.ts",
       "package": "schema",
       "crate": "crates/schema",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/schema/test/v1-isolation.test.ts",
       "package": "schema",
       "crate": "crates/schema",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/sdk/js/test/session-history.test.ts",
