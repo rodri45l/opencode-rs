@@ -806,6 +806,7 @@ dependencies = [
 name = "opencode-protocol"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "opencode-schema",
  "serde",
  "serde_json",
