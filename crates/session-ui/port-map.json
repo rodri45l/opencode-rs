@@ -1,0 +1,16 @@
+{
+  "packages/session-ui/src/components/apply-patch-file.test.ts": ["apply_patch_file"],
+  "packages/session-ui/src/components/markdown-code-state.test.ts": ["markdown_code_state"],
+  "packages/session-ui/src/components/markdown-inline-code-kind.test.ts": ["markdown_inline_code_kind"],
+  "packages/session-ui/src/components/markdown-stream.test.ts": ["markdown_stream"],
+  "packages/session-ui/src/components/markdown-worker-protocol.test.ts": ["markdown_worker_protocol"],
+  "packages/session-ui/src/components/markdown-worker-queue.test.ts": ["markdown_worker_queue"],
+  "packages/session-ui/src/components/markdown-worker-transport.test.ts": ["markdown_worker_transport"],
+  "packages/session-ui/src/components/message-file.test.ts": ["message_file"],
+  "packages/session-ui/src/components/message-part.test.ts": ["message_part"],
+  "packages/session-ui/src/components/part-default-open.test.ts": ["part_default_open"],
+  "packages/session-ui/src/components/session-diff.test.ts": ["session_diff"],
+  "packages/session-ui/src/v2/components/prompt-input/machine.test.ts": ["machine"],
+  "packages/session-ui/src/v2/components/prompt-input/store.test.ts": ["store"],
+  "packages/session-ui/src/v2/components/session-review-file-preview-v2-virtualize.test.ts": ["session_review_file_preview_v2_virtualize"]
+}

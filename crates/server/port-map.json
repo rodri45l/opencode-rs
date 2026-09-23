@@ -17,5 +17,10 @@
   "packages/opencode/test/skill/skill.test.ts": ["skill_catalog"],
   "packages/opencode/test/session/instruction.test.ts": ["instruction"],
   "packages/opencode/test/session/session.test.ts": ["session_lifecycle"],
+  "packages/opencode/test/session/message-v2.test.ts": ["message_v2"],
+  "packages/opencode/test/session/compaction.test.ts": ["session_compaction"],
+  "packages/opencode/test/provider/transform.test.ts": ["provider_transform"],
+  "packages/opencode/test/tool/parameters.test.ts": ["tool_parameters"],
+  "packages/opencode/test/util/glob.test.ts": ["glob_util"],
   "packages/opencode/test/tool/apply_patch.test.ts": ["apply_patch"]
 }

@@ -1,0 +1,53 @@
+{
+  "wave": "d1",
+  "files": 26,
+  "green": 0,
+  "red": 118,
+  "ignored": 118,
+  "crates": {
+    "crates/desktop/tests": 13,
+    "crates/console/tests": 11,
+    "crates/sdk/tests": 2
+  },
+  "renames": {
+    "packages/desktop/electron-builder.config.test.ts": "n/a (electron-builder packaging config, human-verified)",
+    "packages/desktop/src/main/attachment-picker.test.ts": "d1_attachment_picker",
+    "packages/desktop/src/main/draft-store.test.ts": "d1_draft_store",
+    "packages/desktop/src/main/external-url.test.ts": "d1_external_url",
+    "packages/desktop/src/main/index.test.ts": "d1_index",
+    "packages/desktop/src/main/install-state.test.ts": "d1_install_state",
+    "packages/desktop/src/main/shell-env.test.ts": "d1_shell_env",
+    "packages/desktop/src/main/store-cleanup.test.ts": "d1_store_cleanup",
+    "packages/desktop/src/main/updater-controller.test.ts": "d1_updater_controller",
+    "packages/desktop/src/main/updater-subscriptions.test.ts": "d1_updater_subscriptions",
+    "packages/desktop/src/main/window-registry.test.ts": "d1_window_registry",
+    "packages/desktop/src/main/wsl/servers.test.ts": "d1_servers",
+    "packages/desktop/src/renderer/html.test.ts": "n/a (packaged renderer asset layout, human-verified)",
+    "packages/desktop/src/renderer/initialization.test.ts": "d1_initialization",
+    "packages/desktop/src/renderer/wsl/connections.test.ts": "d1_connections",
+    "packages/console/function/src/auth-redirect.test.ts": "d1_auth_redirect",
+    "packages/console/core/test/date.test.ts": "d1_date",
+    "packages/console/core/test/model.test.ts": "d1_model",
+    "packages/console/core/test/subscription.test.ts": "d1_subscription",
+    "packages/console/app/test/liteUsage.test.ts": "d1_lite_usage",
+    "packages/console/app/test/museSparkPolicy.test.ts": "d1_muse_spark_policy",
+    "packages/console/app/test/pricing.test.ts": "d1_pricing",
+    "packages/console/app/test/providerUsage.test.ts": "d1_provider_usage",
+    "packages/console/app/test/rateLimiter.test.ts": "d1_rate_limiter",
+    "packages/console/app/test/requestBody.test.ts": "d1_request_body",
+    "packages/console/app/test/serverAction.test.ts": "d1_server_action",
+    "packages/sdk-next/test/import-boundaries.test.ts": "d1_import_boundaries",
+    "packages/sdk-next/test/embedded.test.ts": "d1_embedded"
+  },
+  "skipped": [
+    "packages/desktop/electron-builder.config.test.ts: n/a packaging config (human-verified)",
+    "packages/desktop/src/renderer/html.test.ts: n/a packaged asset layout (human-verified)",
+    "packages/desktop/src/main/wsl/servers.test.ts#pollWslHealth: async timer/AbortSignal, not ported",
+    "packages/sdk-next/test/import-boundaries.test.ts: bun build/metafile assertion n/a (human-verified); only `within` predicate ported",
+    "packages/sdk-next/test/embedded.test.ts: live SQLite/Effect router + streaming events dropped; in-memory host contract re-derived",
+    "packages/containers/test/**: no test files at pin 18ef3cc",
+    "packages/slack/test/**: no test files at pin 18ef3cc",
+    "packages/stats/test/**: no leftovers; 3 core/src tests already ported",
+    "packages/enterprise/test/**: already ported (crates/integrations/tests/{share,storage}.rs)"
+  ]
+}

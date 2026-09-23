@@ -134,11 +134,14 @@ def rust_test_exists(crate: str, path: str, port_map: dict[str, list[str]]) -> b
     if not tests_dir.is_dir():
         return False
     if path in port_map:
-        stems = port_map[path]
-    else:
-        basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
-        stems = [basename.replace("-", "_")]
-    return any((tests_dir / f"{stem}.rs").is_file() for stem in stems)
+        return any((tests_dir / f"{stem}.rs").is_file() for stem in port_map[path])
+    basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
+    stem = basename.replace("-", "_")
+    if (tests_dir / f"{stem}.rs").is_file():
+        return True
+    # Accept wave-prefixed stems (s2_prompt.rs, c1_session_runner.rs, a1_foo.rs, ...).
+    suffix = f"_{stem}"
+    return any(f.stem.endswith(suffix) for f in tests_dir.glob("*.rs"))
 
 
 def main() -> int:

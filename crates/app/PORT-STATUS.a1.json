@@ -1,0 +1,425 @@
+{
+  "tag": "a1",
+  "crate": "crates/app",
+  "files": 87,
+  "green": 0,
+  "red": 87,
+  "skipped": [
+    {
+      "reference": "./e2e/performance/timeline/first-navigation-benchmark.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline/home-tab-navigation-benchmark.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline/review-pane-scaling-benchmark.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline/session-parent-hydration-benchmark.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline/session-tab-flash.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline/session-tab-switch-benchmark.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline/session-timeline-benchmark.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/adverse.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/context-matrix.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/environment-matrix.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/file-matrix.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/file-mutation.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/fixture.test.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/interaction.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/lifecycle.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/oracle-browser.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/scroll-interaction.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/shell-matrix.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/tool-mutation.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/tools.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/timeline-stability/transition-matrix.spec.ts",
+      "reason": "n/a (Playwright benchmark/visual \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/unit/chrome-trace-write.test.ts",
+      "reason": "n/a (Playwright/fs runtime harness \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/unit/mock-server.test.ts",
+      "reason": "n/a (Playwright/fs runtime harness \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/unit/session-tab-switch-probe.test.ts",
+      "reason": "n/a (Playwright/fs runtime harness \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/performance/unit/visual-stability.test.ts",
+      "reason": "n/a (Playwright/fs runtime harness \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/cross-server-tab-close.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/file-browser-sidebar-tab-switch.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/new-session-panel-corner.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/open-file-expand-folder.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/project-picker-recent-search.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/prompt-input-v2-command-draft.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/prompt-thinking-level.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/remote-session-settings.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/remote-tab-busy.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/review-image-flash.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/review-line-comment.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/review-open-file.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/review-state-persistence.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/review-tab-switch.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/review-terminal-stacked.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-list-path-loading.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-rename.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-request-docks.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-accessibility.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-collapse-state.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-context-resize.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-context-state.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-file-projection.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-file-state.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-history-root.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-lifecycle-state.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-locale-projection.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-projection.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-reasoning-projection.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-reducer-projection.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-shell-outline.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-tool-projection.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-tool-state.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-timeline-transport.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/session-todo-dock-navigation.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/subagent-child-navigation.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/tab-navigate-mousedown.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/terminal-composer-focus.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/terminal-hidden.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/regression/terminal-tab-switch.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/smoke/session-timeline.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./e2e/user-story/model-selection-flow.spec.ts",
+      "reason": "n/a (Playwright browser e2e \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/addons/serialize.test.ts",
+      "reason": "n/a (terminal/DOM runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/components/directory-picker.test.ts",
+      "reason": "n/a (DOM component rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/components/file-tree.test.ts",
+      "reason": "n/a (DOM component rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/components/pierre-tree.test.ts",
+      "reason": "n/a (DOM component rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/components/prompt-input/build-request-parts.test.ts",
+      "reason": "deferred (white-box runtime wiring)"
+    },
+    {
+      "reference": "./src/components/prompt-input/editor-dom.test.ts",
+      "reason": "n/a (DOM component rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/components/prompt-input/history.test.ts",
+      "reason": "deferred (white-box runtime wiring)"
+    },
+    {
+      "reference": "./src/components/prompt-input/submit.test.ts",
+      "reason": "n/a (component/visual rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/components/titlebar-session-events.test.ts",
+      "reason": "deferred (white-box runtime wiring)"
+    },
+    {
+      "reference": "./src/components/virtual-scroll-element.test.ts",
+      "reason": "n/a (DOM component rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/global-sync/bootstrap.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/global-sync/child-store.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/global-sync/event-reducer.test.ts",
+      "reason": "n/a (component/visual rendering \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/server-session.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/server-sync.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/server.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/context/terminal.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/i18n/parity.test.ts",
+      "reason": "n/a (locale dictionary fixture parity \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/pages/home-session-archive.test.ts",
+      "reason": "deferred (white-box runtime wiring)"
+    },
+    {
+      "reference": "./src/pages/session/timeline/measure.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/pages/session/timeline/observe-element-offset.test.ts",
+      "reason": "n/a (effect/runtime store + DOM measurement \u2014 human-verified)"
+    },
+    {
+      "reference": "./src/pages/session/timeline/rows-current.test.ts",
+      "reason": "deferred (white-box runtime wiring)"
+    },
+    {
+      "reference": "./src/theme-preload.test.ts",
+      "reason": "n/a (terminal/DOM runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/command-palette.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/motion-spring.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/prompt-attachments.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/prompt-persistence.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/prompt-scope.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/prompt-submission-state.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/prompt-transient-state.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/review-panel-v2-state.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/session-lineage.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/session-ownership.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/settings-keybinds.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/solid-router-cleanup.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/solid-virtual.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    },
+    {
+      "reference": "./test-browser/toast-owner.test.ts",
+      "reason": "n/a (browser DOM/runtime \u2014 human-verified)"
+    }
+  ]
+}

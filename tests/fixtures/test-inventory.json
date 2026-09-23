@@ -1,7 +1,7 @@
 {
   "source": "anomalyco/opencode test files under packages/**",
   "commit": "18ef3cc7c5a25b82114c953a80ccc09f4988f74e",
-  "extracted_at": "2026-09-23T10:29:15.382186+00:00",
+  "extracted_at": "2026-09-23T11:32:21.972640+00:00",
   "test_file_count": 740,
   "by_tier": {
     "C": 130,
@@ -9,8 +9,8 @@
     "W": 277
   },
   "by_status": {
-    "pending": 517,
-    "ported": 223
+    "pending": 247,
+    "ported": 493
   },
   "by_crate": {
     "crates/server": 254,
@@ -137,28 +137,28 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/server-compat.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/server-health.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/terminal-websocket-url.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/timeline-stability/adverse.spec.ts",
@@ -312,7 +312,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/mock-server.test.ts",
@@ -326,21 +326,21 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/session-tab-repaint-probe.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/session-tab-switch-metrics.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/session-tab-switch-probe.test.ts",
@@ -354,21 +354,21 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/session-timeline-visual-tracking.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/timeline-test-helpers.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/performance/unit/visual-stability.test.ts",
@@ -529,7 +529,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/e2e/regression/session-timeline-reasoning-projection.spec.ts",
@@ -599,28 +599,28 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/dialog-custom-provider.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/dialog-select-model-search.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/directory-picker-domain.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/directory-picker.test.ts",
@@ -634,7 +634,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/file-tree.test.ts",
@@ -655,7 +655,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/prompt-input/editor-dom.test.ts",
@@ -669,63 +669,63 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/session/session-context-breakdown.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/session/session-context-metrics.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/settings-v2/general-controllers.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/status-popover-indicator.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/titlebar-history.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/titlebar-tab-gesture.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/titlebar-tab-order.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/updater-action.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/virtual-scroll-element.test.ts",
@@ -739,21 +739,21 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/command.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/comments.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/file-content-eviction-accounting.test.ts",
@@ -767,14 +767,14 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/file/watcher.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/global-sync/event-reducer.test.ts",
@@ -788,147 +788,147 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/global-sync/mcp.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/global-sync/queue.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/global-sync/session-cache.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/global-sync/session-trim.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/global-sync/utils.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/layout-scroll.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/layout-tabs.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/layout.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/local-agent.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/model-variant.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/permission-auto-respond.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/prompt-state.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/server-sdk.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/server-session-v2-reducer.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/settings.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/sync-optimistic.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/context/tabs.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/desktop-menu.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/hooks/provider-catalog.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/i18n/desktop-native.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/i18n/parity.test.ts",
@@ -942,77 +942,77 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/home-session-open.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/new-session/new-session-workspace-controller.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/composer/session-composer-state.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/file-tab-scroll.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/helpers.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/message-gesture.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/session-model-helpers.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/session-panel-layout.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/session-panel-width.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/terminal-panel.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/timeline/measure.test.ts",
@@ -1026,7 +1026,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/timeline/observe-element-offset.test.ts",
@@ -1040,28 +1040,28 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/timeline/summary-diffs.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/use-session-hash-scroll.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/v2/review-diff-kinds.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/theme-preload.test.ts",
@@ -1075,119 +1075,119 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/persist.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/prompt.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/refcount.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/runtime-adapters.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/scoped-cache.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/server-errors.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/server-protocol.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/server-scope.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/server.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/session-export.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/session-message.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/session.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/terminal-writer.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/uuid.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/utils/worktree.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/wsl/settings-model.test.ts",
       "package": "app",
       "crate": "crates/app",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/test-browser/motion-spring.test.ts",
@@ -1229,7 +1229,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/components/titlebar-session-events.test.ts",
@@ -1285,7 +1285,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/src/pages/session/timeline/rows-current.test.ts",
@@ -1299,7 +1299,7 @@
       "package": "app",
       "crate": "crates/app",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/app/test-browser/command-palette.test.ts",
@@ -1460,7 +1460,7 @@
       "package": "console",
       "crate": "crates/console",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/console/app/test/liteUsage.test.ts",
@@ -1481,7 +1481,7 @@
       "package": "console",
       "crate": "crates/console",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/console/app/test/providerUsage.test.ts",
@@ -1516,21 +1516,21 @@
       "package": "console",
       "crate": "crates/console",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/console/core/test/model.test.ts",
       "package": "console",
       "crate": "crates/console",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/console/core/test/subscription.test.ts",
       "package": "console",
       "crate": "crates/console",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/agent.test.ts",
@@ -1558,7 +1558,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/provider.test.ts",
@@ -1642,21 +1642,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-prompt.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-runner-recorded.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-runner-tool-events.test.ts",
@@ -1670,21 +1670,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-runner.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-tool-progress.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/shared-schema.test.ts",
@@ -1768,14 +1768,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/effect/cross-spawn-spawner.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/effect/keyed-mutex.test.ts",
@@ -1789,21 +1789,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/effect/layer-node/layer-node.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/effect/layer-node/node-build.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/event.test.ts",
@@ -1845,14 +1845,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/git.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/github-copilot/convert-to-copilot-messages.test.ts",
@@ -1866,14 +1866,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/github-copilot/openai-responses-language-model.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/global.test.ts",
@@ -1894,7 +1894,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/location-filesystem.test.ts",
@@ -1957,7 +1957,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/command.test.ts",
@@ -1978,7 +1978,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-alibaba.test.ts",
@@ -1992,7 +1992,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-anthropic.test.ts",
@@ -2027,14 +2027,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-cloudflare-workers-ai.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-cohere.test.ts",
@@ -2055,7 +2055,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-gateway.test.ts",
@@ -2139,7 +2139,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-openrouter.test.ts",
@@ -2223,21 +2223,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/project-copy.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/project.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/provider-groq.test.ts",
@@ -2272,7 +2272,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/pty/ticket.test.ts",
@@ -2321,7 +2321,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-compaction.test.ts",
@@ -2335,7 +2335,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-history.test.ts",
@@ -2349,28 +2349,28 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-runner-message.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-runner-model.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-todo.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/shell.test.ts",
@@ -2391,7 +2391,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/skill/guidance.test.ts",
@@ -2433,21 +2433,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-bash.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-edit.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-output-store.test.ts",
@@ -2461,56 +2461,56 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-read-filesystem.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-read.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-skill.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-todowrite.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-write.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/util/effect-flock.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/util/flock.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/util/which.test.ts",
@@ -2524,21 +2524,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/legacy-event-schema.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/oauth-page.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/electron-builder.config.test.ts",
@@ -2552,77 +2552,77 @@
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/draft-store.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/external-url.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/index.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/install-state.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/shell-env.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/store-cleanup.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/updater-controller.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/updater-subscriptions.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/window-registry.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/main/wsl/servers.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/renderer/html.test.ts",
@@ -2636,14 +2636,14 @@
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/desktop/src/renderer/wsl/connections.test.ts",
       "package": "desktop",
       "crate": "crates/desktop",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/function/test/github.test.ts",
@@ -2958,14 +2958,14 @@
       "package": "sdk-next",
       "crate": "crates/sdk",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/sdk-next/test/embedded.test.ts",
       "package": "sdk-next",
       "crate": "crates/sdk",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/account/service.test.ts",
@@ -2986,7 +2986,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/event-manifest.test.ts",
@@ -3007,21 +3007,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/oauth-auto-connect.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/oauth-browser.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/oauth-callback.test.ts",
@@ -3077,14 +3077,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/provider/transform.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-authorization.test.ts",
@@ -3252,7 +3252,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/llm-native-recorded.test.ts",
@@ -3266,21 +3266,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/llm.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/message-v2.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/retry.test.ts",
@@ -3336,28 +3336,28 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/code-mode.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/parameters.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/registry.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/cli/acp/config-options.test.ts",
@@ -3378,7 +3378,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/cli/acp/prompt-content.test.ts",
@@ -3476,7 +3476,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/fixture/fixture.test.ts",
@@ -3497,7 +3497,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/patched-dependencies.test.ts",
@@ -3525,49 +3525,49 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/content.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/directory.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/error.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/event.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/permission.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/service-session.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/session.test.ts",
@@ -3581,14 +3581,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/acp/usage.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/agent/agent.test.ts",
@@ -3616,7 +3616,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/background/job.test.ts",
@@ -3644,7 +3644,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/cli/github-action.test.ts",
@@ -3882,21 +3882,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/config/entry-name.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/config/markdown.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/config/tui.test.ts",
@@ -3917,7 +3917,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/effect/app-runtime-logger.test.ts",
@@ -3973,14 +3973,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/ide/ide.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/image/image.test.ts",
@@ -4001,35 +4001,35 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/lsp/index.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/lsp/jdtls-root.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/lsp/launch.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/lsp/lifecycle.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/auth.test.ts",
@@ -4057,7 +4057,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/permission-task.test.ts",
@@ -4071,14 +4071,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/permission/next.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/plugin/auth-override.test.ts",
@@ -4197,7 +4197,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/project/migrate-global.test.ts",
@@ -4246,21 +4246,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/provider/cf-ai-gateway-e2e.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/provider/digitalocean.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/provider/error.test.ts",
@@ -4274,7 +4274,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/question/question.test.ts",
@@ -4477,7 +4477,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/processor-effect.test.ts",
@@ -4498,7 +4498,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/session.test.ts",
@@ -4519,7 +4519,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/system.test.ts",
@@ -4533,7 +4533,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/skill/skill.test.ts",
@@ -4610,7 +4610,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/skill.test.ts",
@@ -4624,7 +4624,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/tool-define.test.ts",
@@ -4666,42 +4666,42 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/error.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/filesystem.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/html.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/iife.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/lazy.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/module.test.ts",
@@ -4722,28 +4722,28 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/timeout.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/wildcard.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/v2/session-message-updater.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/effect-drizzle-sqlite/test/sqlite.test.ts",
@@ -4778,14 +4778,14 @@
       "package": "tui",
       "crate": "crates/tui",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/config.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/session-ui/src/components/apply-patch-file.test.ts",
@@ -4883,42 +4883,42 @@
       "package": "tui",
       "crate": "crates/tui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/cmd/tui/sync-live-hydration.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/cmd/tui/sync-undefined-messages.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/cmd/tui/sync.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/prompt-submit-race.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/plugin/slots.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/session-ui/src/components/session-diff.test.ts",
@@ -4932,287 +4932,287 @@
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/cmd/tui/model-options.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/cmd/tui/notifications.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/cmd/tui/provider-options.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/dialog-prompt.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/diff-viewer-file-tree.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/diff-viewer.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/inline-tool-wrap-snapshot.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/thinking.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/cli/tui/use-event.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/clipboard.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/component/dialog-session-list.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/context/local.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/editor.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/feature-plugins/diff-viewer-file-tree-utils.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/index.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/keymap.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/plugin/runtime.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/display.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/history.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/jsonl.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/local-attachment.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/part.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/persistence.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/prompt/traits.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/runtime.test.tsx",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/theme.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/error.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/filetype.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/format.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/model.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/presentation.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/renderer.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/revert-diff.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/session.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/tool-display.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/tui/test/util/transcript.test.ts",
       "package": "tui",
       "crate": "crates/tui",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/ui/src/components/scroll-view.test.ts",
       "package": "ui",
       "crate": "crates/ui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/ui/src/context/i18n.test.ts",
       "package": "ui",
       "crate": "crates/ui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/ui/src/context/marked-parser.test.ts",
       "package": "ui",
       "crate": "crates/ui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/ui/src/context/marked-regression.test.ts",
       "package": "ui",
       "crate": "crates/ui",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     }
   ]
 }

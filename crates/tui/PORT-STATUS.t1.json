@@ -1,0 +1,31 @@
+{
+  "tag": "t1",
+  "crate": "tui",
+  "files": 11,
+  "green": 0,
+  "red": 32,
+  "skipped": [
+    "packages/tui/test/cli/tui/diff-viewer-file-tree.test.tsx (visual: pure tree helpers already ported in diff_viewer_file_tree_utils.rs)",
+    "packages/tui/test/plugin/slots.test.tsx (visual: replaced-slot mount count under OpenTUI renderer)",
+    "packages/tui/test/config.test.tsx#provides-resolved-config-through-solid-context (visual)",
+    "packages/tui/test/cli/tui/inline-tool-wrap-snapshot.test.tsx (snapshot/wrapping/layout assertions only; pure parsers/formatters ported)"
+  ],
+  "renames": {
+    "packages/tui/test/config.test.tsx": "t1_config.rs",
+    "packages/tui/test/keymap.test.tsx": "t1_keymap.rs",
+    "packages/tui/test/index.test.tsx": "t1_index.rs",
+    "packages/tui/test/app-lifecycle.test.tsx": "t1_app_lifecycle.rs",
+    "packages/tui/test/cli/tui/data.test.tsx": "t1_data.rs",
+    "packages/tui/test/cli/tui/dialog-prompt.test.tsx": "t1_dialog_prompt.rs",
+    "packages/tui/test/cli/tui/diff-viewer.test.tsx": "t1_diff_viewer.rs",
+    "packages/tui/test/cli/tui/diff-viewer-file-tree.test.tsx": "t1_diff_viewer_file_tree.rs",
+    "packages/tui/test/cli/tui/inline-tool-wrap-snapshot.test.tsx": "t1_inline_tool_wrap_snapshot.rs",
+    "packages/tui/test/cli/tui/use-event.test.tsx": "t1_use_event.rs",
+    "packages/tui/test/plugin/slots.test.tsx": "t1_plugin_slots.rs"
+  },
+  "notes": [
+    "crates/ui and crates/session-ui reference paths were already covered by existing per-crate test files from a prior pass; no t1 duplicates were written (disjoint-files rule).",
+    "All behavioural tests are self-contained with local stubs and #[ignore = \"porting: ...\"]; no src/**, port-map.json, or Cargo.toml edits.",
+    "formatted with rustfmt --edition 2021 (exit 0); no cargo run per writer rules."
+  ]
+}

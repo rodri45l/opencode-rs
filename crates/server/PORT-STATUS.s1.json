@@ -1,0 +1,32 @@
+{
+  "tag": "s1",
+  "crate": "crates/server",
+  "files": 2,
+  "green": 0,
+  "red": 6,
+  "skipped": [
+    "packages/opencode/test/server/** (assigned scope; already 49/49 ported by earlier waves — zero pending)",
+    "packages/opencode/test/util/data-url.test.ts (owned by S5 -> s5_data_url.rs; s1 draft removed)",
+    "packages/opencode/test/util/error.test.ts (owned by S5 -> s5_util_error.rs; s1 draft removed)",
+    "packages/opencode/test/util/html.test.ts (owned by S5 -> s5_html.rs; s1 draft removed)",
+    "packages/opencode/test/util/wildcard.test.ts (owned by S5 -> s5_wildcard.rs; s1 draft removed)",
+    "packages/opencode/test/util/timeout.test.ts (owned by S5 -> s5_timeout.rs; s1 draft removed)",
+    "packages/opencode/test/permission/arity.test.ts (owned by S5 -> s5_permission_arity.rs; s1 draft removed)",
+    "packages/opencode/test/permission/next.test.ts (owned by S5 -> s5_permission_next.rs; s1 draft removed)",
+    "packages/opencode/test/config/entry-name.test.ts (owned by S5 -> s5_entry_name.rs; s1 draft removed)",
+    "packages/opencode/test/util/module.test.ts (node_modules resolution needs runtime fs)",
+    "packages/opencode/test/util/process.test.ts (child-process spawn runtime)",
+    "packages/opencode/test/util/repository.test.ts (owned by S5 -> s5_repository.rs)",
+    "packages/opencode/test/config/agent-color.test.ts (Effect Config/Agent runtime)",
+    "packages/opencode/test/v2/session-message-updater.test.ts (owned by S5 -> s5_session_message_updater.rs)"
+  ],
+  "mappings": {
+    "packages/opencode/test/util/iife.test.ts": ["iife"],
+    "packages/opencode/test/util/lazy.test.ts": ["lazy"]
+  },
+  "files_detail": [
+    "packages/opencode/test/util/iife.test.ts -> tests/iife.rs (3 red; S5 declared n/a)",
+    "packages/opencode/test/util/lazy.test.ts -> tests/lazy.rs (3 red; S5 declared n/a)"
+  ],
+  "notes": "Assigned scope packages/opencode/test/server/** was already fully ported; concurrent groups S2-S5 own session/tool/acp-lsp-mcp-provider/util-permission-config paths. s1 recovers util/iife and util/lazy, the only unclaimed pure ports (S5 marked them n/a). All stubs local to each test file; no src/**, port-map.json, Cargo.toml edits. rustfmt clean; rustc --emit=metadata type-check clean (no cargo)."
+}

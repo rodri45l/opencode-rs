@@ -1,0 +1,20 @@
+{
+  "files": 5,
+  "green": 0,
+  "red": 32,
+  "ignored": 32,
+  "renames": {
+    "packages/core/test/database-migration.test.ts": "c3_database_migration",
+    "packages/core/test/git.test.ts": "c3_git",
+    "packages/core/test/integration.test.ts": "c3_integration",
+    "packages/core/test/project-copy.test.ts": "c3_project_copy",
+    "packages/core/test/pty/pty-session.test.ts": "c3_pty_session"
+  },
+  "skipped": [
+    "database-migration: live SqliteClient/Drizzle/Effect wiring, generated migration list, schema/index creation, concurrent init, win32 codec",
+    "git: live clone/fetch/reset/checkout/worktree/tree git processes and LayerNode/Effect wiring",
+    "integration: Integration/Credential/EventV2 services, Scope/Fiber/Stream/TestClock, OAuth attempt lifecycle (code-required/cancel/auto/expiry)",
+    "project-copy: ProjectCopy/Database/EventV2 services, live git worktree create/remove, ProjectDirectoryTable rows, event stream",
+    "pty-session: live Pty/EventV2/Config/Location services, native spawn/attach/detach, event queue, timeout-driven output/isolation tests"
+  ]
+}

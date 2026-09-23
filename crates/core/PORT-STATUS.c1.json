@@ -1,0 +1,38 @@
+{
+  "writer": "c1",
+  "files": 10,
+  "green": 0,
+  "red": 104,
+  "tests": 104,
+  "ported_paths": [
+    "packages/core/test/session-runner-model.test.ts -> c1_session_runner_model.rs (13 red)",
+    "packages/core/test/session-run-coordinator.test.ts -> c1_session_run_coordinator.rs (13 red)",
+    "packages/core/test/session-runner-message.test.ts -> c1_session_runner_message.rs (6 red)",
+    "packages/core/test/session-projector.test.ts -> c1_session_projector.rs (7 red)",
+    "packages/core/test/session-prompt.test.ts -> c1_session_prompt.rs (20 red)",
+    "packages/core/test/session-create.test.ts -> c1_session_create.rs (13 red)",
+    "packages/core/test/session-runner-recorded.test.ts -> c1_session_runner_recorded.rs (1 red)",
+    "packages/core/test/session-runner-tool-registry.test.ts -> c1_session_runner_tool_registry.rs (17 red)",
+    "packages/core/test/session-tool-progress.test.ts -> c1_session_tool_progress.rs (5 red)",
+    "packages/core/test/session-runner.test.ts -> c1_session_runner.rs (9 red, pure subset)"
+  ],
+  "renames": [],
+  "note": "All test files are local-stub RED-first (#[ignore]) per fast-wave protocol; filenames use the c1_ prefix, so port-map entries are needed for auto-detection. No src/lib.rs, port-map.json or Cargo.toml edits.",
+  "skipped_paths_covered_elsewhere": [
+    "packages/core/test/session-todo.test.ts already has tests/session_todo.rs (not touched)",
+    "packages/core/test/session-history.test.ts, session-compaction.test.ts, session-runner-tool-events.test.ts already ported (not touched)"
+  ],
+  "drops": [
+    "runner-model: LLMClient.prepare/route.auth.apply replaced by reading resolved route token/body; provider SDK types not exercised",
+    "run-coordinator: Effect fibers/Deferred/Scope replaced by deterministic scheduler; joined-waiter-interruption and 20k self-wake trampoline skipped",
+    "runner-message: @opencode-ai/llm Message/Model represented as JSON; no protocol runtime",
+    "projector: Database/EventV2/SQL wiring and session-row column (agent/model/time_updated) assertions dropped",
+    "prompt: Database/EventV2/projector + concurrency replaced by in-memory inbox; concurrent retries run sequentially",
+    "create: Database/EventV2/projector replaced by in-memory registry; fresh-target replay and projector-defect tests skipped",
+    "runner-recorded: HttpRecorder cassette/LLM/Database replaced by scripted event projection; recorded HTTP round-trip skipped",
+    "runner-tool-registry: Effect Scope/Deferred/Fiber + Tool/ApplicationTools layers replaced by in-memory registry with explicit scopes",
+    "tool-progress: Database/EventV2/SessionProjector + event-table seq assertions replaced by pure state projector",
+    "runner: live provider-run, retry, compaction, steering/queueing, permission, snapshot and multi-session cases skipped; pure stream/policy/cache-key/error subset ported"
+  ],
+  "blockers": []
+}

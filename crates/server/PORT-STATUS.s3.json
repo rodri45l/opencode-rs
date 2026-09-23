@@ -1,0 +1,19 @@
+{
+  "files": 5,
+  "green": 0,
+  "red": 56,
+  "renames": {
+    "packages/opencode/test/tool/code-mode.test.ts": "s3_code_mode.rs",
+    "packages/opencode/test/tool/code-mode-integration.test.ts": "s3_code_mode_integration.rs",
+    "packages/opencode/test/tool/registry.test.ts": "s3_registry.rs",
+    "packages/opencode/test/tool/shell.test.ts": "s3_shell.rs",
+    "packages/opencode/test/tool/task.test.ts": "s3_task.rs"
+  },
+  "skipped": [
+    "parameters.test.ts: already covered by tests/tool_parameters.rs (green, imports src)",
+    "code-mode/code-mode-integration: confined JS interpreter execution paths (need a JS engine)",
+    "registry: live plugin/file-system tool loading machinery",
+    "shell: live subprocess, abort, streaming-metadata and truncation tests (need spawner)",
+    "task: live session/DB/background-job/fiber execution tests"
+  ]
+}
