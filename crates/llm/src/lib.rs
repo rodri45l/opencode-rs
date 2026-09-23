@@ -1,68 +1,41 @@
 //! Provider abstraction and streaming adapters.
 //!
-//! Placeholder for Phase 5. The goal is a single `Provider` trait with a
-//! streaming interface, plus one adapter per upstream API family, each tested
-//! against recorded cassettes from the reference `http-recorder`.
+//! This crate is a from-scratch port of `packages/llm`. The port proceeds
+//! test-first: the reference tests under `tests/` pin observable behaviour
+//! (request shaping, streaming chunk parsing, tool-call assembly, usage/cost)
+//! while the adapters are stubbed with typed [`LlmError::NotImplemented`]
+//! errors.
 
-use opencode_schema::EventType;
-use serde_json::Value;
+#![forbid(unsafe_code)]
 
-/// A single model descriptor.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct ModelInfo {
-    pub id: String,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub name: Option<String>,
-}
+pub mod api;
+pub mod cache_policy;
+pub mod error;
+pub mod protocols;
+pub mod providers;
+pub mod route;
+pub mod schema;
+pub mod shared;
+pub mod tool;
+pub mod tool_schema;
+pub mod tool_stream;
 
-/// A provider request for one completion turn.
-#[derive(Debug, Clone)]
-pub struct CompletionRequest {
-    pub model: String,
-    pub messages: Vec<Value>,
-    pub tools: Vec<Value>,
-}
+/// The universal wire value used across the crate's public API.
+pub type Json = serde_json::Value;
 
-/// A normalised streaming chunk produced by a provider adapter.
-#[derive(Debug, Clone)]
-pub enum Chunk {
-    /// Streamed assistant text.
-    Text(String),
-    /// Streamed reasoning text.
-    Reasoning(String),
-    /// A tool call became available.
-    ToolCall {
-        id: String,
-        name: String,
-        input: Value,
-    },
-    /// The provider reported terminal usage/cost.
-    Finished { finish: String, cost: f64 },
-}
-
-/// A model provider (OpenAI-compatible, Anthropic, Google, ...).
-pub trait Provider: Send + Sync + 'static {
-    /// Stable provider id, matching `models.dev`.
-    fn id(&self) -> &str;
-
-    /// Models exposed by this provider.
-    fn models(&self) -> Vec<ModelInfo>;
-
-    /// Stream a completion. Implementations land in Phase 5.
-    fn stream(
-        &self,
-        request: CompletionRequest,
-    ) -> Result<Box<dyn Iterator<Item = Chunk> + Send>, LlmError>;
-}
-
-/// Placeholder error until adapters are implemented.
-#[derive(Debug, thiserror::Error)]
-pub enum LlmError {
-    #[error("not implemented")]
-    NotImplemented,
-    #[error("provider error: {0}")]
-    Provider(String),
-}
-
-/// The event type emitted when a model list is refreshed.
-pub const CATALOG_EVENT: EventType = EventType::CatalogUpdated;
+pub use api::LLM;
+pub use cache_policy::apply_cache_policy;
+pub use error::{LlmError, LlmResult};
+pub use providers::Provider;
+pub use route::{
+    Auth, Endpoint, ExecutedResponse, LLMClient, Prepared, Protocol, RequestExecutor, Response,
+    Route, WebSocketExecutor,
+};
+pub use schema::{
+    CacheHint, ContentPart, LLMEvent, LLMRequest, LLMResponse, Message, Model, ToolCallPart,
+    ToolChoice, ToolDefinition, ToolResultPart, Usage,
+};
+pub use shared::ProviderShared;
+pub use tool::{Tool, ToolContent, ToolExecuteContext, ToolFailure, ToolOutput, ToolRuntime};
+pub use tool_schema::ToolSchemaProjection;
+pub use tool_stream::ToolStream;
