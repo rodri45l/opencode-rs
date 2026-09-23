@@ -4,7 +4,7 @@
 //! plugin registers the `customize-opencode` skill describing how to edit
 //! opencode's own configuration.
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A registered skill.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,8 +22,9 @@ pub struct PluginSkill;
 impl PluginSkill {
     /// The built-in customize-opencode skill.
     pub fn builtin() -> CoreResult<BuiltinSkill> {
-        Err(CoreError::NotImplemented(
-            "plugin_skill::PluginSkill::builtin",
-        ))
+        Ok(BuiltinSkill {
+            name: "customize-opencode".to_string(),
+            description: "How to edit opencode's own configuration".to_string(),
+        })
     }
 }

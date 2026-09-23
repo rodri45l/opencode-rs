@@ -11,7 +11,7 @@
 
 use serde_json::Value;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// The resolved Cloudflare AI Gateway SDK configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -56,31 +56,58 @@ pub struct CloudflareAiGatewayPlugin;
 
 impl CloudflareAiGatewayPlugin {
     /// Whether the plugin handles `package` (the AI Gateway SDK only).
-    pub fn matches_package(_package: &str) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_ai_gateway::CloudflareAiGatewayPlugin::matches_package",
-        ))
+    pub fn matches_package(package: &str) -> CoreResult<bool> {
+        Ok(package == "ai-gateway-provider")
     }
 
     /// Resolve the SDK configuration, or `None` when account, gateway, or token
     /// is absent.
     pub fn resolve_config(
-        _env: &CloudflareGatewayEnv,
-        _options: &CloudflareGatewayOptions,
+        env: &CloudflareGatewayEnv,
+        options: &CloudflareGatewayOptions,
     ) -> CoreResult<Option<CloudflareGatewayConfig>> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_ai_gateway::CloudflareAiGatewayPlugin::resolve_config",
-        ))
+        let account_id = env
+            .account_id
+            .clone()
+            .filter(|value| !value.is_empty())
+            .or_else(|| options.account_id.clone().filter(|value| !value.is_empty()));
+        let gateway = env
+            .gateway
+            .clone()
+            .filter(|value| !value.is_empty())
+            .or_else(|| options.gateway.clone().filter(|value| !value.is_empty()))
+            .or_else(|| options.gateway_id.clone().filter(|value| !value.is_empty()));
+        let api_key = env
+            .api_token
+            .clone()
+            .filter(|value| !value.is_empty())
+            .or_else(|| env.cf_aig_token.clone().filter(|value| !value.is_empty()))
+            .or_else(|| options.api_key.clone().filter(|value| !value.is_empty()));
+
+        match (account_id, gateway, api_key) {
+            (Some(account_id), Some(gateway), Some(api_key)) => Ok(Some(CloudflareGatewayConfig {
+                account_id,
+                gateway,
+                api_key,
+            })),
+            _ => Ok(None),
+        }
     }
 
     /// Resolve the AI Gateway metadata: an explicit `metadata` option wins over
     /// the legacy `cf-aig-metadata` JSON header.
     pub fn resolve_metadata(
-        _metadata: Option<&Value>,
-        _cf_aig_metadata_header: Option<&str>,
+        metadata: Option<&Value>,
+        cf_aig_metadata_header: Option<&str>,
     ) -> CoreResult<Option<Value>> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_ai_gateway::CloudflareAiGatewayPlugin::resolve_metadata",
-        ))
+        if let Some(metadata) = metadata.filter(|value| !value.is_null()) {
+            return Ok(Some(metadata.clone()));
+        }
+        if let Some(header) = cf_aig_metadata_header {
+            if let Ok(parsed) = serde_json::from_str::<Value>(header) {
+                return Ok(Some(parsed));
+            }
+        }
+        Ok(None)
     }
 }

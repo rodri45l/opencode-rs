@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use serde_json::{json, Value};
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// One persisted todo entry.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,26 +48,22 @@ impl SessionTodoStore {
     }
 
     /// Replace the todos for `session_id` in order and publish an update.
-    pub fn update(&mut self, _session_id: &str, _todos: Vec<Todo>) -> CoreResult<()> {
-        let _ = (&mut self.todos, &mut self.published);
-        Err(CoreError::NotImplemented(
-            "session_todo::SessionTodoStore::update",
-        ))
+    pub fn update(&mut self, session_id: &str, todos: Vec<Todo>) -> CoreResult<()> {
+        self.todos.insert(session_id.to_string(), todos.clone());
+        self.published.push(json!({
+            "sessionID": session_id,
+            "todos": todos.iter().map(Todo::to_json).collect::<Vec<_>>(),
+        }));
+        Ok(())
     }
 
     /// The current todos for `session_id`.
-    pub fn get(&self, _session_id: &str) -> CoreResult<Vec<Todo>> {
-        let _ = &self.todos;
-        Err(CoreError::NotImplemented(
-            "session_todo::SessionTodoStore::get",
-        ))
+    pub fn get(&self, session_id: &str) -> CoreResult<Vec<Todo>> {
+        Ok(self.todos.get(session_id).cloned().unwrap_or_default())
     }
 
     /// The published `updated` payloads in order.
     pub fn published(&self) -> CoreResult<Vec<Value>> {
-        let _ = &self.published;
-        Err(CoreError::NotImplemented(
-            "session_todo::SessionTodoStore::published",
-        ))
+        Ok(self.published.clone())
     }
 }

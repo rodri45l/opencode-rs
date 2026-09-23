@@ -5,7 +5,6 @@ use opencode_llm::{protocols, providers, Protocol, Provider, Route};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: exports surface not implemented"]
 fn root_exposes_app_facing_runtime_apis() {
     let _ = opencode_llm::LLM::request(json!({}));
     let _ = opencode_llm::LLMClient::service();
@@ -17,7 +16,6 @@ fn root_exposes_app_facing_runtime_apis() {
 }
 
 #[test]
-#[ignore = "porting: exports surface not implemented"]
 fn route_barrel_exposes_route_authoring_apis() {
     assert_eq!(
         Route::make(json!({ "id": "fixture" })),
@@ -30,7 +28,6 @@ fn route_barrel_exposes_route_authoring_apis() {
 }
 
 #[test]
-#[ignore = "porting: exports surface not implemented"]
 fn protocol_barrels_expose_supported_low_level_routes() {
     assert_eq!(protocols::openai_chat::id(), "openai-chat");
     assert_eq!(
@@ -46,7 +43,6 @@ fn protocol_barrels_expose_supported_low_level_routes() {
 }
 
 #[test]
-#[ignore = "porting: exports surface not implemented"]
 fn provider_barrels_expose_user_facing_facades() {
     assert_eq!(
         providers::openai::responses("gpt-5.5")["route"]["id"],

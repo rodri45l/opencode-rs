@@ -10,7 +10,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A registered skill source.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,26 +38,35 @@ pub struct SkillCatalog;
 
 impl SkillCatalog {
     /// Deduplicate sources, preserving first-seen order.
-    pub fn dedup_sources(_sources: Vec<SkillSource>) -> CoreResult<Vec<SkillSource>> {
-        Err(CoreError::NotImplemented(
-            "skill::SkillCatalog::dedup_sources",
-        ))
+    pub fn dedup_sources(sources: Vec<SkillSource>) -> CoreResult<Vec<SkillSource>> {
+        let mut seen: Vec<SkillSource> = Vec::new();
+        for source in sources {
+            if !seen.contains(&source) {
+                seen.push(source);
+            }
+        }
+        Ok(seen)
     }
 
     /// Resolve skill-name precedence: later source indexes win, output sorted by
     /// name.
-    pub fn resolve_precedence(_entries: Vec<(u32, SkillEntry)>) -> CoreResult<Vec<SkillEntry>> {
-        Err(CoreError::NotImplemented(
-            "skill::SkillCatalog::resolve_precedence",
-        ))
+    pub fn resolve_precedence(entries: Vec<(u32, SkillEntry)>) -> CoreResult<Vec<SkillEntry>> {
+        Ok(dedup_by_name(entries)
+            .into_values()
+            .map(|(_, entry)| entry)
+            .collect())
     }
 
     /// The names available to an agent, excluding denied skill resources.
     pub fn available(
-        _entries: &[SkillEntry],
-        _denied_resources: &[String],
+        entries: &[SkillEntry],
+        denied_resources: &[String],
     ) -> CoreResult<Vec<String>> {
-        Err(CoreError::NotImplemented("skill::SkillCatalog::available"))
+        Ok(entries
+            .iter()
+            .filter(|entry| !denied_resources.iter().any(|denied| denied == &entry.name))
+            .map(|entry| entry.name.clone())
+            .collect())
     }
 }
 

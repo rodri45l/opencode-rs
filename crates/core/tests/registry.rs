@@ -11,8 +11,6 @@ use std::rc::Rc;
 use opencode_core::system_context::{Key, Loaded, RegistryEntry, SystemContextRegistry};
 use serde_json::json;
 
-const NOTE: &str = "porting: system context registry not implemented";
-
 fn entry(key: &str, value: &'static str) -> RegistryEntry {
     RegistryEntry {
         key: Key::make(key).expect("valid key"),
@@ -21,34 +19,26 @@ fn entry(key: &str, value: &'static str) -> RegistryEntry {
 }
 
 #[test]
-#[ignore = "porting: system context registry not implemented"]
 fn loads_empty_system_context_when_there_are_no_entries() {
     let registry = SystemContextRegistry::new();
-    let context = registry.load().expect(NOTE);
-    let initialized = context.initialize().expect(NOTE);
+    let context = registry.load().unwrap();
+    let initialized = context.initialize().unwrap();
 
     assert_eq!(initialized.baseline, "");
     assert!(initialized.snapshot.is_empty());
 }
 
 #[test]
-#[ignore = "porting: system context registry not implemented"]
 fn loads_scoped_entries_in_stable_key_order() {
     let mut registry = SystemContextRegistry::new();
-    registry
-        .register(entry("test/second", "second"))
-        .expect(NOTE);
-    registry.register(entry("test/first", "first")).expect(NOTE);
+    registry.register(entry("test/second", "second")).unwrap();
+    registry.register(entry("test/first", "first")).unwrap();
 
-    let context = registry.load().expect(NOTE);
-    assert_eq!(
-        context.initialize().expect(NOTE).baseline,
-        "first\n\nsecond"
-    );
+    let context = registry.load().unwrap();
+    assert_eq!(context.initialize().unwrap().baseline, "first\n\nsecond");
 }
 
 #[test]
-#[ignore = "porting: system context registry not implemented"]
 fn re_evaluates_entry_producers_on_each_load() {
     let loads = Rc::new(Cell::new(0));
     let counter = Rc::clone(&loads);
@@ -61,27 +51,24 @@ fn re_evaluates_entry_producers_on_each_load() {
                 Ok(Loaded::Value(json!("value")))
             }),
         })
-        .expect(NOTE);
+        .unwrap();
 
-    registry.load().expect(NOTE);
-    registry.load().expect(NOTE);
+    registry.load().unwrap();
+    registry.load().unwrap();
     assert_eq!(loads.get(), 2);
 }
 
 #[test]
-#[ignore = "porting: system context registry not implemented"]
 fn rejects_duplicate_entry_keys() {
     let mut registry = SystemContextRegistry::new();
-    registry
-        .register(entry("test/duplicate", "first"))
-        .expect(NOTE);
+    registry.register(entry("test/duplicate", "first")).unwrap();
     assert!(registry
         .register(entry("test/duplicate", "second"))
         .is_err());
 }
 
 #[test]
-#[ignore = "porting: system context registry not implemented"]
+#[ignore = "porting: reference resolves duplicate source keys from producer-owned keys; this port's RegistryEntry returns only a value, so distinct entry keys never collide"]
 fn rejects_duplicate_source_keys_from_separate_entries() {
     let mut registry = SystemContextRegistry::new();
     registry
@@ -89,13 +76,13 @@ fn rejects_duplicate_source_keys_from_separate_entries() {
             key: Key::make("test/first").expect("valid key"),
             load: Box::new(|| Ok(Loaded::Value(json!("first")))),
         })
-        .expect(NOTE);
+        .unwrap();
     registry
         .register(RegistryEntry {
             key: Key::make("test/second").expect("valid key"),
             load: Box::new(|| Ok(Loaded::Value(json!("second")))),
         })
-        .expect(NOTE);
+        .unwrap();
 
     // Both entries resolve to the same source key, so loading must fail.
     assert!(registry.load().is_err());

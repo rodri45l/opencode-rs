@@ -10,12 +10,9 @@
 use opencode_core::tool_webfetch::{WebFetchTool, MAX_TIMEOUT_SECONDS};
 use serde_json::json;
 
-const NOTE: &str = "porting: web fetch tool not implemented";
-
 #[test]
-#[ignore = "porting: web fetch tool not implemented"]
 fn defaults_format_and_rejects_invalid_timeout_controls() {
-    let decoded = WebFetchTool::parse_input(&json!({ "url": "https://example.com" })).expect(NOTE);
+    let decoded = WebFetchTool::parse_input(&json!({ "url": "https://example.com" })).unwrap();
     assert_eq!(decoded.format, "markdown");
     assert!(
         WebFetchTool::parse_input(&json!({ "url": "https://example.com", "timeout": 0 })).is_err()
@@ -27,22 +24,20 @@ fn defaults_format_and_rejects_invalid_timeout_controls() {
 }
 
 #[test]
-#[ignore = "porting: web fetch tool not implemented"]
 fn converts_html_text_and_markdown_without_active_content() {
     let html = "<h1>Hello</h1><script>bad()</script><p>world <strong>wide</strong></p><style>.bad {}</style>";
     assert_eq!(
-        WebFetchTool::extract_text_from_html(html).expect(NOTE),
+        WebFetchTool::extract_text_from_html(html).unwrap(),
         "Helloworld wide"
     );
     assert_eq!(
-        WebFetchTool::convert_html_to_markdown(html).expect(NOTE),
+        WebFetchTool::convert_html_to_markdown(html).unwrap(),
         "# Hello\n\nworld **wide**"
     );
 }
 
 #[test]
-#[ignore = "porting: web fetch tool not implemented"]
 fn rejects_non_http_schemes() {
-    assert!(!WebFetchTool::is_supported_scheme("file:///etc/passwd").expect(NOTE));
-    assert!(WebFetchTool::is_supported_scheme("https://example.com").expect(NOTE));
+    assert!(!WebFetchTool::is_supported_scheme("file:///etc/passwd").unwrap());
+    assert!(WebFetchTool::is_supported_scheme("https://example.com").unwrap());
 }

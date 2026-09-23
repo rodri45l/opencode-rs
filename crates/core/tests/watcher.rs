@@ -8,37 +8,32 @@
 
 use opencode_core::watcher::{Watcher, WatcherEventKind};
 
-const NOTE: &str = "porting: filesystem watcher not implemented";
-
 #[test]
-#[ignore = "porting: filesystem watcher not implemented"]
 fn only_git_roots_publish_events() {
-    assert!(Watcher::should_publish(true, "watch.txt").expect(NOTE));
-    assert!(!Watcher::should_publish(false, "plain.txt").expect(NOTE));
+    assert!(Watcher::should_publish(true, "watch.txt").unwrap());
+    assert!(!Watcher::should_publish(false, "plain.txt").unwrap());
 }
 
 #[test]
-#[ignore = "porting: filesystem watcher not implemented"]
 fn ignores_git_index_but_publishes_git_head() {
-    assert!(Watcher::is_git_index(".git/index").expect(NOTE));
-    assert!(!Watcher::should_publish(true, ".git/index").expect(NOTE));
-    assert!(Watcher::is_git_head(".git/HEAD").expect(NOTE));
-    assert!(Watcher::should_publish(true, ".git/HEAD").expect(NOTE));
+    assert!(Watcher::is_git_index(".git/index").unwrap());
+    assert!(!Watcher::should_publish(true, ".git/index").unwrap());
+    assert!(Watcher::is_git_head(".git/HEAD").unwrap());
+    assert!(Watcher::should_publish(true, ".git/HEAD").unwrap());
 }
 
 #[test]
-#[ignore = "porting: filesystem watcher not implemented"]
 fn maps_file_transitions_to_event_kinds() {
     assert_eq!(
-        Watcher::event_kind(false, true).expect(NOTE),
+        Watcher::event_kind(false, true).unwrap(),
         WatcherEventKind::Add
     );
     assert_eq!(
-        Watcher::event_kind(true, true).expect(NOTE),
+        Watcher::event_kind(true, true).unwrap(),
         WatcherEventKind::Change
     );
     assert_eq!(
-        Watcher::event_kind(true, false).expect(NOTE),
+        Watcher::event_kind(true, false).unwrap(),
         WatcherEventKind::Unlink
     );
 }

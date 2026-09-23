@@ -42,31 +42,53 @@ impl ToolRegistry {
     }
 
     /// Register a location tool.
-    pub fn register(&mut self, _definition: ToolDefinition) -> CoreResult<()> {
-        let _ = &self.tools;
-        Err(CoreError::NotImplemented(
-            "application_tools::ToolRegistry::register",
-        ))
+    pub fn register(&mut self, definition: ToolDefinition) -> CoreResult<()> {
+        validate_name(&definition.name)?;
+        self.tools.insert(definition.name.clone(), definition);
+        Ok(())
     }
 
     /// Register application tools, validating names.
-    pub fn register_application(&mut self, _tools: Vec<ToolDefinition>) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "application_tools::ToolRegistry::register_application",
-        ))
+    pub fn register_application(&mut self, tools: Vec<ToolDefinition>) -> CoreResult<()> {
+        for definition in tools {
+            validate_name(&definition.name)?;
+            self.tools.insert(definition.name.clone(), definition);
+        }
+        Ok(())
     }
 
     /// Advertised definitions after applying deny rules.
-    pub fn definitions(&self, _denied: &[String]) -> CoreResult<Vec<ToolDefinition>> {
-        Err(CoreError::NotImplemented(
-            "application_tools::ToolRegistry::definitions",
-        ))
+    pub fn definitions(&self, denied: &[String]) -> CoreResult<Vec<ToolDefinition>> {
+        Ok(self
+            .tools
+            .values()
+            .filter(|definition| !denied.iter().any(|name| name == &definition.name))
+            .cloned()
+            .collect())
     }
 
     /// Settle a tool call.
-    pub fn settle(&self, _name: &str, _input: Value) -> CoreResult<ToolResult> {
-        Err(CoreError::NotImplemented(
-            "application_tools::ToolRegistry::settle",
-        ))
+    pub fn settle(&self, name: &str, input: Value) -> CoreResult<ToolResult> {
+        match self.tools.get(name) {
+            Some(_) => Ok(ToolResult {
+                kind: "content".to_string(),
+                value: input,
+            }),
+            None => Ok(ToolResult {
+                kind: "error".to_string(),
+                value: Value::Null,
+            }),
+        }
     }
+}
+
+fn validate_name(name: &str) -> CoreResult<()> {
+    if name.is_empty()
+        || !name
+            .chars()
+            .all(|ch| ch.is_ascii_alphanumeric() || ch == '_' || ch == '-' || ch == '.')
+    {
+        return Err(CoreError::Invalid(format!("invalid tool name: {name}")));
+    }
+    Ok(())
 }

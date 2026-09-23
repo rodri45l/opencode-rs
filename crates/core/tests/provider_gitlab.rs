@@ -12,8 +12,6 @@ use std::collections::BTreeMap;
 
 use opencode_core::provider_gitlab::{GitLabOptions, GitLabPlugin};
 
-const NOTE: &str = "porting: gitlab provider plugin not implemented";
-
 fn env(pairs: &[(&str, &str)]) -> BTreeMap<String, String> {
     pairs
         .iter()
@@ -22,20 +20,18 @@ fn env(pairs: &[(&str, &str)]) -> BTreeMap<String, String> {
 }
 
 #[test]
-#[ignore = "porting: gitlab provider plugin not implemented"]
 fn binds_only_to_the_gitlab_provider_package() {
-    assert!(GitLabPlugin::matches_package("gitlab-ai-provider").expect(NOTE));
-    assert!(!GitLabPlugin::matches_package("@ai-sdk/openai").expect(NOTE));
+    assert!(GitLabPlugin::matches_package("gitlab-ai-provider").unwrap());
+    assert!(!GitLabPlugin::matches_package("@ai-sdk/openai").unwrap());
 }
 
 #[test]
-#[ignore = "porting: gitlab provider plugin not implemented"]
 fn resolves_legacy_defaults_from_env() {
     let resolved = GitLabPlugin::resolve_options(
         &env(&[("GITLAB_TOKEN", "env-token")]),
         &GitLabOptions::default(),
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(resolved.instance_url, "https://gitlab.com");
     assert_eq!(resolved.api_key.as_deref(), Some("env-token"));
@@ -63,19 +59,17 @@ fn resolves_legacy_defaults_from_env() {
 }
 
 #[test]
-#[ignore = "porting: gitlab provider plugin not implemented"]
 fn uses_the_instance_url_env_when_not_configured() {
     let resolved = GitLabPlugin::resolve_options(
         &env(&[("GITLAB_INSTANCE_URL", "https://env.gitlab.example")]),
         &GitLabOptions::default(),
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(resolved.instance_url, "https://env.gitlab.example");
 }
 
 #[test]
-#[ignore = "porting: gitlab provider plugin not implemented"]
 fn keeps_configured_options_over_env_and_defaults() {
     let configured = GitLabOptions {
         instance_url: Some("https://configured.gitlab.example".to_string()),
@@ -96,7 +90,7 @@ fn keeps_configured_options_over_env_and_defaults() {
         ]),
         &configured,
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(resolved.instance_url, "https://configured.gitlab.example");
     assert_eq!(resolved.api_key.as_deref(), Some("configured-token"));

@@ -7,12 +7,9 @@ use opencode_core::credential::{
     CredentialCreate, CredentialPatch, CredentialStore, CredentialValue, IntegrationId,
 };
 
-const NOTE: &str = "porting: credential not implemented";
-
 #[test]
-#[ignore = "porting: credential not implemented"]
 fn stores_updates_lists_and_removes_credentials() {
-    let credentials = CredentialStore::new().expect(NOTE);
+    let credentials = CredentialStore::new().unwrap();
     let integration_id = IntegrationId::make("openai");
     let created = credentials
         .create(CredentialCreate {
@@ -20,10 +17,10 @@ fn stores_updates_lists_and_removes_credentials() {
             label: Some("Work".into()),
             value: CredentialValue::key("secret"),
         })
-        .expect(NOTE);
+        .unwrap();
 
     assert_eq!(
-        credentials.list(&integration_id).expect(NOTE),
+        credentials.list(&integration_id).unwrap(),
         vec![created.clone()]
     );
 
@@ -35,9 +32,9 @@ fn stores_updates_lists_and_removes_credentials() {
                 value: None,
             },
         )
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(
-        credentials.list(&integration_id).expect(NOTE)[0]
+        credentials.list(&integration_id).unwrap()[0]
             .label
             .as_deref(),
         Some("Personal")
@@ -49,12 +46,12 @@ fn stores_updates_lists_and_removes_credentials() {
             label: Some("Replacement".into()),
             value: CredentialValue::key("replacement"),
         })
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(
-        credentials.list(&integration_id).expect(NOTE),
+        credentials.list(&integration_id).unwrap(),
         vec![replacement.clone()]
     );
 
-    credentials.remove(&replacement.id).expect(NOTE);
-    assert_eq!(credentials.list(&integration_id).expect(NOTE), Vec::new());
+    credentials.remove(&replacement.id).unwrap();
+    assert_eq!(credentials.list(&integration_id).unwrap(), Vec::new());
 }

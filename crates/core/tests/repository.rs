@@ -9,12 +9,9 @@ use std::path::Path;
 
 use opencode_core::repository::Repository;
 
-const NOTE: &str = "porting: repository not implemented";
-
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn parses_github_shorthand_and_builds_an_explicit_root_cache_path() {
-    let reference = Repository::parse_remote("owner/repo").expect(NOTE);
+    let reference = Repository::parse_remote("owner/repo").unwrap();
 
     assert_eq!(reference.host, "github.com");
     assert_eq!(reference.path, "owner/repo");
@@ -25,7 +22,7 @@ fn parses_github_shorthand_and_builds_an_explicit_root_cache_path() {
     assert_eq!(reference.label, "owner/repo");
 
     assert_eq!(
-        Repository::cache_path("/cache", &reference, None).expect(NOTE),
+        Repository::cache_path("/cache", &reference, None).unwrap(),
         Path::new("/cache")
             .join("github.com")
             .join("owner")
@@ -34,7 +31,7 @@ fn parses_github_shorthand_and_builds_an_explicit_root_cache_path() {
             .to_string()
     );
     assert_eq!(
-        Repository::cache_path("/cache", &reference, Some("main")).expect(NOTE),
+        Repository::cache_path("/cache", &reference, Some("main")).unwrap(),
         Path::new("/cache")
             .join("github.com")
             .join("owner")
@@ -43,7 +40,7 @@ fn parses_github_shorthand_and_builds_an_explicit_root_cache_path() {
             .to_string()
     );
     assert_eq!(
-        Repository::cache_path("/cache", &reference, Some("feature/x")).expect(NOTE),
+        Repository::cache_path("/cache", &reference, Some("feature/x")).unwrap(),
         Path::new("/cache")
             .join("github.com")
             .join("owner")
@@ -52,21 +49,20 @@ fn parses_github_shorthand_and_builds_an_explicit_root_cache_path() {
             .to_string()
     );
     assert_eq!(
-        Repository::cache_identity(&reference).expect(NOTE),
+        Repository::cache_identity(&reference).unwrap(),
         "github.com/owner/repo"
     );
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn parses_host_path_and_scp_remote_references() {
-    let gitlab = Repository::parse_remote("gitlab.com/group/repo").expect(NOTE);
+    let gitlab = Repository::parse_remote("gitlab.com/group/repo").unwrap();
     assert_eq!(gitlab.host, "gitlab.com");
     assert_eq!(gitlab.path, "group/repo");
     assert_eq!(gitlab.remote, "https://gitlab.com/group/repo.git");
     assert_eq!(gitlab.label, "gitlab.com/group/repo");
 
-    let scp = Repository::parse_remote("git@github.com:owner/repo.git").expect(NOTE);
+    let scp = Repository::parse_remote("git@github.com:owner/repo.git").unwrap();
     assert_eq!(scp.host, "github.com");
     assert_eq!(scp.path, "owner/repo");
     assert_eq!(scp.remote, "git@github.com:owner/repo.git");
@@ -74,21 +70,19 @@ fn parses_host_path_and_scp_remote_references() {
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn keeps_local_file_repositories_distinct_from_remote_repositories() {
     let local_path = std::path::Path::new("repo.git");
     let url = format!("file://{}", local_path.to_string_lossy());
-    let reference = Repository::parse(&url).expect(NOTE);
+    let reference = Repository::parse(&url).unwrap();
 
     assert_eq!(reference.host, "file");
     assert_eq!(reference.protocol.as_deref(), Some("file:"));
-    assert!(Repository::is_file(&reference).expect(NOTE));
-    assert!(!Repository::is_remote(&reference).expect(NOTE));
+    assert!(Repository::is_file(&reference).unwrap());
+    assert!(!Repository::is_remote(&reference).unwrap());
     assert!(Repository::parse_remote(&url).is_err());
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn rejects_unsafe_remote_references_and_branches_with_typed_errors() {
     assert!(Repository::parse_remote("not-a-repo").is_err());
     assert!(Repository::parse_remote("git@github.com:../../../etc/passwd").is_err());
@@ -99,18 +93,17 @@ fn rejects_unsafe_remote_references_and_branches_with_typed_errors() {
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn compares_cache_identity_independent_of_input_spelling() {
-    let shorthand = Repository::parse_remote("owner/repo").expect(NOTE);
+    let shorthand = Repository::parse_remote("owner/repo").unwrap();
 
     assert!(Repository::same(
         &shorthand,
-        &Repository::parse_remote("https://github.com/owner/repo.git").expect(NOTE)
+        &Repository::parse_remote("https://github.com/owner/repo.git").unwrap()
     )
-    .expect(NOTE));
+    .unwrap());
     assert!(Repository::same(
         &shorthand,
-        &Repository::parse_remote("github.com/owner/repo").expect(NOTE)
+        &Repository::parse_remote("github.com/owner/repo").unwrap()
     )
-    .expect(NOTE));
+    .unwrap());
 }

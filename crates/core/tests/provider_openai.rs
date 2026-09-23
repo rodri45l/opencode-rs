@@ -11,8 +11,6 @@ use opencode_core::provider_sdk_plugins::{
     LanguageQuery, LanguageSelection, LanguageSelector, ProviderSdkPlugins, SdkCapabilities,
 };
 
-const NOTE: &str = "porting: openai provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -23,25 +21,20 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: openai provider plugin not implemented"]
 fn binds_only_to_the_exact_openai_package() {
-    assert!(ProviderSdkPlugins::matches_package("openai", "@ai-sdk/openai").expect(NOTE));
-    assert!(
-        !ProviderSdkPlugins::matches_package("openai", "@ai-sdk/openai-compatible").expect(NOTE)
-    );
+    assert!(ProviderSdkPlugins::matches_package("openai", "@ai-sdk/openai").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("openai", "@ai-sdk/openai-compatible").unwrap());
 }
 
 #[test]
-#[ignore = "porting: openai provider plugin not implemented"]
 fn names_the_sdk_provider_with_the_model_provider_id() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("openai", "custom-openai").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("openai", "custom-openai").unwrap(),
         "custom-openai"
     );
 }
 
 #[test]
-#[ignore = "porting: openai provider plugin not implemented"]
 fn selects_responses_with_the_model_api_id() {
     let query = LanguageQuery {
         plugin: "openai",
@@ -52,7 +45,7 @@ fn selects_responses_with_the_model_api_id() {
         use_completion_urls: false,
     };
     assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
+        ProviderSdkPlugins::select_language(&query).unwrap(),
         Some(LanguageSelection {
             selector: LanguageSelector::Responses,
             model_id: "gpt-5".to_string(),
@@ -61,7 +54,6 @@ fn selects_responses_with_the_model_api_id() {
 }
 
 #[test]
-#[ignore = "porting: openai provider plugin not implemented"]
 fn ignores_non_openai_providers() {
     let query = LanguageQuery {
         plugin: "openai",
@@ -71,21 +63,15 @@ fn ignores_non_openai_providers() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }
 
 #[test]
-#[ignore = "porting: openai provider plugin not implemented"]
 fn disables_gpt_5_chat_latest_for_the_exact_openai_provider() {
-    assert!(
-        ProviderSdkPlugins::disables_model("openai", "openai", "gpt-5-chat-latest").expect(NOTE)
-    );
-    assert!(!ProviderSdkPlugins::disables_model("openai", "openai", "gpt-5").expect(NOTE));
+    assert!(ProviderSdkPlugins::disables_model("openai", "openai", "gpt-5-chat-latest").unwrap());
+    assert!(!ProviderSdkPlugins::disables_model("openai", "openai", "gpt-5").unwrap());
     assert!(
         !ProviderSdkPlugins::disables_model("openai", "custom-openai", "gpt-5-chat-latest")
-            .expect(NOTE)
+            .unwrap()
     );
 }

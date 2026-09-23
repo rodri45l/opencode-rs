@@ -8,8 +8,6 @@
 
 use opencode_core::provider_sdk_plugins::{LanguageQuery, ProviderSdkPlugins, SdkCapabilities};
 
-const NOTE: &str = "porting: deepinfra provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -20,36 +18,32 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: deepinfra provider plugin not implemented"]
 fn binds_only_to_the_exact_deepinfra_package() {
-    assert!(ProviderSdkPlugins::matches_package("deepinfra", "@ai-sdk/deepinfra").expect(NOTE));
-    assert!(!ProviderSdkPlugins::matches_package("deepinfra", "unmatched-package").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("deepinfra", "@ai-sdk/deepinfra").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("deepinfra", "unmatched-package").unwrap());
     assert!(
-        !ProviderSdkPlugins::matches_package("deepinfra", "@ai-sdk/deepinfra-compatible")
-            .expect(NOTE)
+        !ProviderSdkPlugins::matches_package("deepinfra", "@ai-sdk/deepinfra-compatible").unwrap()
     );
     assert!(!ProviderSdkPlugins::matches_package(
         "deepinfra",
         "file:///tmp/@ai-sdk/deepinfra-provider.js"
     )
-    .expect(NOTE));
+    .unwrap());
 }
 
 #[test]
-#[ignore = "porting: deepinfra provider plugin not implemented"]
 fn names_the_sdk_provider_with_a_chat_suffix() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("deepinfra", "custom-deepinfra").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("deepinfra", "custom-deepinfra").unwrap(),
         "custom-deepinfra.chat"
     );
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("deepinfra", "deepinfra").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("deepinfra", "deepinfra").unwrap(),
         "deepinfra.chat"
     );
 }
 
 #[test]
-#[ignore = "porting: deepinfra provider plugin not implemented"]
 fn leaves_language_selection_to_the_default_fallback() {
     let query = LanguageQuery {
         plugin: "deepinfra",
@@ -59,8 +53,5 @@ fn leaves_language_selection_to_the_default_fallback() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }

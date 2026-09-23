@@ -12,8 +12,6 @@ use opencode_core::provider_header_plugins::ProviderHeaderPlugins;
 use opencode_core::provider_plugins::ProviderRequest;
 use serde_json::json;
 
-const NOTE: &str = "porting: llmgateway provider plugin not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -25,18 +23,16 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: llmgateway provider plugin not implemented"]
 fn is_registered_so_legacy_referer_headers_can_be_applied() {
     assert!(ProviderHeaderPlugins::registered_ids()
-        .expect(NOTE)
+        .unwrap()
         .contains(&"llmgateway"));
 }
 
 #[test]
-#[ignore = "porting: llmgateway provider plugin not implemented"]
 fn applies_legacy_referer_headers_only_to_an_enabled_llmgateway() {
     let mut gateway = request(&[("Existing", "value")]);
-    ProviderHeaderPlugins::apply_llmgateway("llmgateway", true, &mut gateway).expect(NOTE);
+    ProviderHeaderPlugins::apply_llmgateway("llmgateway", true, &mut gateway).unwrap();
     assert_eq!(
         gateway.headers.get("Existing").map(String::as_str),
         Some("value")
@@ -55,15 +51,14 @@ fn applies_legacy_referer_headers_only_to_an_enabled_llmgateway() {
     );
 
     let mut openrouter = request(&[]);
-    ProviderHeaderPlugins::apply_llmgateway("openrouter", true, &mut openrouter).expect(NOTE);
+    ProviderHeaderPlugins::apply_llmgateway("openrouter", true, &mut openrouter).unwrap();
     assert!(openrouter.headers.is_empty());
 }
 
 #[test]
-#[ignore = "porting: llmgateway provider plugin not implemented"]
 fn does_not_apply_legacy_headers_to_a_disabled_llmgateway_provider() {
     let mut gateway = request(&[]);
-    ProviderHeaderPlugins::apply_llmgateway("llmgateway", false, &mut gateway).expect(NOTE);
+    ProviderHeaderPlugins::apply_llmgateway("llmgateway", false, &mut gateway).unwrap();
 
     assert!(gateway.headers.is_empty());
 }

@@ -8,8 +8,6 @@
 
 use opencode_core::provider_sdk_plugins::{LanguageQuery, ProviderSdkPlugins, SdkCapabilities};
 
-const NOTE: &str = "porting: cohere provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -20,25 +18,20 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: cohere provider plugin not implemented"]
 fn binds_only_to_the_exact_cohere_package() {
-    assert!(ProviderSdkPlugins::matches_package("cohere", "@ai-sdk/cohere").expect(NOTE));
-    assert!(
-        !ProviderSdkPlugins::matches_package("cohere", "@ai-sdk/openai-compatible").expect(NOTE)
-    );
+    assert!(ProviderSdkPlugins::matches_package("cohere", "@ai-sdk/cohere").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("cohere", "@ai-sdk/openai-compatible").unwrap());
 }
 
 #[test]
-#[ignore = "porting: cohere provider plugin not implemented"]
 fn uses_the_model_provider_id_as_the_bundled_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("cohere", "custom-cohere").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("cohere", "custom-cohere").unwrap(),
         "custom-cohere.chat"
     );
 }
 
 #[test]
-#[ignore = "porting: cohere provider plugin not implemented"]
 fn leaves_language_selection_to_the_default_fallback() {
     let query = LanguageQuery {
         plugin: "cohere",
@@ -48,8 +41,5 @@ fn leaves_language_selection_to_the_default_fallback() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }

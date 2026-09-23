@@ -18,8 +18,16 @@ pub struct Key(String);
 
 impl Key {
     /// Validate and construct a namespaced key.
-    pub fn make(_value: &str) -> CoreResult<Self> {
-        Err(CoreError::NotImplemented("system_context::Key::make"))
+    pub fn make(value: &str) -> CoreResult<Self> {
+        let valid = value
+            .split_once('/')
+            .is_some_and(|(namespace, name)| !namespace.is_empty() && !name.is_empty());
+        if !valid {
+            return Err(CoreError::Invalid(format!(
+                "system-context key must be namespaced: {value}"
+            )));
+        }
+        Ok(Self(value.to_string()))
     }
 
     /// Borrow the key string.
@@ -148,29 +156,148 @@ impl SystemContext {
 
     /// Combine sources, rejecting duplicate source keys.
     pub fn combine(sources: Vec<Source>) -> CoreResult<Self> {
+        let mut seen = Vec::new();
+        for source in &sources {
+            if seen.contains(&source.key) {
+                return Err(CoreError::Invalid(format!(
+                    "duplicate system-context source key: {}",
+                    source.key.as_str()
+                )));
+            }
+            seen.push(source.key.clone());
+        }
         Ok(Self { sources })
     }
 
     /// Initialize the baseline and snapshot.
     pub fn initialize(&self) -> CoreResult<Initialized> {
-        let _ = &self.sources;
-        Err(CoreError::NotImplemented(
-            "system_context::SystemContext::initialize",
-        ))
+        if self
+            .sources
+            .iter()
+            .any(|source| matches!(source.load, Loaded::Unavailable))
+        {
+            return Err(CoreError::Message(
+                "cannot initialize while a source is unavailable".into(),
+            ));
+        }
+        let baseline = self
+            .sources
+            .iter()
+            .map(|source| match &source.load {
+                Loaded::Value(value) => (source.baseline)(value),
+                Loaded::Unavailable => String::new(),
+            })
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        let mut snapshot = Snapshot::new();
+        for source in &self.sources {
+            if let Loaded::Value(value) = &source.load {
+                snapshot.insert(
+                    source.key.as_str().to_string(),
+                    SnapshotEntry {
+                        value: value.clone(),
+                        removed: None,
+                    },
+                );
+            }
+        }
+        Ok(Initialized { baseline, snapshot })
     }
 
     /// Reconcile against a previous snapshot.
-    pub fn reconcile(&self, _previous: &Snapshot) -> CoreResult<ReconcileResult> {
-        Err(CoreError::NotImplemented(
-            "system_context::SystemContext::reconcile",
-        ))
+    pub fn reconcile(&self, previous: &Snapshot) -> CoreResult<ReconcileResult> {
+        if self
+            .sources
+            .iter()
+            .any(|source| matches!(source.load, Loaded::Unavailable))
+        {
+            return Ok(ReconcileResult::Unchanged);
+        }
+
+        let mut segments: Vec<String> = Vec::new();
+        let mut snapshot = Snapshot::new();
+        let mut changed = false;
+
+        for source in &self.sources {
+            if let Loaded::Value(value) = &source.load {
+                let key = source.key.as_str().to_string();
+                match previous.get(&key) {
+                    Some(entry) => {
+                        if entry.value != *value {
+                            segments.push((source.update)(&entry.value, value));
+                            changed = true;
+                        }
+                    }
+                    None => {
+                        segments.push((source.baseline)(value));
+                        changed = true;
+                    }
+                }
+                snapshot.insert(
+                    key,
+                    SnapshotEntry {
+                        value: value.clone(),
+                        removed: None,
+                    },
+                );
+            }
+        }
+
+        let current_keys: Vec<&String> = self.sources.iter().map(|source| &source.key.0).collect();
+        for (key, entry) in previous {
+            if !current_keys.contains(&key) {
+                if let Some(removed) = &entry.removed {
+                    segments.push(removed.clone());
+                    changed = true;
+                }
+            }
+        }
+
+        if changed {
+            Ok(ReconcileResult::Updated {
+                text: segments.join("\n\n"),
+                snapshot,
+            })
+        } else {
+            Ok(ReconcileResult::Unchanged)
+        }
     }
 
     /// Replace from a coherent observation.
-    pub fn replace(&self, _previous: &Snapshot) -> CoreResult<ReconcileResult> {
-        Err(CoreError::NotImplemented(
-            "system_context::SystemContext::replace",
-        ))
+    pub fn replace(&self, previous: &Snapshot) -> CoreResult<ReconcileResult> {
+        let has_unavailable = self
+            .sources
+            .iter()
+            .any(|source| matches!(source.load, Loaded::Unavailable));
+        if has_unavailable {
+            let admitted = self
+                .sources
+                .iter()
+                .any(|source| previous.contains_key(source.key.as_str()));
+            if admitted {
+                return Ok(ReconcileResult::ReplacementBlocked);
+            }
+            // Nothing was admitted for the unavailable sources, so a coherent
+            // generation from the available sources can still be produced.
+            let baseline = self
+                .sources
+                .iter()
+                .filter_map(|source| match &source.load {
+                    Loaded::Value(value) => Some((source.baseline)(value)),
+                    Loaded::Unavailable => None,
+                })
+                .collect::<Vec<_>>()
+                .join("\n\n");
+            return Ok(ReconcileResult::ReplacementReady {
+                generation: Generation { baseline },
+            });
+        }
+        let initialized = self.initialize()?;
+        Ok(ReconcileResult::ReplacementReady {
+            generation: Generation {
+                baseline: initialized.baseline,
+            },
+        })
     }
 }
 
@@ -195,19 +322,54 @@ impl SystemContextRegistry {
     }
 
     /// Register an entry, rejecting duplicate entry keys.
-    pub fn register(&mut self, _entry: RegistryEntry) -> CoreResult<()> {
-        Err(CoreError::NotImplemented(
-            "system_context::SystemContextRegistry::register",
-        ))
+    pub fn register(&mut self, entry: RegistryEntry) -> CoreResult<()> {
+        if self
+            .entries
+            .iter()
+            .any(|existing| existing.key == entry.key)
+        {
+            return Err(CoreError::Invalid(format!(
+                "duplicate registry entry key: {}",
+                entry.key.as_str()
+            )));
+        }
+        self.entries.push(entry);
+        Ok(())
     }
 
     /// Load the registered entries into a combined context.
     pub fn load(&self) -> CoreResult<SystemContext> {
-        let _ = &self.entries;
-        Err(CoreError::NotImplemented(
-            "system_context::SystemContextRegistry::load",
-        ))
+        let mut entries: Vec<&RegistryEntry> = self.entries.iter().collect();
+        entries.sort_by(|left, right| left.key.cmp(&right.key));
+        let mut sources = Vec::new();
+        let mut seen = Vec::new();
+        for entry in entries {
+            let loaded = (entry.load)()?;
+            if seen.contains(&entry.key) {
+                return Err(CoreError::Invalid(format!(
+                    "duplicate source key: {}",
+                    entry.key.as_str()
+                )));
+            }
+            seen.push(entry.key.clone());
+            sources.push(Source::new(
+                entry.key.clone(),
+                loaded,
+                identity_baseline,
+                identity_update,
+                None,
+            ));
+        }
+        SystemContext::combine(sources)
     }
+}
+
+fn identity_baseline(value: &Value) -> String {
+    value.as_str().unwrap_or_default().to_string()
+}
+
+fn identity_update(_previous: &Value, current: &Value) -> String {
+    current.as_str().unwrap_or_default().to_string()
 }
 
 /// Built-in environment and date context input.
@@ -231,9 +393,21 @@ pub struct SystemContextBuiltIns;
 
 impl SystemContextBuiltIns {
     /// Render the built-in environment and date baseline.
-    pub fn render(_env: &BuiltinEnv) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "system_context::SystemContextBuiltIns::render",
-        ))
+    pub fn render(env: &BuiltinEnv) -> CoreResult<String> {
+        Ok([
+            "Here is some useful information about the environment you are running in:".to_string(),
+            "<env>".to_string(),
+            format!("  Working directory: {}", env.working_directory),
+            format!("  Workspace root folder: {}", env.workspace_root),
+            format!(
+                "  Is directory a git repo: {}",
+                if env.is_git_repo { "yes" } else { "no" }
+            ),
+            format!("  Platform: {}", env.platform),
+            "</env>".to_string(),
+            String::new(),
+            format!("Today's date: {}", env.date),
+        ]
+        .join("\n"))
     }
 }

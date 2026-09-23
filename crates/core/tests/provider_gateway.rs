@@ -7,20 +7,16 @@
 
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 
-const NOTE: &str = "porting: gateway provider plugin not implemented";
-
 #[test]
-#[ignore = "porting: gateway provider plugin not implemented"]
 fn binds_only_to_the_exact_gateway_package() {
-    assert!(ProviderSdkPlugins::matches_package("gateway", "@ai-sdk/gateway").expect(NOTE));
-    assert!(!ProviderSdkPlugins::matches_package("gateway", "@ai-sdk/vercel").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("gateway", "@ai-sdk/gateway").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("gateway", "@ai-sdk/vercel").unwrap());
 }
 
 #[test]
-#[ignore = "porting: gateway provider plugin not implemented"]
 fn passes_the_model_provider_id_as_the_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("gateway", "vercel").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("gateway", "vercel").unwrap(),
         "vercel"
     );
 }

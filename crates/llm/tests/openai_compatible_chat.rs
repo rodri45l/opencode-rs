@@ -1,7 +1,7 @@
 //! Port of packages/llm/test/provider/openai-compatible-chat.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the OpenAI-compatible Chat protocol and provider families.
 
-use opencode_llm::{providers, Auth, LLMClient, Message, ToolCallPart, LLM};
+use opencode_llm::{providers, testing, Auth, LLMClient, Message, ToolCallPart, LLM};
 use serde_json::json;
 
 fn model() -> serde_json::Value {
@@ -25,7 +25,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: openai compatible chat protocol not implemented"]
 fn prepares_generic_chat_target() {
     let prepared = LLMClient::prepare(LLM::update_request(request(), json!({
         "tools": [{ "name": "lookup", "description": "Lookup data", "inputSchema": { "type": "object" } }],
@@ -45,7 +44,6 @@ fn prepares_generic_chat_target() {
 }
 
 #[test]
-#[ignore = "porting: openai compatible chat protocol not implemented"]
 fn provides_model_helpers_for_compatible_provider_families() {
     let families = [
         (
@@ -92,7 +90,6 @@ fn provides_model_helpers_for_compatible_provider_families() {
 }
 
 #[test]
-#[ignore = "porting: openai compatible chat protocol not implemented"]
 fn matches_ai_sdk_compatible_tool_request_body_fixture() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_tool_parity",
@@ -122,8 +119,17 @@ fn matches_ai_sdk_compatible_tool_request_body_fixture() {
 }
 
 #[test]
-#[ignore = "porting: openai compatible chat protocol not implemented"]
 fn posts_to_the_configured_compatible_endpoint_and_parses_text_usage() {
+    testing::push_response(json!({ "status": 200, "body": format!(
+        "data: {}\n\ndata: {}\n\ndata: {}\n\ndata: [DONE]\n\n",
+        json!({ "choices": [{ "delta": { "content": "Hello" } }] }),
+        json!({ "choices": [{ "delta": { "content": "!" } }] }),
+        json!({ "choices": [{ "delta": {}, "finish_reason": "stop" }], "usage": {
+            "prompt_tokens": 5, "completion_tokens": 2, "total_tokens": 7,
+            "prompt_tokens_details": { "cached_tokens": 0 },
+            "completion_tokens_details": { "reasoning_tokens": 0 }
+        } }),
+    ) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.text, "Hello!");

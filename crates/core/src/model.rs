@@ -85,6 +85,22 @@ pub struct ModelRef {
 }
 
 /// Decode a `ModelV2.Ref` from its wire shape.
-pub fn decode_model_ref(_value: &serde_json::Value) -> CoreResult<ModelRef> {
-    Err(CoreError::NotImplemented("model::decode_model_ref"))
+pub fn decode_model_ref(value: &serde_json::Value) -> CoreResult<ModelRef> {
+    let id = value
+        .get("id")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| CoreError::Invalid("model ref missing id".into()))?;
+    let provider_id = value
+        .get("providerID")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| CoreError::Invalid("model ref missing providerID".into()))?;
+    let variant = value
+        .get("variant")
+        .and_then(serde_json::Value::as_str)
+        .map(VariantId::make);
+    Ok(ModelRef {
+        id: ModelId::make(id),
+        provider_id: ProviderId::make(provider_id),
+        variant,
+    })
 }

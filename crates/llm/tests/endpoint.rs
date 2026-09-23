@@ -12,7 +12,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: endpoint render not implemented"]
 fn appends_a_static_path_to_the_models_base_url() {
     let url = Endpoint::render(
         Endpoint::path(
@@ -27,7 +26,6 @@ fn appends_a_static_path_to_the_models_base_url() {
 }
 
 #[test]
-#[ignore = "porting: endpoint render not implemented"]
 fn endpoint_query_params_are_appended_to_the_rendered_url() {
     let url = Endpoint::render(
         Endpoint::path(
@@ -48,7 +46,6 @@ fn endpoint_query_params_are_appended_to_the_rendered_url() {
 }
 
 #[test]
-#[ignore = "porting: endpoint render not implemented"]
 fn path_may_be_a_function_of_the_validated_body() {
     let url = Endpoint::render(
         Endpoint::path(

@@ -9,7 +9,6 @@ fn input(env: serde_json::Value) -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn renders_a_config_credential_as_bearer_auth() {
     let headers = Auth::apply(
         Auth::config_bearer("OPENAI_API_KEY"),
@@ -22,7 +21,6 @@ fn renders_a_config_credential_as_bearer_auth() {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn falls_back_between_credential_sources_before_rendering() {
     let auth = Auth::render_header(
         Auth::or_else(Auth::config("PRIMARY_KEY"), Auth::value("fallback-key")),
@@ -35,7 +33,6 @@ fn falls_back_between_credential_sources_before_rendering() {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn composes_header_auth_in_sequence() {
     let auth = Auth::and_then(
         Auth::headers(json!({ "x-tenant-id": "tenant-1" })),
@@ -49,7 +46,6 @@ fn composes_header_auth_in_sequence() {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn renders_a_direct_secret_as_a_custom_header() {
     let headers =
         Auth::apply(Auth::header("api-key", "direct-key"), input(json!({}))).expect("auth apply");
@@ -59,7 +55,6 @@ fn renders_a_direct_secret_as_a_custom_header() {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn renders_bearer_auth_into_a_custom_header() {
     let headers = Auth::apply(
         Auth::bearer_header("cf-aig-authorization", "gateway-token"),
@@ -72,7 +67,6 @@ fn renders_bearer_auth_into_a_custom_header() {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn falls_back_between_full_auth_values() {
     let auth = Auth::or_else(
         Auth::config_bearer("OPENAI_API_KEY"),
@@ -85,7 +79,6 @@ fn falls_back_between_full_auth_values() {
 }
 
 #[test]
-#[ignore = "porting: auth apply not implemented"]
 fn can_intentionally_leave_auth_untouched() {
     let headers = Auth::apply(Auth::none(), input(json!({}))).expect("auth apply");
 

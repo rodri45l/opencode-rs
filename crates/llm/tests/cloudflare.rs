@@ -2,11 +2,16 @@
 //! Behaviour pinned by the Cloudflare provider facades.
 //! Effect-ts `ConfigProvider` env plumbing is dropped; endpoint/auth behaviour is kept.
 
-use opencode_llm::{providers, LLMClient, LLM};
+use opencode_llm::{providers, testing, LLMClient, LLM};
 use serde_json::json;
 
+fn text_response(text: &str) -> serde_json::Value {
+    json!({ "status": 200, "body": format!("data: {}\n\ndata: {}\n\ndata: [DONE]\n\n",
+        json!({ "choices": [{ "delta": { "content": text } }] }),
+        json!({ "choices": [{ "delta": {}, "finish_reason": "stop" }] })) })
+}
+
 #[test]
-#[ignore = "porting: cloudflare provider not implemented"]
 fn prepares_ai_gateway_models_through_the_openai_compatible_chat_protocol() {
     let model = providers::cloudflare::ai_gateway(
         json!({ "accountId": "test-account", "gatewayId": "test-gateway", "apiKey": "test-token" }),
@@ -30,7 +35,6 @@ fn prepares_ai_gateway_models_through_the_openai_compatible_chat_protocol() {
 }
 
 #[test]
-#[ignore = "porting: cloudflare provider not implemented"]
 fn defaults_ai_gateway_id_to_default_when_omitted_or_blank() {
     let model = providers::cloudflare::ai_gateway(
         json!({ "accountId": "test-account", "gatewayId": "", "gatewayApiKey": "test-token" }),
@@ -44,7 +48,6 @@ fn defaults_ai_gateway_id_to_default_when_omitted_or_blank() {
 }
 
 #[test]
-#[ignore = "porting: cloudflare provider not implemented"]
 fn allows_a_fully_configured_base_url_override() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": providers::cloudflare::ai_gateway(json!({ "baseURL": "https://gateway.proxy.test/v1/custom/compat", "apiKey": "test-token" })).model("openai/gpt-4o-mini"),
@@ -59,7 +62,6 @@ fn allows_a_fully_configured_base_url_override() {
 }
 
 #[test]
-#[ignore = "porting: cloudflare provider not implemented"]
 fn prepares_direct_workers_ai_models_through_the_openai_compatible_chat_protocol() {
     let model = providers::cloudflare::workers_ai(
         json!({ "accountId": "test-account", "apiKey": "test-token" }),
@@ -82,20 +84,20 @@ fn prepares_direct_workers_ai_models_through_the_openai_compatible_chat_protocol
 }
 
 #[test]
-#[ignore = "porting: cloudflare provider not implemented"]
 fn posts_to_the_derived_gateway_endpoint_with_bearer_auth() {
     let response = LLM::request(json!({
         "model": providers::cloudflare::ai_gateway(json!({ "accountId": "test-account", "gatewayId": "test-gateway", "apiKey": "test-token" })).model("openai/gpt-4o-mini"),
         "prompt": "Say hello.",
     }));
+    testing::push_response(text_response("Hello"));
     let response = LLMClient::generate(response).expect("generate");
 
     assert_eq!(response.text, "Hello");
 }
 
 #[test]
-#[ignore = "porting: cloudflare provider not implemented"]
 fn supports_direct_workers_ai_token_aliases_through_auth_config() {
+    testing::push_response(text_response("Hello"));
     let response = LLMClient::generate(LLM::request(json!({
         "model": providers::cloudflare::workers_ai(json!({ "accountId": "test-account" })).model("@cf/meta/llama-3.1-8b-instruct"),
         "prompt": "Say hello.",

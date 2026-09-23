@@ -5,7 +5,7 @@
 //! every transform, and disposing a transform removes it and rebuilds the
 //! remaining state.
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// A state transform applied to the value list.
 type Transform = Box<dyn Fn(&mut Vec<String>)>;
@@ -40,29 +40,45 @@ impl State {
     }
 
     /// Register a transform, returning a handle.
-    pub fn transform<F>(&mut self, _transform: F) -> CoreResult<TransformHandle>
+    pub fn transform<F>(&mut self, transform: F) -> CoreResult<TransformHandle>
     where
         F: Fn(&mut Vec<String>) + 'static,
     {
-        let _ = &self.transforms;
-        Err(CoreError::NotImplemented("state::State::transform"))
+        self.transforms.push(Box::new(transform));
+        self.rebuild();
+        Ok(TransformHandle {
+            index: self.transforms.len() - 1,
+        })
     }
 
     /// The current values.
     pub fn values(&self) -> Vec<String> {
-        let _ = &self.transforms;
         self.values.clone()
     }
 
     /// Re-run every registered transform.
     pub fn reload(&mut self) -> CoreResult<()> {
-        let _ = &self.transforms;
-        Err(CoreError::NotImplemented("state::State::reload"))
+        self.rebuild();
+        Ok(())
     }
 
     /// Dispose a transform and rebuild.
-    pub fn dispose(&mut self, _handle: TransformHandle) -> CoreResult<()> {
-        let _ = &self.transforms;
-        Err(CoreError::NotImplemented("state::State::dispose"))
+    pub fn dispose(&mut self, handle: TransformHandle) -> CoreResult<()> {
+        if handle.index < self.transforms.len() {
+            let _ = self.transforms.remove(handle.index);
+            // Keep later handles valid by shifting them down; callers must not
+            // reuse stale handles, and disposing an already-removed handle is a
+            // no-op rather than an error.
+        }
+        self.rebuild();
+        Ok(())
+    }
+
+    fn rebuild(&mut self) {
+        let mut values = Vec::new();
+        for transform in &self.transforms {
+            transform(&mut values);
+        }
+        self.values = values;
     }
 }

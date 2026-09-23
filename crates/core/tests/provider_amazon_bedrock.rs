@@ -11,36 +11,31 @@
 use opencode_core::provider_amazon_bedrock::{AmazonBedrockPlugin, DEFAULT_REGION};
 use opencode_core::provider_sdk_plugins::LanguageSelector;
 
-const NOTE: &str = "porting: amazon-bedrock provider plugin not implemented";
-
 #[test]
-#[ignore = "porting: amazon-bedrock provider plugin not implemented"]
 fn binds_only_to_the_bedrock_package_and_its_mantle_subpath() {
-    assert!(AmazonBedrockPlugin::matches_package("@ai-sdk/amazon-bedrock").expect(NOTE));
-    assert!(AmazonBedrockPlugin::matches_package("@ai-sdk/amazon-bedrock/mantle").expect(NOTE));
-    assert!(!AmazonBedrockPlugin::matches_package("@ai-sdk/amazon-bedrock/anthropic").expect(NOTE));
-    assert!(!AmazonBedrockPlugin::matches_package("@ai-sdk/openai-compatible").expect(NOTE));
+    assert!(AmazonBedrockPlugin::matches_package("@ai-sdk/amazon-bedrock").unwrap());
+    assert!(AmazonBedrockPlugin::matches_package("@ai-sdk/amazon-bedrock/mantle").unwrap());
+    assert!(!AmazonBedrockPlugin::matches_package("@ai-sdk/amazon-bedrock/anthropic").unwrap());
+    assert!(!AmazonBedrockPlugin::matches_package("@ai-sdk/openai-compatible").unwrap());
 }
 
 #[test]
-#[ignore = "porting: amazon-bedrock provider plugin not implemented"]
 fn resolves_region_as_config_over_environment_over_default() {
     assert_eq!(
-        AmazonBedrockPlugin::resolve_region(Some("eu-west-1"), Some("us-east-1")).expect(NOTE),
+        AmazonBedrockPlugin::resolve_region(Some("eu-west-1"), Some("us-east-1")).unwrap(),
         "eu-west-1"
     );
     assert_eq!(
-        AmazonBedrockPlugin::resolve_region(None, Some("eu-west-1")).expect(NOTE),
+        AmazonBedrockPlugin::resolve_region(None, Some("eu-west-1")).unwrap(),
         "eu-west-1"
     );
     assert_eq!(
-        AmazonBedrockPlugin::resolve_region(None, None).expect(NOTE),
+        AmazonBedrockPlugin::resolve_region(None, None).unwrap(),
         DEFAULT_REGION
     );
 }
 
 #[test]
-#[ignore = "porting: amazon-bedrock provider plugin not implemented"]
 fn resolves_base_url_as_endpoint_over_base_url_over_region_default() {
     assert_eq!(
         AmazonBedrockPlugin::resolve_base_url(
@@ -48,26 +43,25 @@ fn resolves_base_url_as_endpoint_over_base_url_over_region_default() {
             Some("https://base.example"),
             "us-east-1"
         )
-        .expect(NOTE),
+        .unwrap(),
         "https://endpoint.example"
     );
     assert_eq!(
         AmazonBedrockPlugin::resolve_base_url(None, Some("https://base.example"), "us-east-1")
-            .expect(NOTE),
+            .unwrap(),
         "https://base.example"
     );
     assert_eq!(
-        AmazonBedrockPlugin::resolve_base_url(None, None, "eu-west-1").expect(NOTE),
+        AmazonBedrockPlugin::resolve_base_url(None, None, "eu-west-1").unwrap(),
         "https://bedrock-runtime.eu-west-1.amazonaws.com"
     );
     assert_eq!(
-        AmazonBedrockPlugin::resolve_base_url(None, None, DEFAULT_REGION).expect(NOTE),
+        AmazonBedrockPlugin::resolve_base_url(None, None, DEFAULT_REGION).unwrap(),
         "https://bedrock-runtime.us-east-1.amazonaws.com"
     );
 }
 
 #[test]
-#[ignore = "porting: amazon-bedrock provider plugin not implemented"]
 fn applies_the_full_legacy_cross_region_prefix_matrix() {
     let cases: &[(&str, &str, &str)] = &[
         (
@@ -237,7 +231,7 @@ fn applies_the_full_legacy_cross_region_prefix_matrix() {
 
     for (region, model_id, expected) in cases {
         assert_eq!(
-            AmazonBedrockPlugin::apply_language_prefix(region, model_id).expect(NOTE),
+            AmazonBedrockPlugin::apply_language_prefix(region, model_id).unwrap(),
             *expected,
             "region {region} model {model_id}"
         );
@@ -245,14 +239,13 @@ fn applies_the_full_legacy_cross_region_prefix_matrix() {
 }
 
 #[test]
-#[ignore = "porting: amazon-bedrock provider plugin not implemented"]
 fn selects_mantle_accessors_without_cross_region_prefixes() {
     assert_eq!(
-        AmazonBedrockPlugin::select_mantle_accessor("openai.gpt-5.5").expect(NOTE),
+        AmazonBedrockPlugin::select_mantle_accessor("openai.gpt-5.5").unwrap(),
         LanguageSelector::Responses
     );
     assert_eq!(
-        AmazonBedrockPlugin::select_mantle_accessor("openai.gpt-oss-safeguard-120b").expect(NOTE),
+        AmazonBedrockPlugin::select_mantle_accessor("openai.gpt-oss-safeguard-120b").unwrap(),
         LanguageSelector::Chat
     );
 }

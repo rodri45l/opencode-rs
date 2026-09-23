@@ -12,8 +12,6 @@ use opencode_core::provider_header_plugins::ProviderHeaderPlugins;
 use opencode_core::provider_plugins::ProviderRequest;
 use serde_json::json;
 
-const NOTE: &str = "porting: nvidia provider plugin not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -25,18 +23,16 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: nvidia provider plugin not implemented"]
 fn is_registered_so_legacy_referer_headers_can_be_applied() {
     assert!(ProviderHeaderPlugins::registered_ids()
-        .expect(NOTE)
+        .unwrap()
         .contains(&"nvidia"));
 }
 
 #[test]
-#[ignore = "porting: nvidia provider plugin not implemented"]
 fn applies_nvidia_tracking_headers_only_to_nvidia() {
     let mut nvidia = request(&[("Existing", "value")]);
-    ProviderHeaderPlugins::apply_nvidia("nvidia", &mut nvidia).expect(NOTE);
+    ProviderHeaderPlugins::apply_nvidia("nvidia", &mut nvidia).unwrap();
     assert_eq!(
         nvidia.headers.get("Existing").map(String::as_str),
         Some("value")
@@ -58,15 +54,14 @@ fn applies_nvidia_tracking_headers_only_to_nvidia() {
     );
 
     let mut openrouter = request(&[]);
-    ProviderHeaderPlugins::apply_nvidia("openrouter", &mut openrouter).expect(NOTE);
+    ProviderHeaderPlugins::apply_nvidia("openrouter", &mut openrouter).unwrap();
     assert!(openrouter.headers.is_empty());
 }
 
 #[test]
-#[ignore = "porting: nvidia provider plugin not implemented"]
 fn adds_the_default_billing_origin_for_custom_nvidia_endpoints() {
     let mut nvidia = request(&[]);
-    ProviderHeaderPlugins::apply_nvidia("nvidia", &mut nvidia).expect(NOTE);
+    ProviderHeaderPlugins::apply_nvidia("nvidia", &mut nvidia).unwrap();
 
     assert_eq!(
         nvidia.headers.get("HTTP-Referer").map(String::as_str),
@@ -86,10 +81,9 @@ fn adds_the_default_billing_origin_for_custom_nvidia_endpoints() {
 }
 
 #[test]
-#[ignore = "porting: nvidia provider plugin not implemented"]
 fn preserves_an_explicit_nvidia_billing_origin_header() {
     let mut nvidia = request(&[("X-BILLING-INVOKE-ORIGIN", "CustomOrigin")]);
-    ProviderHeaderPlugins::apply_nvidia("nvidia", &mut nvidia).expect(NOTE);
+    ProviderHeaderPlugins::apply_nvidia("nvidia", &mut nvidia).unwrap();
 
     assert_eq!(
         nvidia

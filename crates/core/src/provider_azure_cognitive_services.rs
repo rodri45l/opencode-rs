@@ -10,7 +10,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// The Azure Cognitive Services provider plugin.
 #[derive(Debug, Default)]
@@ -18,9 +18,10 @@ pub struct AzureCognitiveServicesPlugin;
 
 impl AzureCognitiveServicesPlugin {
     /// The API URL derived from the resource env var, if present.
-    pub fn base_url(_env: &BTreeMap<String, String>) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_azure_cognitive_services::AzureCognitiveServicesPlugin::base_url",
-        ))
+    pub fn base_url(env: &BTreeMap<String, String>) -> CoreResult<Option<String>> {
+        Ok(env
+            .get("AZURE_COGNITIVE_SERVICES_RESOURCE_NAME")
+            .filter(|value| !value.is_empty())
+            .map(|resource| format!("https://{resource}.cognitiveservices.azure.com/openai")))
     }
 }

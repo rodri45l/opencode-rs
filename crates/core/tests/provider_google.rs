@@ -7,8 +7,6 @@
 
 use opencode_core::provider_sdk_plugins::{LanguageQuery, ProviderSdkPlugins, SdkCapabilities};
 
-const NOTE: &str = "porting: google provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -19,23 +17,20 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: google provider plugin not implemented"]
 fn binds_only_to_the_exact_google_package() {
-    assert!(ProviderSdkPlugins::matches_package("google", "@ai-sdk/google").expect(NOTE));
-    assert!(!ProviderSdkPlugins::matches_package("google", "@ai-sdk/google-vertex").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("google", "@ai-sdk/google").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("google", "@ai-sdk/google-vertex").unwrap());
 }
 
 #[test]
-#[ignore = "porting: google provider plugin not implemented"]
 fn uses_the_model_provider_id_as_the_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("google", "custom-google").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("google", "custom-google").unwrap(),
         "custom-google"
     );
 }
 
 #[test]
-#[ignore = "porting: google provider plugin not implemented"]
 fn leaves_language_selection_to_the_default_language_model() {
     let query = LanguageQuery {
         plugin: "google",
@@ -45,8 +40,5 @@ fn leaves_language_selection_to_the_default_language_model() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }

@@ -12,7 +12,7 @@
 use std::collections::BTreeMap;
 
 use crate::provider_sdk_plugins::LanguageSelector;
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// Endpoint prefix for the Workers AI OpenAI-compatible API.
 pub const ACCOUNT_ENDPOINT_PREFIX: &str = "https://api.cloudflare.com/client/v4/accounts";
@@ -23,10 +23,8 @@ pub struct CloudflareWorkersAiPlugin;
 
 impl CloudflareWorkersAiPlugin {
     /// Whether the plugin handles `package` (the OpenAI-compatible SDK only).
-    pub fn matches_package(_package: &str) -> CoreResult<bool> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_workers_ai::CloudflareWorkersAiPlugin::matches_package",
-        ))
+    pub fn matches_package(package: &str) -> CoreResult<bool> {
+        Ok(package == "@ai-sdk/openai-compatible")
     }
 
     /// Resolve the endpoint URL, if any. An explicit configured URL is kept
@@ -34,48 +32,63 @@ impl CloudflareWorkersAiPlugin {
     /// environment id wins over the configured one). Returns `None` when neither
     /// a URL nor an account id is available.
     pub fn resolve_endpoint(
-        _configured_url: Option<&str>,
-        _env_account_id: Option<&str>,
-        _configured_account_id: Option<&str>,
+        configured_url: Option<&str>,
+        env_account_id: Option<&str>,
+        configured_account_id: Option<&str>,
     ) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_workers_ai::CloudflareWorkersAiPlugin::resolve_endpoint",
-        ))
+        if let Some(url) = configured_url.filter(|value| !value.is_empty()) {
+            return Ok(Some(Self::expand_account_id(
+                url,
+                env_account_id.or(configured_account_id),
+            )?));
+        }
+        let account_id = env_account_id
+            .filter(|value| !value.is_empty())
+            .or_else(|| configured_account_id.filter(|value| !value.is_empty()));
+        let Some(account_id) = account_id else {
+            return Ok(None);
+        };
+        Ok(Some(format!(
+            "{ACCOUNT_ENDPOINT_PREFIX}/{account_id}/ai/v1"
+        )))
     }
 
     /// Expand `${CLOUDFLARE_ACCOUNT_ID}` in `template` using `account_id`.
-    pub fn expand_account_id(_template: &str, _account_id: Option<&str>) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_workers_ai::CloudflareWorkersAiPlugin::expand_account_id",
-        ))
+    pub fn expand_account_id(template: &str, account_id: Option<&str>) -> CoreResult<String> {
+        match account_id {
+            Some(account_id) => Ok(template.replace("${CLOUDFLARE_ACCOUNT_ID}", account_id)),
+            None => Ok(template.to_string()),
+        }
     }
 
     /// Resolve the Authorization header value, preferring the environment key
     /// over the auth key over the configured key.
     pub fn authorization(
-        _env_api_key: Option<&str>,
-        _configured_api_key: Option<&str>,
-        _auth_api_key: Option<&str>,
+        env_api_key: Option<&str>,
+        configured_api_key: Option<&str>,
+        auth_api_key: Option<&str>,
     ) -> CoreResult<Option<String>> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_workers_ai::CloudflareWorkersAiPlugin::authorization",
-        ))
+        let key = env_api_key
+            .filter(|value| !value.is_empty())
+            .or_else(|| auth_api_key.filter(|value| !value.is_empty()))
+            .or_else(|| configured_api_key.filter(|value| !value.is_empty()));
+        Ok(key.map(|key| format!("Bearer {key}")))
     }
 
     /// Merge the custom request headers with the Cloudflare authorization.
     pub fn merge_headers(
-        _authorization: Option<&str>,
-        _custom: &BTreeMap<String, String>,
+        authorization: Option<&str>,
+        custom: &BTreeMap<String, String>,
     ) -> CoreResult<BTreeMap<String, String>> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_workers_ai::CloudflareWorkersAiPlugin::merge_headers",
-        ))
+        let mut merged = custom.clone();
+        if let Some(authorization) = authorization {
+            merged.insert("authorization".to_string(), authorization.to_string());
+        }
+        Ok(merged)
     }
 
     /// Select the language model accessor with the API model id.
     pub fn select_language(_api_id: &str) -> CoreResult<LanguageSelector> {
-        Err(CoreError::NotImplemented(
-            "provider_cloudflare_workers_ai::CloudflareWorkersAiPlugin::select_language",
-        ))
+        Ok(LanguageSelector::LanguageModel)
     }
 }

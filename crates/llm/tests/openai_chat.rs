@@ -2,8 +2,21 @@
 //! Behaviour pinned by the OpenAI Chat protocol.
 //! Effect-ts `Layer`/`Stream` plumbing is dropped; wire and event behaviour is kept.
 
-use opencode_llm::{Auth, LLMClient, Message, ToolCallPart, LLM};
-use serde_json::json;
+use opencode_llm::{testing, Auth, LLMClient, Message, ToolCallPart, LLM};
+use serde_json::{json, Value};
+
+fn sse_body(chunks: &[Value]) -> String {
+    let mut body = chunks
+        .iter()
+        .map(|chunk| format!("data: {chunk}\n\n"))
+        .collect::<String>();
+    body.push_str("data: [DONE]\n\n");
+    body
+}
+
+fn delta(delta: Value) -> Value {
+    json!({ "choices": [{ "delta": delta, "finish_reason": Value::Null }] })
+}
 
 fn model() -> serde_json::Value {
     json!({
@@ -26,7 +39,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn prepares_openai_chat_payload() {
     let prepared = LLMClient::prepare(request()).expect("prepare");
 
@@ -47,7 +59,6 @@ fn prepares_openai_chat_payload() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn lowers_chronological_system_updates_to_escaped_user_wrappers_in_order() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -65,7 +76,6 @@ fn lowers_chronological_system_updates_to_escaped_user_wrappers_in_order() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn replays_canonical_reasoning_as_reasoning_content() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -80,7 +90,6 @@ fn replays_canonical_reasoning_as_reasoning_content() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn maps_openai_provider_options_to_chat_options() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" }, "endpoint": { "baseURL": "https://api.openai.test/v1/" }, "auth": Auth::bearer("test") },
@@ -94,7 +103,6 @@ fn maps_openai_provider_options_to_chat_options() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn prepares_assistant_tool_call_and_tool_result_messages() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_tool_result",
@@ -123,7 +131,6 @@ fn prepares_assistant_tool_call_and_tool_result_messages() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn continues_image_tool_results_as_vision_input_without_base64_text() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -155,8 +162,20 @@ fn continues_image_tool_results_as_vision_input_without_base64_text() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn parses_text_and_usage_stream_fixtures() {
+    testing::push_response(json!({
+        "status": 200,
+        "body": sse_body(&[
+            delta(json!({ "role": "assistant", "content": "Hello" })),
+            delta(json!({ "content": "!" })),
+            json!({ "choices": [{ "delta": {}, "finish_reason": "stop" }] }),
+            json!({ "choices": [], "usage": {
+                "prompt_tokens": 5, "completion_tokens": 2, "total_tokens": 7,
+                "prompt_tokens_details": { "cached_tokens": 1 },
+                "completion_tokens_details": { "reasoning_tokens": 0 }
+            } }),
+        ]),
+    }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.text, "Hello!");
@@ -175,8 +194,15 @@ fn parses_text_and_usage_stream_fixtures() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn parses_openai_compatible_reasoning_content_deltas() {
+    testing::push_response(json!({
+        "status": 200,
+        "body": sse_body(&[
+            json!({ "choices": [{ "delta": { "reasoning_content": "thinking" } }] }),
+            json!({ "choices": [{ "delta": { "content": "Hello" } }] }),
+            json!({ "choices": [{ "delta": {}, "finish_reason": "stop" }] }),
+        ]),
+    }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.reasoning, "thinking");
@@ -184,8 +210,17 @@ fn parses_openai_compatible_reasoning_content_deltas() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn assembles_streamed_tool_call_input() {
+    testing::push_response(json!({
+        "status": 200,
+        "body": sse_body(&[
+            delta(json!({ "role": "assistant", "tool_calls": [
+                { "index": 0, "id": "call_1", "function": { "name": "lookup", "arguments": "{\"query\"" } }
+            ] })),
+            delta(json!({ "tool_calls": [{ "index": 0, "function": { "arguments": ":\"weather\"}" } }] })),
+            json!({ "choices": [{ "delta": {}, "finish_reason": "tool_calls" }] }),
+        ]),
+    }));
     let response = LLMClient::generate(LLM::update_request(request(), json!({
         "tools": [{ "name": "lookup", "description": "Lookup data", "inputSchema": { "type": "object" } }]
     })).expect("update"))
@@ -207,8 +242,11 @@ fn assembles_streamed_tool_call_input() {
 }
 
 #[test]
-#[ignore = "porting: openai chat protocol not implemented"]
 fn fails_http_provider_errors_before_stream_parsing() {
+    testing::push_response(json!({
+        "status": 400,
+        "body": "{\"error\":{\"message\":\"Bad request\",\"type\":\"invalid_request_error\"}}",
+    }));
     let error = LLMClient::generate(request()).expect_err("should fail");
 
     assert!(error.to_string().contains("HTTP 400"));

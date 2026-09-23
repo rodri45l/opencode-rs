@@ -13,8 +13,6 @@ use opencode_core::provider_plugins::ProviderRequest;
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 use serde_json::json;
 
-const NOTE: &str = "porting: cerebras provider plugin not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -26,10 +24,9 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: cerebras provider plugin not implemented"]
 fn applies_the_legacy_integration_header_only_to_cerebras() {
     let mut cerebras = request(&[("Existing", "1")]);
-    ProviderHeaderPlugins::apply_cerebras("cerebras", &mut cerebras).expect(NOTE);
+    ProviderHeaderPlugins::apply_cerebras("cerebras", &mut cerebras).unwrap();
     assert_eq!(
         cerebras
             .headers
@@ -43,26 +40,24 @@ fn applies_the_legacy_integration_header_only_to_cerebras() {
     );
 
     let mut groq = request(&[]);
-    ProviderHeaderPlugins::apply_cerebras("groq", &mut groq).expect(NOTE);
+    ProviderHeaderPlugins::apply_cerebras("groq", &mut groq).unwrap();
     assert!(groq.headers.is_empty());
 }
 
 #[test]
-#[ignore = "porting: cerebras provider plugin not implemented"]
 fn binds_only_to_the_exact_cerebras_package() {
-    assert!(ProviderSdkPlugins::matches_package("cerebras", "@ai-sdk/cerebras").expect(NOTE));
-    assert!(!ProviderSdkPlugins::matches_package("cerebras", "@ai-sdk/groq").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("cerebras", "@ai-sdk/cerebras").unwrap());
+    assert!(!ProviderSdkPlugins::matches_package("cerebras", "@ai-sdk/groq").unwrap());
 }
 
 #[test]
-#[ignore = "porting: cerebras provider plugin not implemented"]
 fn uses_the_model_provider_id_as_the_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("cerebras", "custom-cerebras").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("cerebras", "custom-cerebras").unwrap(),
         "custom-cerebras"
     );
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("cerebras", "cerebras").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("cerebras", "cerebras").unwrap(),
         "cerebras"
     );
 }

@@ -8,8 +8,6 @@
 
 use opencode_core::provider_sdk_plugins::{LanguageQuery, ProviderSdkPlugins, SdkCapabilities};
 
-const NOTE: &str = "porting: perplexity provider plugin not implemented";
-
 fn caps_all() -> SdkCapabilities {
     SdkCapabilities {
         responses: true,
@@ -20,30 +18,27 @@ fn caps_all() -> SdkCapabilities {
 }
 
 #[test]
-#[ignore = "porting: perplexity provider plugin not implemented"]
 fn binds_only_to_the_exact_perplexity_package() {
-    assert!(ProviderSdkPlugins::matches_package("perplexity", "@ai-sdk/perplexity").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("perplexity", "@ai-sdk/perplexity").unwrap());
     assert!(
         !ProviderSdkPlugins::matches_package("perplexity", "@ai-sdk/perplexity-compatible")
-            .expect(NOTE)
+            .unwrap()
     );
 }
 
 #[test]
-#[ignore = "porting: perplexity provider plugin not implemented"]
 fn uses_the_canonical_perplexity_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("perplexity", "perplexity").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("perplexity", "perplexity").unwrap(),
         "perplexity"
     );
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("perplexity", "custom-perplexity").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("perplexity", "custom-perplexity").unwrap(),
         "perplexity"
     );
 }
 
 #[test]
-#[ignore = "porting: perplexity provider plugin not implemented"]
 fn leaves_language_selection_to_the_default_fallback() {
     let query = LanguageQuery {
         plugin: "perplexity",
@@ -53,8 +48,5 @@ fn leaves_language_selection_to_the_default_fallback() {
         capabilities: caps_all(),
         use_completion_urls: false,
     };
-    assert_eq!(
-        ProviderSdkPlugins::select_language(&query).expect(NOTE),
-        None
-    );
+    assert_eq!(ProviderSdkPlugins::select_language(&query).unwrap(), None);
 }

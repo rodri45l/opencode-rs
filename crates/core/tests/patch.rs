@@ -7,8 +7,6 @@
 use opencode_core::patch::{Patch, PatchChunk, PatchHunk, PatchUpdate};
 use opencode_core::CoreError;
 
-const NOTE: &str = "porting: patch not implemented";
-
 fn chunk(
     old: &[&str],
     new: &[&str],
@@ -24,12 +22,11 @@ fn chunk(
 }
 
 #[test]
-#[ignore = "porting: patch not implemented"]
 fn parses_add_update_and_delete_hunks() {
     let parsed = Patch::parse(
         "*** Begin Patch\n*** Add File: add.txt\n+added\n*** Update File: update.txt\n@@ section\n-old\n+new\n*** Delete File: delete.txt\n*** End Patch",
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         parsed,
@@ -51,12 +48,11 @@ fn parses_add_update_and_delete_hunks() {
 }
 
 #[test]
-#[ignore = "porting: patch not implemented"]
 fn strips_a_heredoc_wrapper() {
     let parsed = Patch::parse(
         "cat <<'EOF'\n*** Begin Patch\n*** Add File: add.txt\n+added\n*** End Patch\nEOF",
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         parsed,
@@ -68,14 +64,13 @@ fn strips_a_heredoc_wrapper() {
 }
 
 #[test]
-#[ignore = "porting: patch not implemented"]
 fn derives_fuzzy_line_updates_while_preserving_bom() {
     let update = Patch::derive(
         "update.txt",
         vec![chunk(&["  old   "], &["new"], None, None)],
         "\u{feff}old\n",
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         update,
@@ -85,13 +80,12 @@ fn derives_fuzzy_line_updates_while_preserving_bom() {
         }
     );
     assert_eq!(
-        Patch::join_bom(&update.content, update.bom).expect(NOTE),
+        Patch::join_bom(&update.content, update.bom).unwrap(),
         "\u{feff}new\n"
     );
 }
 
 #[test]
-#[ignore = "porting: patch not implemented"]
 fn matches_eof_anchored_chunks_from_the_end() {
     let derived = Patch::derive(
         "update.txt",
@@ -103,18 +97,17 @@ fn matches_eof_anchored_chunks_from_the_end() {
         )],
         "marker\nmiddle\nmarker\nend\n",
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(derived.content, "marker\nmiddle\nmarker changed\nend\n");
 }
 
 #[test]
-#[ignore = "porting: patch not implemented"]
 fn parses_the_eof_marker_inside_update_chunks() {
     let parsed = Patch::parse(
         "*** Begin Patch\n*** Update File: update.txt\n@@\n-last\n+end\n*** End of File\n*** End Patch",
     )
-    .expect(NOTE);
+    .unwrap();
 
     assert_eq!(
         parsed,
@@ -127,7 +120,6 @@ fn parses_the_eof_marker_inside_update_chunks() {
 }
 
 #[test]
-#[ignore = "porting: patch not implemented"]
 fn rejects_malformed_hunk_bodies() {
     let invalid_add =
         Patch::parse("*** Begin Patch\n*** Add File: add.txt\nmissing plus\n*** End Patch")

@@ -9,13 +9,19 @@
 #![forbid(unsafe_code)]
 
 pub mod api;
+pub mod body;
 pub mod cache_policy;
+pub mod engine;
 pub mod error;
+pub mod executor;
+pub mod generate_object;
 pub mod protocols;
+pub mod provider_error;
 pub mod providers;
 pub mod route;
 pub mod schema;
 pub mod shared;
+pub mod sse;
 pub mod tool;
 pub mod tool_schema;
 pub mod tool_stream;
@@ -27,6 +33,7 @@ pub use api::LLM;
 pub use cache_policy::apply_cache_policy;
 pub use error::{LlmError, LlmResult};
 pub use providers::Provider;
+pub use route::testing;
 pub use route::{
     Auth, Endpoint, ExecutedResponse, LLMClient, Prepared, Protocol, RequestExecutor, Response,
     Route, WebSocketExecutor,

@@ -9,35 +9,40 @@
 
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use opencode_core::skill_discovery::SkillDiscovery;
 
-const NOTE: &str = "porting: skill discovery not implemented";
 const BASE: &str = "https://skills.example.test/catalog/";
 
+static COUNTER: AtomicU64 = AtomicU64::new(0);
+
 fn tmp() -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("opencode-skill-discovery-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "opencode-skill-discovery-{}-{}",
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
     let _ = fs::remove_dir_all(&dir);
     fs::create_dir_all(&dir).expect("tmpdir");
     dir
 }
 
 #[test]
-#[ignore = "porting: skill discovery not implemented"]
 fn rejects_traversal_names_and_paths() {
-    assert!(!SkillDiscovery::is_safe_name("../outside").expect(NOTE));
-    assert!(SkillDiscovery::is_safe_name("deploy").expect(NOTE));
+    assert!(!SkillDiscovery::is_safe_name("../outside").unwrap());
+    assert!(SkillDiscovery::is_safe_name("deploy").unwrap());
 
-    assert!(!SkillDiscovery::is_safe_file("../outside.md").expect(NOTE));
-    assert!(!SkillDiscovery::is_safe_file("/tmp/outside.md").expect(NOTE));
-    assert!(!SkillDiscovery::is_safe_file("https://evil.example.test/outside.md").expect(NOTE));
-    assert!(SkillDiscovery::is_safe_file("references/guide.md").expect(NOTE));
+    assert!(!SkillDiscovery::is_safe_file("../outside.md").unwrap());
+    assert!(!SkillDiscovery::is_safe_file("/tmp/outside.md").unwrap());
+    assert!(!SkillDiscovery::is_safe_file("https://evil.example.test/outside.md").unwrap());
+    assert!(SkillDiscovery::is_safe_file("references/guide.md").unwrap());
 }
 
 #[test]
-#[ignore = "porting: skill discovery not implemented"]
+#[ignore = "porting: pull needs a live HTTP catalog; safety checks are covered"]
 fn downloads_safe_nested_files_under_the_skill_root() {
     let cache = tmp();
-    let directories = SkillDiscovery::pull(BASE, cache.to_str().expect("utf8")).expect(NOTE);
+    let directories = SkillDiscovery::pull(BASE, cache.to_str().expect("utf8")).unwrap();
     assert_eq!(directories.len(), 1);
 }

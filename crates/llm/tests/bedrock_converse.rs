@@ -3,8 +3,12 @@
 //! The AWS binary event-stream framing is represented as decoded frames; the
 //! assertions pin the normalised events and wire shapes.
 
-use opencode_llm::{Auth, CacheHint, LLMClient, Message, ToolCallPart, LLM};
-use serde_json::json;
+use opencode_llm::{testing, Auth, CacheHint, LLMClient, Message, ToolCallPart, LLM};
+use serde_json::{json, Value};
+
+fn frames(events: &[(&str, Value)]) -> Value {
+    json!({ "status": 200, "body": serde_json::to_string(&events.iter().map(|(name, data)| json!([name, data])).collect::<Vec<_>>()).unwrap() })
+}
 
 fn model() -> serde_json::Value {
     json!({
@@ -28,7 +32,6 @@ fn base_request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn prepares_converse_target_with_system_inference_config_and_messages() {
     let prepared = LLMClient::prepare(base_request()).expect("prepare");
 
@@ -44,7 +47,6 @@ fn prepares_converse_target_with_system_inference_config_and_messages() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn passes_top_k_through_additional_model_request_fields() {
     let prepared = LLMClient::prepare(
         LLM::update_request(
@@ -68,7 +70,6 @@ fn passes_top_k_through_additional_model_request_fields() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn prepares_tool_config_with_tool_spec_and_tool_choice() {
     let prepared = LLMClient::prepare(LLM::update_request(base_request(), json!({
         "tools": [{ "name": "lookup", "description": "Lookup data", "inputSchema": { "type": "object", "properties": { "query": { "type": "string" } }, "required": ["query"] } }],
@@ -90,7 +91,6 @@ fn prepares_tool_config_with_tool_spec_and_tool_choice() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn lowers_assistant_tool_call_and_tool_result_history() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_history",
@@ -115,8 +115,24 @@ fn lowers_assistant_tool_call_and_tool_result_history() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn decodes_text_delta_message_stop_and_metadata_usage() {
+    testing::push_response(frames(&[
+        ("messageStart", json!({ "role": "assistant" })),
+        (
+            "contentBlockDelta",
+            json!({ "contentBlockIndex": 0, "delta": { "text": "Hello" } }),
+        ),
+        (
+            "contentBlockDelta",
+            json!({ "contentBlockIndex": 0, "delta": { "text": "!" } }),
+        ),
+        ("contentBlockStop", json!({ "contentBlockIndex": 0 })),
+        ("messageStop", json!({ "stopReason": "end_turn" })),
+        (
+            "metadata",
+            json!({ "usage": { "inputTokens": 5, "outputTokens": 2, "totalTokens": 7 } }),
+        ),
+    ]));
     let response = LLMClient::generate(base_request()).expect("generate");
 
     assert_eq!(response.text, "Hello!");
@@ -133,8 +149,24 @@ fn decodes_text_delta_message_stop_and_metadata_usage() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn assembles_streamed_tool_call_input() {
+    testing::push_response(frames(&[
+        ("messageStart", json!({ "role": "assistant" })),
+        (
+            "contentBlockStart",
+            json!({ "contentBlockIndex": 0, "start": { "toolUse": { "toolUseId": "tool_1", "name": "lookup" } } }),
+        ),
+        (
+            "contentBlockDelta",
+            json!({ "contentBlockIndex": 0, "delta": { "toolUse": { "input": "{\"query\"" } } }),
+        ),
+        (
+            "contentBlockDelta",
+            json!({ "contentBlockIndex": 0, "delta": { "toolUse": { "input": ":\"weather\"}" } } }),
+        ),
+        ("contentBlockStop", json!({ "contentBlockIndex": 0 })),
+        ("messageStop", json!({ "stopReason": "tool_use" })),
+    ]));
     let response = LLMClient::generate(LLM::update_request(base_request(), json!({
         "tools": [{ "name": "lookup", "description": "Lookup", "inputSchema": { "type": "object" } }]
     })).expect("update"))
@@ -160,8 +192,11 @@ fn assembles_streamed_tool_call_input() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn emits_provider_error_for_throttling_exception() {
+    testing::push_response(frames(&[
+        ("messageStart", json!({ "role": "assistant" })),
+        ("throttlingException", json!({ "message": "Slow down" })),
+    ]));
     let response = LLMClient::generate(base_request()).expect("generate");
 
     assert_eq!(
@@ -174,8 +209,11 @@ fn emits_provider_error_for_throttling_exception() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn classifies_input_too_long_validation_exceptions() {
+    testing::push_response(frames(&[(
+        "validationException",
+        json!({ "message": "Input is too long for requested model" }),
+    )]));
     let response = LLMClient::generate(base_request()).expect("generate");
 
     assert_eq!(
@@ -190,7 +228,6 @@ fn classifies_input_too_long_validation_exceptions() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn rejects_requests_with_no_auth_path() {
     let unsigned = json!({
         "id": "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -209,7 +246,6 @@ fn rejects_requests_with_no_auth_path() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn emits_cache_point_markers_after_system_user_and_assistant_text() {
     let cache = CacheHint::new(json!({ "type": "ephemeral" }));
     let prepared = LLMClient::prepare(LLM::request(json!({
@@ -239,7 +275,6 @@ fn emits_cache_point_markers_after_system_user_and_assistant_text() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn lowers_image_media_into_bedrock_image_blocks() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_image",
@@ -268,7 +303,6 @@ fn lowers_image_media_into_bedrock_image_blocks() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn rejects_unsupported_image_and_document_media_types() {
     let bad_image = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -290,7 +324,6 @@ fn rejects_unsupported_image_and_document_media_types() {
 }
 
 #[test]
-#[ignore = "porting: bedrock converse protocol not implemented"]
 fn drops_cache_point_markers_past_the_four_per_request_cap() {
     let cache = CacheHint::new(json!({ "type": "ephemeral" }));
     let prepared = LLMClient::prepare(LLM::request(json!({

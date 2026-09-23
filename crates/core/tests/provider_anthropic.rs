@@ -13,8 +13,6 @@ use opencode_core::provider_plugins::ProviderRequest;
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 use serde_json::json;
 
-const NOTE: &str = "porting: anthropic provider plugin not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -26,10 +24,9 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: anthropic provider plugin not implemented"]
 fn applies_the_legacy_beta_headers_and_preserves_existing_headers() {
     let mut anthropic = request(&[("Existing", "1")]);
-    ProviderHeaderPlugins::apply_anthropic("anthropic", &mut anthropic).expect(NOTE);
+    ProviderHeaderPlugins::apply_anthropic("anthropic", &mut anthropic).unwrap();
 
     assert_eq!(
         anthropic.headers.get("anthropic-beta").map(String::as_str),
@@ -42,29 +39,26 @@ fn applies_the_legacy_beta_headers_and_preserves_existing_headers() {
 }
 
 #[test]
-#[ignore = "porting: anthropic provider plugin not implemented"]
 fn ignores_non_anthropic_providers() {
     let mut openai = request(&[]);
-    ProviderHeaderPlugins::apply_anthropic("openai", &mut openai).expect(NOTE);
+    ProviderHeaderPlugins::apply_anthropic("openai", &mut openai).unwrap();
 
     assert!(!openai.headers.contains_key("anthropic-beta"));
 }
 
 #[test]
-#[ignore = "porting: anthropic provider plugin not implemented"]
 fn binds_to_the_anthropic_sdk_package() {
-    assert!(ProviderSdkPlugins::matches_package("anthropic", "@ai-sdk/anthropic").expect(NOTE));
+    assert!(ProviderSdkPlugins::matches_package("anthropic", "@ai-sdk/anthropic").unwrap());
 }
 
 #[test]
-#[ignore = "porting: anthropic provider plugin not implemented"]
 fn uses_the_provider_id_as_the_sdk_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("anthropic", "custom-anthropic").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("anthropic", "custom-anthropic").unwrap(),
         "custom-anthropic"
     );
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("anthropic", "anthropic").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("anthropic", "anthropic").unwrap(),
         "anthropic"
     );
 }

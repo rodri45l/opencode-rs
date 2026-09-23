@@ -2,8 +2,15 @@
 //! Behaviour pinned by the Anthropic Messages protocol.
 //! Effect-ts `Layer`/`Stream` plumbing is dropped; wire and event behaviour is kept.
 
-use opencode_llm::{Auth, CacheHint, LLMClient, Message, ToolCallPart, LLM};
-use serde_json::json;
+use opencode_llm::{testing, Auth, CacheHint, LLMClient, Message, ToolCallPart, LLM};
+use serde_json::{json, Value};
+
+fn sse(events: &[(&str, Value)]) -> String {
+    events
+        .iter()
+        .map(|(name, data)| format!("event: {name}\ndata: {data}\n\n"))
+        .collect()
+}
 
 fn model() -> serde_json::Value {
     json!({
@@ -27,7 +34,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn prepares_anthropic_messages_target() {
     let prepared = LLMClient::prepare(request()).expect("prepare");
 
@@ -45,7 +51,6 @@ fn prepares_anthropic_messages_target() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn lowers_chronological_system_updates_natively_for_opus_48_with_cache_hints() {
     let opus = json!({
         "id": "claude-opus-4-8",
@@ -76,7 +81,6 @@ fn lowers_chronological_system_updates_natively_for_opus_48_with_cache_hints() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn lowers_chronological_system_updates_to_wrapped_user_text_for_unsupported_models() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -98,7 +102,6 @@ fn lowers_chronological_system_updates_to_wrapped_user_text_for_unsupported_mode
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn prepares_tool_call_and_tool_result_messages() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_tool_result",
@@ -128,7 +131,6 @@ fn prepares_tool_call_and_tool_result_messages() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn lowers_image_tool_result_content_as_structured_image_blocks() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_tool_result_image",
@@ -153,11 +155,12 @@ fn lowers_image_tool_result_content_as_structured_image_blocks() {
     let block = prepared.body["messages"]
         .as_array()
         .and_then(|messages| {
-            messages
-                .iter()
-                .find_map(|message| message["content"].as_array())
+            messages.iter().find_map(|message| {
+                message["content"]
+                    .as_array()
+                    .and_then(|content| content.iter().find(|block| block["type"] == "tool_result"))
+            })
         })
-        .and_then(|content| content.iter().find(|block| block["type"] == "tool_result"))
         .expect("tool_result");
     assert_eq!(
         block["content"],
@@ -169,8 +172,19 @@ fn lowers_image_tool_result_content_as_structured_image_blocks() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn parses_text_reasoning_and_usage_stream_fixtures() {
+    testing::push_response(json!({ "status": 200, "body": sse(&[
+        ("message_start", json!({ "type": "message_start", "message": { "usage": { "input_tokens": 5, "cache_read_input_tokens": 1, "cache_creation_input_tokens": 0, "output_tokens": 1 } } })),
+        ("content_block_start", json!({ "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hello!" } })),
+        ("content_block_stop", json!({ "type": "content_block_stop", "index": 0 })),
+        ("content_block_start", json!({ "type": "content_block_start", "index": 1, "content_block": { "type": "thinking", "thinking": "" } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 1, "delta": { "type": "thinking_delta", "thinking": "thinking" } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 1, "delta": { "type": "signature_delta", "signature": "sig_1" } })),
+        ("content_block_stop", json!({ "type": "content_block_stop", "index": 1 })),
+        ("message_delta", json!({ "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "input_tokens": 5, "cache_read_input_tokens": 1, "cache_creation_input_tokens": 0, "output_tokens": 2 } })),
+        ("message_stop", json!({ "type": "message_stop" })),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.text, "Hello!");
@@ -188,8 +202,15 @@ fn parses_text_reasoning_and_usage_stream_fixtures() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn assembles_streamed_tool_call_input() {
+    testing::push_response(json!({ "status": 200, "body": sse(&[
+        ("content_block_start", json!({ "type": "content_block_start", "index": 0, "content_block": { "type": "tool_use", "id": "call_1", "name": "lookup", "input": {} } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 0, "delta": { "type": "input_json_delta", "partial_json": "{\"query\"" } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 0, "delta": { "type": "input_json_delta", "partial_json": ":\"weather\"}" } })),
+        ("content_block_stop", json!({ "type": "content_block_stop", "index": 0 })),
+        ("message_delta", json!({ "type": "message_delta", "delta": { "stop_reason": "tool_use" } })),
+        ("message_stop", json!({ "type": "message_stop" })),
+    ]) }));
     let response = LLMClient::generate(LLM::update_request(request(), json!({
         "tools": [{ "name": "lookup", "description": "Lookup data", "inputSchema": { "type": "object" } }]
     })).expect("update"))
@@ -206,8 +227,10 @@ fn assembles_streamed_tool_call_input() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn emits_provider_error_events_for_mid_stream_provider_errors() {
+    testing::push_response(json!({ "status": 200, "body": sse(&[
+        ("error", json!({ "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } })),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(
@@ -220,8 +243,10 @@ fn emits_provider_error_events_for_mid_stream_provider_errors() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn classifies_prompt_too_long_provider_errors() {
+    testing::push_response(json!({ "status": 200, "body": sse(&[
+        ("error", json!({ "type": "error", "error": { "type": "invalid_request_error", "message": "prompt is too long: 210000 tokens" } })),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(
@@ -231,8 +256,17 @@ fn classifies_prompt_too_long_provider_errors() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn decodes_server_tool_use_and_web_search_tool_result_as_provider_executed_events() {
+    testing::push_response(json!({ "status": 200, "body": sse(&[
+        ("content_block_start", json!({ "type": "content_block_start", "index": 0, "content_block": { "type": "server_tool_use", "id": "srvtoolu_abc", "name": "web_search", "input": {} } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 0, "delta": { "type": "input_json_delta", "partial_json": "{\"query\":\"effect 4\"}" } })),
+        ("content_block_stop", json!({ "type": "content_block_stop", "index": 0 })),
+        ("content_block_start", json!({ "type": "content_block_start", "index": 1, "content_block": { "type": "text", "text": "" } })),
+        ("content_block_delta", json!({ "type": "content_block_delta", "index": 1, "delta": { "type": "text_delta", "text": "Found it." } })),
+        ("content_block_stop", json!({ "type": "content_block_stop", "index": 1 })),
+        ("message_delta", json!({ "type": "message_delta", "delta": { "stop_reason": "end_turn" } })),
+        ("message_stop", json!({ "type": "message_stop" })),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(
@@ -248,7 +282,6 @@ fn decodes_server_tool_use_and_web_search_tool_result_as_provider_executed_event
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn drops_cache_control_breakpoints_past_the_four_per_request_cap() {
     let hint = CacheHint::new(json!({ "type": "ephemeral" }));
     let prepared = LLMClient::prepare(LLM::request(json!({
@@ -275,8 +308,11 @@ fn drops_cache_control_breakpoints_past_the_four_per_request_cap() {
 }
 
 #[test]
-#[ignore = "porting: anthropic messages protocol not implemented"]
 fn fails_http_provider_errors_before_stream_parsing() {
+    testing::push_response(json!({
+        "status": 400,
+        "body": "{\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"bad request\"}}",
+    }));
     let error = LLMClient::generate(request()).expect_err("should fail");
 
     assert!(error.to_string().contains("HTTP 400"));

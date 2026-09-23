@@ -39,41 +39,75 @@ impl TodoWriteTool {
 
     /// The permission resources.
     pub fn permission_resources() -> CoreResult<Vec<&'static str>> {
-        Err(CoreError::NotImplemented(
-            "tool_todowrite::TodoWriteTool::permission_resources",
-        ))
+        Ok(vec!["*"])
     }
 
     /// The permission save resources.
     pub fn permission_saves() -> CoreResult<Vec<&'static str>> {
-        Err(CoreError::NotImplemented(
-            "tool_todowrite::TodoWriteTool::permission_saves",
-        ))
+        Ok(vec!["*"])
     }
 
     /// The two-space JSON serialization used for the text result and content.
-    pub fn format(_todos: &[Todo]) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "tool_todowrite::TodoWriteTool::format",
-        ))
+    pub fn format(todos: &[Todo]) -> CoreResult<String> {
+        // Serialize with the field order the model-facing contract pins:
+        // content, then status, then priority.
+        let mut out = String::from("[");
+        for (index, todo) in todos.iter().enumerate() {
+            if index > 0 {
+                out.push(',');
+            }
+            out.push_str("\n  {\n");
+            out.push_str(&format!(
+                "    \"content\": {},\n",
+                serde_json::to_string(&todo.content)
+                    .map_err(|error| CoreError::Message(error.to_string()))?
+            ));
+            out.push_str(&format!(
+                "    \"status\": {},\n",
+                serde_json::to_string(&todo.status)
+                    .map_err(|error| CoreError::Message(error.to_string()))?
+            ));
+            out.push_str(&format!(
+                "    \"priority\": {}\n",
+                serde_json::to_string(&todo.priority)
+                    .map_err(|error| CoreError::Message(error.to_string()))?
+            ));
+            out.push_str("  }");
+        }
+        if !todos.is_empty() {
+            out.push('\n');
+        }
+        out.push(']');
+        Ok(out)
     }
 
     /// The structured output `{ todos: [...] }`.
-    pub fn structured(_todos: &[Todo]) -> CoreResult<Value> {
-        Err(CoreError::NotImplemented(
-            "tool_todowrite::TodoWriteTool::structured",
-        ))
+    pub fn structured(todos: &[Todo]) -> CoreResult<Value> {
+        Ok(json!({ "todos": todos_to_value(todos) }))
     }
 
     /// Build the text content part.
-    pub fn content(_todos: &[Todo]) -> CoreResult<Value> {
-        Err(CoreError::NotImplemented(
-            "tool_todowrite::TodoWriteTool::content",
-        ))
+    pub fn content(todos: &[Todo]) -> CoreResult<Value> {
+        Ok(json!([{ "type": "text", "text": Self::format(todos)? }]))
     }
 
     /// The structured output value for the default empty list.
     pub fn empty_structured() -> Value {
         json!({ "todos": [] })
     }
+}
+
+fn todos_to_value(todos: &[Todo]) -> Value {
+    Value::Array(
+        todos
+            .iter()
+            .map(|todo| {
+                json!({
+                    "content": todo.content,
+                    "status": todo.status,
+                    "priority": todo.priority,
+                })
+            })
+            .collect(),
+    )
 }

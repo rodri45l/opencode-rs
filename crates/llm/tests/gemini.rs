@@ -2,8 +2,15 @@
 //! Behaviour pinned by the Gemini protocol.
 //! Effect-ts `Layer`/`Stream` plumbing is dropped; wire and event behaviour is kept.
 
-use opencode_llm::{Auth, LLMClient, Message, ProviderShared, ToolCallPart, LLM};
-use serde_json::json;
+use opencode_llm::{testing, Auth, LLMClient, Message, ProviderShared, ToolCallPart, LLM};
+use serde_json::{json, Value};
+
+fn gemini_sse(chunks: &[Value]) -> String {
+    chunks
+        .iter()
+        .map(|chunk| format!("data: {chunk}\n\n"))
+        .collect()
+}
 
 fn model() -> serde_json::Value {
     json!({
@@ -26,7 +33,6 @@ fn request() -> serde_json::Value {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn prepares_gemini_target() {
     let prepared = LLMClient::prepare(request()).expect("prepare");
 
@@ -41,7 +47,6 @@ fn prepares_gemini_target() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn lowers_chronological_system_updates_to_wrapped_user_text_in_order() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -59,7 +64,6 @@ fn lowers_chronological_system_updates_to_wrapped_user_text_in_order() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn prepares_multimodal_user_input_and_tool_history() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_tool_result",
@@ -89,7 +93,6 @@ fn prepares_multimodal_user_input_and_tool_history() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn continues_image_tool_results_as_inline_vision_input_without_base64_text() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "model": model(),
@@ -123,7 +126,6 @@ fn continues_image_tool_results_as_inline_vision_input_without_base64_text() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn omits_tools_when_tool_choice_is_none() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_no_tools",
@@ -141,7 +143,6 @@ fn omits_tools_when_tool_choice_is_none() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn sanitizes_integer_enums_dangling_required_and_untyped_arrays() {
     let prepared = LLMClient::prepare(LLM::request(json!({
         "id": "req_schema_patch",
@@ -178,8 +179,17 @@ fn sanitizes_integer_enums_dangling_required_and_untyped_arrays() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn parses_text_reasoning_and_usage_stream_fixtures() {
+    testing::push_response(json!({ "status": 200, "body": gemini_sse(&[
+        json!({ "candidates": [{ "content": { "role": "model", "parts": [
+            { "text": "thinking", "thought": true },
+            { "text": "Hello!" }
+        ] } }], "usageMetadata": {
+            "promptTokenCount": 5, "candidatesTokenCount": 3, "thoughtsTokenCount": 1,
+            "cachedContentTokenCount": 1, "totalTokenCount": 7
+        } }),
+        json!({ "candidates": [{ "content": { "parts": [] }, "finishReason": "STOP" }] }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(response.text, "Hello!");
@@ -192,8 +202,15 @@ fn parses_text_reasoning_and_usage_stream_fixtures() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn preserves_thought_signature_for_reasoning_and_tool_call_continuation() {
+    testing::push_response(json!({ "status": 200, "body": gemini_sse(&[
+        json!({ "candidates": [{ "content": { "role": "model", "parts": [
+            { "text": "thinking", "thought": true, "thoughtSignature": "thought_sig" }
+        ] } }] }),
+        json!({ "candidates": [{ "content": { "parts": [
+            { "functionCall": { "name": "lookup", "args": { "query": "weather" } }, "thoughtSignature": "tool_sig" }
+        ] }, "finishReason": "STOP" }] }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     let reasoning_end = response
@@ -217,8 +234,13 @@ fn preserves_thought_signature_for_reasoning_and_tool_call_continuation() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn assigns_unique_ids_to_multiple_streamed_tool_calls() {
+    testing::push_response(json!({ "status": 200, "body": gemini_sse(&[
+        json!({ "candidates": [{ "content": { "role": "model", "parts": [
+            { "functionCall": { "name": "lookup", "args": { "query": "weather" } } },
+            { "functionCall": { "name": "lookup", "args": { "query": "news" } } }
+        ] }, "finishReason": "STOP" }] }),
+    ]) }));
     let response = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(
@@ -231,9 +253,14 @@ fn assigns_unique_ids_to_multiple_streamed_tool_calls() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn maps_length_and_content_filter_finish_reasons() {
+    testing::push_response(json!({ "status": 200, "body": gemini_sse(&[
+        json!({ "candidates": [{ "content": { "parts": [{ "text": "x" }] }, "finishReason": "MAX_TOKENS" }] }),
+    ]) }));
     let length = LLMClient::generate(request()).expect("generate");
+    testing::push_response(json!({ "status": 200, "body": gemini_sse(&[
+        json!({ "candidates": [{ "content": { "parts": [{ "text": "x" }] }, "finishReason": "SAFETY" }] }),
+    ]) }));
     let filtered = LLMClient::generate(request()).expect("generate");
 
     assert_eq!(length.events.last().expect("finish")["reason"], "length");
@@ -244,7 +271,6 @@ fn maps_length_and_content_filter_finish_reasons() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn rejects_unsupported_assistant_media_content() {
     let error = LLMClient::prepare(LLM::request(json!({
         "id": "req_media",
@@ -259,7 +285,6 @@ fn rejects_unsupported_assistant_media_content() {
 }
 
 #[test]
-#[ignore = "porting: gemini protocol not implemented"]
 fn rejects_oversized_image_input() {
     let oversized = "A".repeat(ProviderShared::MAX_MEDIA_ENCODED_BYTES + 4);
     let error = LLMClient::prepare(LLM::request(json!({

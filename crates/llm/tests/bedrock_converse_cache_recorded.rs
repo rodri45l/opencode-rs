@@ -11,7 +11,6 @@ use serde_json::json;
 const CASSETTE: &str = "writes-then-reads-cachepoint-on-identical-second-call";
 
 #[test]
-#[ignore = "porting: bedrock recorded cache not implemented"]
 fn writes_then_reads_cache_point_on_identical_second_call() {
     if !common::recording_exists("bedrock-converse-cache", CASSETTE) {
         return;

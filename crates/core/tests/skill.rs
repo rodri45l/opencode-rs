@@ -8,8 +8,6 @@
 
 use opencode_core::skill::{SkillCatalog, SkillEntry, SkillSource};
 
-const NOTE: &str = "porting: skill catalog not implemented";
-
 fn directory(location: &str) -> SkillSource {
     SkillSource {
         kind: "directory".into(),
@@ -26,7 +24,6 @@ fn entry(name: &str, description: &str, location: &str) -> SkillEntry {
 }
 
 #[test]
-#[ignore = "porting: skill catalog not implemented"]
 fn registers_sources_and_deduplicates_in_order() {
     let sources = vec![
         directory("/first"),
@@ -34,20 +31,19 @@ fn registers_sources_and_deduplicates_in_order() {
         directory("/second"),
     ];
     assert_eq!(
-        SkillCatalog::dedup_sources(sources).expect(NOTE),
+        SkillCatalog::dedup_sources(sources).unwrap(),
         vec![directory("/first"), directory("/second")]
     );
 }
 
 #[test]
-#[ignore = "porting: skill catalog not implemented"]
 fn resolves_later_source_precedence() {
     let entries = vec![
         (0, entry("foo", "foo", "/first/foo.md")),
         (0, entry("review", "First", "/first/review/SKILL.md")),
         (1, entry("review", "Second", "/second/review/SKILL.md")),
     ];
-    let resolved = SkillCatalog::resolve_precedence(entries).expect(NOTE);
+    let resolved = SkillCatalog::resolve_precedence(entries).unwrap();
     assert_eq!(
         resolved
             .iter()
@@ -60,18 +56,17 @@ fn resolves_later_source_precedence() {
 }
 
 #[test]
-#[ignore = "porting: skill catalog not implemented"]
 fn filters_skills_for_agents() {
     let entries = vec![
         entry("deploy", "Deploy production", "/deploy/SKILL.md"),
         entry("review", "Review code", "/review/SKILL.md"),
     ];
     assert_eq!(
-        SkillCatalog::available(&entries, &["deploy".to_string()]).expect(NOTE),
+        SkillCatalog::available(&entries, &["deploy".to_string()]).unwrap(),
         vec!["review".to_string()]
     );
     assert_eq!(
-        SkillCatalog::available(&entries, &[]).expect(NOTE),
+        SkillCatalog::available(&entries, &[]).unwrap(),
         vec!["deploy".to_string(), "review".to_string()]
     );
 }

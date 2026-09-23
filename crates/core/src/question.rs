@@ -6,8 +6,11 @@
 //! unknown request id is a not-found error.
 
 use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::{CoreError, CoreResult};
+
+static COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// A selectable question option.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -55,28 +58,41 @@ impl QuestionV2 {
     /// Ask a question, registering a pending request.
     pub fn ask(
         &mut self,
-        _session_id: &str,
-        _questions: Vec<QuestionInfo>,
+        session_id: &str,
+        questions: Vec<QuestionInfo>,
     ) -> CoreResult<QuestionRequest> {
-        let _ = &self.requests;
-        Err(CoreError::NotImplemented("question::QuestionV2::ask"))
+        let sequence = COUNTER.fetch_add(1, Ordering::Relaxed);
+        let request = QuestionRequest {
+            id: format!("que_{sequence:012}"),
+            session_id: session_id.to_string(),
+            questions,
+        };
+        self.requests.insert(request.id.clone(), request.clone());
+        Ok(request)
     }
 
     /// List pending requests.
     pub fn list(&self) -> CoreResult<Vec<QuestionRequest>> {
-        let _ = &self.requests;
-        Err(CoreError::NotImplemented("question::QuestionV2::list"))
+        Ok(self.requests.values().cloned().collect())
     }
 
     /// Answer a pending request.
-    pub fn reply(&mut self, _request_id: &str, _answers: Vec<Vec<String>>) -> CoreResult<()> {
-        let _ = &self.requests;
-        Err(CoreError::NotImplemented("question::QuestionV2::reply"))
+    pub fn reply(&mut self, request_id: &str, _answers: Vec<Vec<String>>) -> CoreResult<()> {
+        if self.requests.remove(request_id).is_none() {
+            return Err(CoreError::Invalid(format!(
+                "question request not found: {request_id}"
+            )));
+        }
+        Ok(())
     }
 
     /// Reject a pending request.
-    pub fn reject(&mut self, _request_id: &str) -> CoreResult<()> {
-        let _ = &self.requests;
-        Err(CoreError::NotImplemented("question::QuestionV2::reject"))
+    pub fn reject(&mut self, request_id: &str) -> CoreResult<()> {
+        if self.requests.remove(request_id).is_none() {
+            return Err(CoreError::Invalid(format!(
+                "question request not found: {request_id}"
+            )));
+        }
+        Ok(())
     }
 }

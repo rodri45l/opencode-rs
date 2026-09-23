@@ -9,30 +9,25 @@
 use opencode_core::provider_sdk_plugins::ProviderSdkPlugins;
 use serde_json::json;
 
-const NOTE: &str = "porting: openai-compatible provider plugin not implemented";
-
 #[test]
-#[ignore = "porting: openai-compatible provider plugin not implemented"]
 fn preserves_explicit_include_usage_false_and_defaults_to_true() {
-    assert!(ProviderSdkPlugins::include_usage(&json!({})).expect(NOTE));
-    assert!(!ProviderSdkPlugins::include_usage(&json!({ "includeUsage": false })).expect(NOTE));
-    assert!(ProviderSdkPlugins::include_usage(&json!({ "includeUsage": true })).expect(NOTE));
+    assert!(ProviderSdkPlugins::include_usage(&json!({})).unwrap());
+    assert!(!ProviderSdkPlugins::include_usage(&json!({ "includeUsage": false })).unwrap());
+    assert!(ProviderSdkPlugins::include_usage(&json!({ "includeUsage": true })).unwrap());
 }
 
 #[test]
-#[ignore = "porting: openai-compatible provider plugin not implemented"]
 fn uses_the_provider_id_as_the_openai_compatible_provider_name() {
     assert_eq!(
-        ProviderSdkPlugins::sdk_provider_name("openai-compatible", "custom-provider").expect(NOTE),
+        ProviderSdkPlugins::sdk_provider_name("openai-compatible", "custom-provider").unwrap(),
         "custom-provider.chat"
     );
 }
 
 #[test]
-#[ignore = "porting: openai-compatible provider plugin not implemented"]
 fn binds_to_the_openai_compatible_package() {
     assert!(
         ProviderSdkPlugins::matches_package("openai-compatible", "@ai-sdk/openai-compatible")
-            .expect(NOTE)
+            .unwrap()
     );
 }

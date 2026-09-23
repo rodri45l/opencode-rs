@@ -8,12 +8,9 @@
 
 use opencode_core::plugin_skill::PluginSkill;
 
-const NOTE: &str = "porting: skill plugin not implemented";
-
 #[test]
-#[ignore = "porting: skill plugin not implemented"]
 fn registers_the_builtin_customize_opencode_skill() {
-    let skill = PluginSkill::builtin().expect(NOTE);
+    let skill = PluginSkill::builtin().unwrap();
 
     assert_eq!(skill.name, "customize-opencode");
     assert!(skill.description.contains("opencode's own configuration"));

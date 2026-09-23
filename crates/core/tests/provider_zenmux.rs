@@ -10,8 +10,6 @@ use std::collections::BTreeMap;
 use opencode_core::provider_plugins::{ProviderPlugins, ProviderRequest};
 use serde_json::json;
 
-const NOTE: &str = "porting: provider zenmux not implemented";
-
 fn request(headers: &[(&str, &str)]) -> ProviderRequest {
     ProviderRequest {
         headers: headers
@@ -23,16 +21,14 @@ fn request(headers: &[(&str, &str)]) -> ProviderRequest {
 }
 
 #[test]
-#[ignore = "porting: provider zenmux not implemented"]
 fn is_registered_so_legacy_referer_headers_can_be_applied() {
     assert!(ProviderPlugins::ids().contains(&"zenmux"));
 }
 
 #[test]
-#[ignore = "porting: provider zenmux not implemented"]
 fn applies_the_exact_legacy_zenmux_headers() {
     let mut zenmux = request(&[]);
-    ProviderPlugins::apply_zenmux("zenmux", &mut zenmux).expect(NOTE);
+    ProviderPlugins::apply_zenmux("zenmux", &mut zenmux).unwrap();
 
     assert_eq!(
         zenmux.headers.get("HTTP-Referer").map(String::as_str),
@@ -48,10 +44,9 @@ fn applies_the_exact_legacy_zenmux_headers() {
 }
 
 #[test]
-#[ignore = "porting: provider zenmux not implemented"]
 fn merges_legacy_zenmux_headers_with_existing_headers() {
     let mut zenmux = request(&[("Existing", "value")]);
-    ProviderPlugins::apply_zenmux("zenmux", &mut zenmux).expect(NOTE);
+    ProviderPlugins::apply_zenmux("zenmux", &mut zenmux).unwrap();
 
     assert_eq!(
         zenmux.headers.get("Existing").map(String::as_str),
@@ -68,13 +63,12 @@ fn merges_legacy_zenmux_headers_with_existing_headers() {
 }
 
 #[test]
-#[ignore = "porting: provider zenmux not implemented"]
 fn lets_configured_zenmux_legacy_headers_override_defaults() {
     let mut zenmux = request(&[
         ("HTTP-Referer", "https://example.com/"),
         ("X-Title", "custom-title"),
     ]);
-    ProviderPlugins::apply_zenmux("zenmux", &mut zenmux).expect(NOTE);
+    ProviderPlugins::apply_zenmux("zenmux", &mut zenmux).unwrap();
 
     assert_eq!(
         zenmux.headers.get("HTTP-Referer").map(String::as_str),
@@ -87,13 +81,12 @@ fn lets_configured_zenmux_legacy_headers_override_defaults() {
 }
 
 #[test]
-#[ignore = "porting: provider zenmux not implemented"]
 fn guards_legacy_zenmux_headers_to_the_exact_provider_id() {
     let mut openrouter = request(&[
         ("HTTP-Referer", "https://example.com/"),
         ("X-Title", "custom-title"),
     ]);
-    ProviderPlugins::apply_zenmux("openrouter", &mut openrouter).expect(NOTE);
+    ProviderPlugins::apply_zenmux("openrouter", &mut openrouter).unwrap();
 
     assert_eq!(
         openrouter.headers.get("HTTP-Referer").map(String::as_str),

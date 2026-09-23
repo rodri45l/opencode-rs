@@ -8,16 +8,13 @@
 use opencode_core::catalog::Catalog;
 use serde_json::{json, Value};
 
-const NOTE: &str = "porting: catalog not implemented";
-
 fn required(value: Option<Value>) -> Value {
     value.expect("expected value")
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn normalizes_provider_base_url_into_api_url() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("test", |provider| {
@@ -29,9 +26,9 @@ fn normalizes_provider_base_url_into_api_url() {
                 provider["request"]["body"]["baseURL"] = json!("https://override.example.com");
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let provider = required(catalog.provider_get("test").expect(NOTE));
+    let provider = required(catalog.provider_get("test").unwrap());
     assert_eq!(
         provider["api"],
         json!({
@@ -43,9 +40,8 @@ fn normalizes_provider_base_url_into_api_url() {
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn normalizes_model_base_url_into_api_url() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("test", |provider| {
@@ -65,9 +61,9 @@ fn normalizes_model_base_url_into_api_url() {
                 model["request"]["body"]["baseURL"] = json!("https://override.example.com");
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let model = required(catalog.model_get("test", "model").expect(NOTE));
+    let model = required(catalog.model_get("test", "model").unwrap());
     assert_eq!(
         model["api"],
         json!({
@@ -81,9 +77,8 @@ fn normalizes_model_base_url_into_api_url() {
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn resolves_default_model_api_from_provider_api() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("test", |provider| {
@@ -95,9 +90,9 @@ fn resolves_default_model_api_from_provider_api() {
             });
             catalog.model_update("test", "model", |_| {});
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let model = required(catalog.model_get("test", "model").expect(NOTE));
+    let model = required(catalog.model_get("test", "model").unwrap());
     assert_eq!(
         model["api"],
         json!({
@@ -110,9 +105,8 @@ fn resolves_default_model_api_from_provider_api() {
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn resolves_provider_and_model_request_merges() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("test", |provider| {
@@ -128,9 +122,9 @@ fn resolves_provider_and_model_request_merges() {
                 model["request"]["body"]["shared"] = json!("model");
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let model = required(catalog.model_get("test", "model").expect(NOTE));
+    let model = required(catalog.model_get("test", "model").unwrap());
     assert_eq!(
         model["request"]["headers"],
         json!({ "provider": "provider", "shared": "model", "model": "model" })
@@ -142,9 +136,8 @@ fn resolves_provider_and_model_request_merges() {
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn falls_back_to_newest_available_model_when_no_default_is_configured() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("test", |_| {});
@@ -155,19 +148,18 @@ fn falls_back_to_newest_available_model_when_no_default_is_configured() {
                 model["time"]["released"] = json!(2000);
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let default = required(catalog.model_default().expect(NOTE));
+    let default = required(catalog.model_default().unwrap());
     assert_eq!(default["id"], json!("new"));
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn uses_transform_provided_default_until_that_transform_is_replaced() {
     use std::cell::Cell;
     use std::rc::Rc;
 
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     let configured = Rc::new(Cell::new(true));
     let captured = Rc::clone(&configured);
     catalog
@@ -183,24 +175,23 @@ fn uses_transform_provided_default_until_that_transform_is_replaced() {
                 catalog.default_set("test", "old");
             }
         })
-        .expect(NOTE);
+        .unwrap();
     assert_eq!(
-        required(catalog.model_default().expect(NOTE))["id"],
+        required(catalog.model_default().unwrap())["id"],
         json!("old")
     );
 
     configured.set(false);
-    catalog.reload().expect(NOTE);
+    catalog.reload().unwrap();
     assert_eq!(
-        required(catalog.model_default().expect(NOTE))["id"],
+        required(catalog.model_default().unwrap())["id"],
         json!("new")
     );
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn ignores_a_configured_default_on_a_disabled_provider() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("disabled", |provider| {
@@ -211,17 +202,16 @@ fn ignores_a_configured_default_on_a_disabled_provider() {
             catalog.model_update("enabled", "fallback", |_| {});
             catalog.default_set("disabled", "configured");
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let default = required(catalog.model_default().expect(NOTE));
+    let default = required(catalog.model_default().unwrap());
     assert_eq!(default["providerID"], json!("enabled"));
     assert_eq!(default["id"], json!("fallback"));
 }
 
 #[test]
-#[ignore = "porting: catalog not implemented"]
 fn small_model_prefers_small_keyword_candidates_before_cost_scoring() {
-    let catalog = Catalog::new().expect(NOTE);
+    let catalog = Catalog::new().unwrap();
     catalog
         .transform(|catalog| {
             catalog.provider_update("test", |_| {});
@@ -240,8 +230,8 @@ fn small_model_prefers_small_keyword_candidates_before_cost_scoring() {
                 model["time"]["released"] = json!(1_700_000_000_000_i64);
             });
         })
-        .expect(NOTE);
+        .unwrap();
 
-    let small = required(catalog.model_small("test").expect(NOTE));
+    let small = required(catalog.model_small("test").unwrap());
     assert_eq!(small["id"], json!("expensive-mini"));
 }

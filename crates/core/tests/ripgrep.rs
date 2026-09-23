@@ -9,23 +9,19 @@
 
 use opencode_core::ripgrep::Ripgrep;
 
-const NOTE: &str = "porting: ripgrep not implemented";
-
 #[test]
-#[ignore = "porting: ripgrep not implemented"]
 fn keeps_git_metadata_out_of_results_but_not_opencode_files() {
-    assert!(Ripgrep::is_ignored(".git/config").expect(NOTE));
-    assert!(Ripgrep::is_ignored(".git").expect(NOTE));
-    assert!(!Ripgrep::is_ignored(".opencode/config").expect(NOTE));
-    assert!(!Ripgrep::is_ignored("src/index.js").expect(NOTE));
+    assert!(Ripgrep::is_ignored(".git/config").unwrap());
+    assert!(Ripgrep::is_ignored(".git").unwrap());
+    assert!(!Ripgrep::is_ignored(".opencode/config").unwrap());
+    assert!(!Ripgrep::is_ignored("src/index.js").unwrap());
 }
 
 #[test]
-#[ignore = "porting: ripgrep not implemented"]
 fn does_not_split_surrogate_pairs_in_oversized_line_previews() {
     let line = format!("needle{}😀", "x".repeat(1_993));
     assert_eq!(
-        Ripgrep::preview_line(&line).expect(NOTE),
+        Ripgrep::preview_line(&line).unwrap(),
         format!("needle{}...", "x".repeat(1_993))
     );
 }

@@ -5,7 +5,6 @@ use opencode_llm::{Auth, LLMClient, ToolSchemaProjection, LLM};
 use serde_json::json;
 
 #[test]
-#[ignore = "porting: tool schema projection not implemented"]
 fn moonshot_strips_ref_siblings_and_converts_tuple_arrays() {
     let projected = ToolSchemaProjection::moonshot(json!({
         "type": "object",
@@ -31,7 +30,6 @@ fn moonshot_strips_ref_siblings_and_converts_tuple_arrays() {
 }
 
 #[test]
-#[ignore = "porting: tool schema projection not implemented"]
 fn gemini_normalises_numeric_enums_dangling_required_and_untyped_arrays() {
     let projected = ToolSchemaProjection::gemini(json!({
         "type": "object",
@@ -59,7 +57,6 @@ fn gemini_normalises_numeric_enums_dangling_required_and_untyped_arrays() {
 }
 
 #[test]
-#[ignore = "porting: tool schema projection not implemented"]
 fn openai_keeps_one_flat_object_top_level_schema() {
     let projected = ToolSchemaProjection::open_ai(json!({
         "anyOf": [
@@ -84,7 +81,6 @@ fn openai_keeps_one_flat_object_top_level_schema() {
 }
 
 #[test]
-#[ignore = "porting: tool schema projection not implemented"]
 fn applies_model_compatibility_before_protocol_projection() {
     let request = LLM::request(json!({
         "model": {

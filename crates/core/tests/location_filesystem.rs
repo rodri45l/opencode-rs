@@ -10,8 +10,6 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use opencode_core::location_filesystem::FileSystem;
 use opencode_core::path::AbsolutePath;
 
-const NOTE: &str = "porting: location filesystem not implemented";
-
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 
 fn scratch() -> PathBuf {
@@ -25,7 +23,6 @@ fn scratch() -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: location filesystem not implemented"]
 fn reads_text_and_binary_files() {
     let dir = scratch();
     std::fs::write(dir.join("text.txt"), "hello").unwrap();
@@ -33,23 +30,20 @@ fn reads_text_and_binary_files() {
     let root = AbsolutePath::new(dir.clone());
     let fs = FileSystem;
 
-    let text = fs.read(&root, "text.txt").expect(NOTE);
+    let text = fs.read(&root, "text.txt").unwrap();
     assert_eq!(text.content, b"hello");
     assert_eq!(text.mime, "text/plain");
 
-    let binary = fs.read(&root, "data.bin").expect(NOTE);
+    let binary = fs.read(&root, "data.bin").unwrap();
     assert_eq!(binary.content, vec![0u8, 1, 2]);
 }
 
 #[test]
-#[ignore = "porting: location filesystem not implemented"]
 fn lists_direct_children() {
     let dir = scratch();
     std::fs::create_dir(dir.join("src")).unwrap();
     std::fs::write(dir.join("README.md"), "# Test").unwrap();
-    let entries = FileSystem
-        .list(&AbsolutePath::new(dir.clone()))
-        .expect(NOTE);
+    let entries = FileSystem.list(&AbsolutePath::new(dir.clone())).unwrap();
 
     let mapped: Vec<(String, String)> = entries
         .into_iter()
@@ -68,7 +62,6 @@ fn lists_direct_children() {
 }
 
 #[test]
-#[ignore = "porting: location filesystem not implemented"]
 fn rejects_lexical_escapes() {
     let dir = scratch();
     assert!(FileSystem

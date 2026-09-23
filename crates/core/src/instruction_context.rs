@@ -22,9 +22,36 @@ pub struct InstructionContext;
 
 impl InstructionContext {
     /// Render discovered instruction files into one aggregate context.
-    pub fn render(_files: &[InstructionFile]) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "instruction_context::InstructionContext::render",
-        ))
+    pub fn render(files: &[InstructionFile]) -> CoreResult<String> {
+        if files.is_empty() {
+            return Ok(String::new());
+        }
+        Ok(files
+            .iter()
+            .map(|file| format!("Instructions from: {}\n{}", file.path, file.content))
+            .collect::<Vec<_>>()
+            .join("\n\n"))
     }
+
+    /// Render the update text when the discovered files replace prior ones.
+    pub fn replace(files: &[InstructionFile]) -> CoreResult<String> {
+        let rendered = Self::render(files)?;
+        if rendered.is_empty() {
+            Ok("Previously loaded instructions no longer apply.".to_string())
+        } else {
+            Ok(format!(
+                "These instructions replace all previously loaded ambient instructions.\n\n{rendered}"
+            ))
+        }
+    }
+
+    /// The removal message for previously admitted instructions.
+    pub fn removed_message() -> &'static str {
+        "Previously loaded instructions no longer apply."
+    }
+}
+
+/// A render error that would previously abort aggregation.
+pub fn invalid_instructions(path: &str) -> CoreError {
+    CoreError::Message(format!("invalid instructions file: {path}"))
 }
