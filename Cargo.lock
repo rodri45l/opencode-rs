@@ -794,6 +794,7 @@ name = "opencode-codemode"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "serde_json",
 ]
 
 [[package]]
@@ -825,6 +826,7 @@ name = "opencode-function"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "thiserror",
 ]
 
 [[package]]
@@ -832,6 +834,10 @@ name = "opencode-http-recorder"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "regex",
+ "serde_json",
+ "thiserror",
+ "url",
 ]
 
 [[package]]
@@ -846,6 +852,8 @@ name = "opencode-integrations"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -910,6 +918,7 @@ dependencies = [
  "tower",
  "tower-http",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -931,6 +940,7 @@ name = "opencode-stats"
 version = "0.1.0"
 dependencies = [
  "opencode-test-support",
+ "thiserror",
 ]
 
 [[package]]

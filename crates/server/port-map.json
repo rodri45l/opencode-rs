@@ -1,0 +1,21 @@
+{
+  "packages/opencode/test/config/lsp.test.ts": ["config_lsp"],
+  "packages/opencode/test/mcp/headers.test.ts": ["mcp_headers"],
+  "packages/opencode/test/mcp/oauth-callback.test.ts": ["mcp_oauth_callback"],
+  "packages/opencode/test/plugin/shared.test.ts": ["plugin_shared"],
+  "packages/opencode/test/plugin/openai-rollout.test.ts": ["plugin_openai_rollout"],
+  "packages/opencode/test/plugin/cerebras.test.ts": ["plugin_cerebras"],
+  "packages/opencode/test/plugin/cloudflare.test.ts": ["plugin_cloudflare"],
+  "packages/opencode/test/plugin/github-copilot.test.ts": ["plugin_github_copilot"],
+  "packages/opencode/test/plugin/workspace-adapter.test.ts": ["plugin_workspace_adapter"],
+  "packages/opencode/test/mcp/oauth-provider.test.ts": ["mcp_oauth_provider"],
+  "packages/opencode/test/mcp/catalog.test.ts": ["mcp_catalog"],
+  "packages/opencode/test/mcp/auth.test.ts": ["mcp_auth"],
+  "packages/opencode/test/mcp/session-recovery.test.ts": ["mcp_session_recovery"],
+  "packages/opencode/test/provider/error.test.ts": ["provider_error"],
+  "packages/opencode/test/provider/model-status.test.ts": ["provider_model_status"],
+  "packages/opencode/test/skill/skill.test.ts": ["skill_catalog"],
+  "packages/opencode/test/session/instruction.test.ts": ["instruction"],
+  "packages/opencode/test/session/session.test.ts": ["session_lifecycle"],
+  "packages/opencode/test/tool/apply_patch.test.ts": ["apply_patch"]
+}

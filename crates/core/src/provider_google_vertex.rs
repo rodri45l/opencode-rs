@@ -48,3 +48,41 @@ impl GoogleVertexPlugin {
         ))
     }
 }
+
+/// The Google Vertex Anthropic provider plugin.
+///
+/// Ports the observable behaviour of
+/// `packages/core/src/plugin/provider/google-vertex.ts` (Anthropic branch):
+/// project resolves from `GOOGLE_CLOUD_PROJECT`/`GCP_PROJECT`/`GCLOUD_PROJECT`,
+/// location from `GOOGLE_CLOUD_LOCATION`/`VERTEX_LOCATION` (ignoring
+/// `GOOGLE_VERTEX_LOCATION`) defaulting to `global`, and the publisher base URL
+/// uses regional `*.rep.googleapis.com` hosts for multi-region locations.
+#[derive(Debug, Default)]
+pub struct GoogleVertexAnthropicPlugin;
+
+impl GoogleVertexAnthropicPlugin {
+    /// Resolve the project id for the Anthropic publisher.
+    pub fn resolve_project(_env: &BTreeMap<String, String>) -> CoreResult<Option<String>> {
+        Err(CoreError::NotImplemented(
+            "provider_google_vertex::GoogleVertexAnthropicPlugin::resolve_project",
+        ))
+    }
+
+    /// Resolve the location for the Anthropic publisher, defaulting to `global`.
+    pub fn resolve_location(_env: &BTreeMap<String, String>) -> CoreResult<String> {
+        Err(CoreError::NotImplemented(
+            "provider_google_vertex::GoogleVertexAnthropicPlugin::resolve_location",
+        ))
+    }
+
+    /// Build the Anthropic publisher base URL, respecting a configured base URL.
+    pub fn base_url(
+        _project: &str,
+        _location: &str,
+        _configured: Option<&str>,
+    ) -> CoreResult<String> {
+        Err(CoreError::NotImplemented(
+            "provider_google_vertex::GoogleVertexAnthropicPlugin::base_url",
+        ))
+    }
+}
