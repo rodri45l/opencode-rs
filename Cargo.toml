@@ -8,6 +8,7 @@ members = [
   "crates/server",
   "crates/client",
   "crates/cli",
+  "crates/test-support",
 ]
 
 [workspace.package]
@@ -24,6 +25,7 @@ opencode-core = { path = "crates/core" }
 opencode-llm = { path = "crates/llm" }
 opencode-server = { path = "crates/server" }
 opencode-client = { path = "crates/client" }
+opencode-test-support = { path = "crates/test-support" }
 
 anyhow = "1"
 async-stream = "0.3"
@@ -32,6 +34,7 @@ base64 = "0.22"
 clap = { version = "4", features = ["derive"] }
 futures = "0.3"
 reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+regex = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
@@ -41,6 +44,7 @@ tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = "2"
 uuid = { version = "1", features = ["v7", "serde"] }
 
 [profile.release]

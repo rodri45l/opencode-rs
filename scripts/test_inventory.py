@@ -87,12 +87,25 @@ CONTRACT_SIGNALS = (
 SRC_IMPORT = re.compile(r'from "(\.\./)+src|from "@/')
 TEST_GLOB = re.compile(r"\.(test|spec)\.(ts|tsx)$")
 
-# reference test path -> rust test file stem, for ports whose names differ
-EXCEPTIONS = {
-    "packages/schema/test/event.test.ts": "event_registry",
-    "packages/httpapi-codegen/test/generate.test.ts": "httpapi_codegen_generate",
-    "packages/httpapi-codegen/test/write.test.ts": "httpapi_codegen_write",
-}
+# reference test path -> rust test file stem(s), for ports whose names differ.
+# Merged from tests/fixtures/port-map.json (central) and crates/*/port-map.json
+# (per-crate, owned by the agents working in that crate).
+def load_port_map() -> dict[str, list[str]]:
+    merged: dict[str, list[str]] = {}
+    sources = sorted((REPO / "crates").glob("*/port-map.json"))
+    central = FIXTURES / "port-map.json"
+    if central.exists():
+        sources.append(central)
+    for source in sources:
+        try:
+            data = json.loads(source.read_text())
+        except Exception:
+            continue
+        for key, value in data.items():
+            if key.startswith("_"):
+                continue
+            merged[key] = value if isinstance(value, list) else [value]
+    return merged
 
 
 def reference_commit(reference: pathlib.Path) -> str | None:
@@ -116,13 +129,16 @@ def classify(package: str, text: str) -> str:
     return "P"
 
 
-def rust_test_exists(crate: str, path: str) -> bool:
-    basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
-    stem = EXCEPTIONS.get(path, basename.replace("-", "_"))
+def rust_test_exists(crate: str, path: str, port_map: dict[str, list[str]]) -> bool:
     tests_dir = REPO / crate / "tests"
     if not tests_dir.is_dir():
         return False
-    return (tests_dir / f"{stem}.rs").is_file()
+    if path in port_map:
+        stems = port_map[path]
+    else:
+        basename = re.sub(r"\.(test|spec)\.(ts|tsx)$", "", path.rsplit("/", 1)[-1])
+        stems = [basename.replace("-", "_")]
+    return any((tests_dir / f"{stem}.rs").is_file() for stem in stems)
 
 
 def main() -> int:
@@ -134,6 +150,7 @@ def main() -> int:
         ["git", "-C", str(args.reference), "ls-files"], text=True
     ).splitlines()
     tests = [p for p in tracked if p.startswith("packages/") and TEST_GLOB.search(p)]
+    port_map = load_port_map()
 
     files = []
     for path in tests:
@@ -142,7 +159,7 @@ def main() -> int:
         tier = classify(package, (args.reference / path).read_text(errors="ignore"))
         if tier == "n/a":
             status = "n/a"
-        elif rust_test_exists(crate, path):
+        elif rust_test_exists(crate, path, port_map):
             status = "ported"
         else:
             status = "pending"

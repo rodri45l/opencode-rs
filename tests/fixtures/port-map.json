@@ -1,0 +1,14 @@
+{
+  "_comment": "Maps a reference test path to the Rust test file stem(s) that port it. Used by scripts/test_inventory.py to mark rows ported. Prefer a per-crate crates/<crate>/port-map.json for entries owned by that crate; this central file is for cross-cutting/renamed ports.",
+  "packages/schema/test/event.test.ts": "event_registry",
+  "packages/httpapi-codegen/test/generate.test.ts": "httpapi_codegen_generate",
+  "packages/httpapi-codegen/test/write.test.ts": "httpapi_codegen_write",
+  "packages/opencode/test/server/auth.test.ts": "server_auth",
+  "packages/core/test/config/skill.test.ts": "config_skill",
+  "packages/opencode/test/tool/glob.test.ts": "glob_tool",
+  "packages/opencode/test/tool/lsp.test.ts": "lsp_tool",
+  "packages/opencode/test/tool/question.test.ts": "question_tool",
+  "packages/opencode/test/tool/skill.test.ts": "skill_tool",
+  "packages/opencode/test/acp/session.test.ts": "acp_session",
+  "packages/opencode/test/util/glob.test.ts": "util_glob"
+}
