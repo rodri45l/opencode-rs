@@ -8,18 +8,70 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  fmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
       - uses: Swatinem/rust-cache@v2
-      - name: Format
-        run: cargo fmt --all --check
-      - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
-      - name: Test
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Green suite
         run: cargo test --workspace
+
+  # Informational: runs the red-first porting suite. Non-blocking by design; the
+  # gate intentionally does not depend on it. Becomes blocking when the port is
+  # complete (docs/PORTING.md).
+  porting:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Porting suite (expected to fail until ported)
+        run: cargo test --workspace -- --include-ignored
+      - name: Summarise
+        if: always()
+        run: echo "See job log for the current red count." >> "$GITHUB_STEP_SUMMARY"
+
+  # The single required status check. Passes only when fmt, clippy and the green
+  # suite all pass. Configured in branch protection as required context "gate".
+  gate:
+    name: gate
+    needs: [fmt, clippy, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required jobs
+        run: |
+          echo "fmt=${{ needs.fmt.result }} clippy=${{ needs.clippy.result }} test=${{ needs.test.result }}"
+          if [ "${{ needs.fmt.result }}" != "success" ] \
+            || [ "${{ needs.clippy.result }}" != "success" ] \
+            || [ "${{ needs.test.result }}" != "success" ]; then
+            echo "::error::CI gate failed"
+            exit 1
+          fi
+          echo "CI gate passed"
