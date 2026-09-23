@@ -1,18 +1,7 @@
 //! Port of packages/app/src/pages/session/timeline/summary-diffs.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct Diff {
-    file: Option<String>,
-    additions: i64,
-    deletions: i64,
-}
-
-// Local stub (fast wave): real module lands later.
-fn unique_summary_diffs(_diffs: Option<Vec<Diff>>) -> Vec<Diff> {
-    Vec::new()
-}
+use opencode_app::summary_diffs::{unique_summary_diffs, Diff};
 
 fn diff(file: &str, additions: i64) -> Diff {
     Diff {
@@ -23,7 +12,6 @@ fn diff(file: &str, additions: i64) -> Diff {
 }
 
 #[test]
-#[ignore = "porting: pages/session/timeline/summary-diffs not implemented"]
 fn drops_entries_without_files_and_preserves_unique_input() {
     let alpha = diff("alpha.ts", 1);
     let beta = diff("beta.ts", 1);
@@ -42,7 +30,6 @@ fn drops_entries_without_files_and_preserves_unique_input() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/timeline/summary-diffs not implemented"]
 fn keeps_the_last_diff_per_file_in_the_legacy_display_order() {
     let old_alpha = diff("alpha.ts", 1);
     let old_beta = diff("beta.ts", 1);

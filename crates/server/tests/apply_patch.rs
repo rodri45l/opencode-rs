@@ -37,7 +37,6 @@ fn run(dir: &Path, patch_text: &str) -> Result<ToolResult, ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn requires_patch_text() {
     let dir = temp_dir("requires");
     let error = run(&dir, "").expect_err("empty patch rejected");
@@ -45,7 +44,6 @@ fn requires_patch_text() {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn rejects_invalid_patch_format() {
     let dir = temp_dir("invalid");
     let error = run(&dir, "invalid patch").expect_err("invalid rejected");
@@ -55,7 +53,6 @@ fn rejects_invalid_patch_format() {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn rejects_empty_patch() {
     let dir = temp_dir("empty");
     let error = run(&dir, "*** Begin Patch\n*** End Patch").expect_err("empty rejected");
@@ -63,7 +60,6 @@ fn rejects_empty_patch() {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn applies_add_update_and_delete_in_one_patch() -> Result<(), ToolError> {
     let dir = temp_dir("combined");
     std::fs::write(dir.join("modify.txt"), "line1\nline2\n").expect("seed");
@@ -106,7 +102,6 @@ fn applies_add_update_and_delete_in_one_patch() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn permission_metadata_includes_move_file_info() -> Result<(), ToolError> {
     let dir = temp_dir("move-info");
     let original = dir.join("old").join("name.txt");
@@ -134,7 +129,6 @@ fn permission_metadata_includes_move_file_info() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn applies_multiple_hunks_to_one_file() -> Result<(), ToolError> {
     let dir = temp_dir("hunks");
     let target = dir.join("multi.txt");
@@ -151,7 +145,6 @@ fn applies_multiple_hunks_to_one_file() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn does_not_invent_a_first_line_diff_for_bom_files() -> Result<(), ToolError> {
     let dir = temp_dir("bom");
     let target = dir.join("example.cs");
@@ -179,7 +172,6 @@ fn does_not_invent_a_first_line_diff_for_bom_files() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn inserts_lines_with_insert_only_hunk() -> Result<(), ToolError> {
     let dir = temp_dir("insert");
     let target = dir.join("insert_only.txt");
@@ -196,7 +188,6 @@ fn inserts_lines_with_insert_only_hunk() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn appends_trailing_newline_on_update() -> Result<(), ToolError> {
     let dir = temp_dir("trailing");
     let target = dir.join("no_newline.txt");
@@ -213,7 +204,6 @@ fn appends_trailing_newline_on_update() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn moves_file_to_a_new_directory() -> Result<(), ToolError> {
     let dir = temp_dir("move");
     let original = dir.join("old").join("name.txt");
@@ -233,7 +223,6 @@ fn moves_file_to_a_new_directory() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn adds_file_overwriting_existing_file() -> Result<(), ToolError> {
     let dir = temp_dir("overwrite");
     let target = dir.join("duplicate.txt");
@@ -250,7 +239,6 @@ fn adds_file_overwriting_existing_file() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn rejects_update_when_target_file_is_missing() {
     let dir = temp_dir("missing-update");
     let patch_text =
@@ -262,7 +250,6 @@ fn rejects_update_when_target_file_is_missing() {
 }
 
 #[test]
-#[ignore = "porting: tool.apply_patch not implemented"]
 fn rejects_delete_when_file_is_missing() {
     let dir = temp_dir("missing-delete");
     let patch_text = "*** Begin Patch\n*** Delete File: missing.txt\n*** End Patch";

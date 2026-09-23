@@ -10,7 +10,6 @@ use serde_json::json;
 const NOTE: &str = "porting: session compaction not implemented";
 
 #[test]
-#[ignore = "porting: session compaction not implemented"]
 fn compaction_prompt_preserves_detailed_work_state_and_relevant_files() {
     let prompt =
         SessionCompaction::build_prompt(&["conversation history".to_string()], None).expect(NOTE);
@@ -30,7 +29,6 @@ fn compaction_prompt_preserves_detailed_work_state_and_relevant_files() {
 }
 
 #[test]
-#[ignore = "porting: session compaction not implemented"]
 fn compaction_prompt_gives_update_instructions_for_a_prior_summary() {
     let prompt = SessionCompaction::build_prompt(
         &["new conversation".to_string()],
@@ -52,7 +50,6 @@ fn compaction_prompt_gives_update_instructions_for_a_prior_summary() {
 }
 
 #[test]
-#[ignore = "porting: session compaction not implemented"]
 fn compaction_describes_tool_media_without_embedding_base64() {
     let base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
     let serialized = SessionCompaction::serialize_tool_content(&[

@@ -4,7 +4,7 @@
 //! directory and resolves the enclosing project plus its VCS metadata.
 
 use crate::path::AbsolutePath;
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 use opencode_schema::WorkspaceId;
 
 /// Identifier for a project.
@@ -64,9 +64,37 @@ pub struct Location;
 impl Location {
     /// Resolve a bound location.
     pub fn resolve(
-        _directory: &AbsolutePath,
-        _workspace_id: WorkspaceId,
+        directory: &AbsolutePath,
+        workspace_id: WorkspaceId,
     ) -> CoreResult<LocationInfo> {
-        Err(CoreError::NotImplemented("location::Location::resolve"))
+        let mut root = directory.as_path().to_path_buf();
+        let mut vcs = None;
+        let mut current = Some(directory.as_path());
+        while let Some(candidate) = current {
+            let git = candidate.join(".git");
+            if git.exists() {
+                root = candidate.to_path_buf();
+                vcs = Some(Vcs::Git {
+                    store: AbsolutePath::new(git),
+                });
+                break;
+            }
+            current = candidate.parent();
+        }
+        let id = root
+            .file_name()
+            .map(|name| name.to_string_lossy().to_string())
+            .unwrap_or_else(|| "project".to_string());
+        let project = ProjectInfo {
+            id: ProjectId::make(id),
+            directory: AbsolutePath::new(root),
+            vcs: vcs.clone(),
+        };
+        Ok(LocationInfo {
+            directory: directory.clone(),
+            workspace_id,
+            project,
+            vcs,
+        })
     }
 }

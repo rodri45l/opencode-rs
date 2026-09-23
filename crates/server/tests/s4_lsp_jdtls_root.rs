@@ -11,17 +11,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-#[allow(dead_code)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct NotImplemented(&'static str);
-
-fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
-    Err(NotImplemented(topic))
-}
-
-fn jdtls_root(_file: &Path, _directory: &Path) -> Result<Option<PathBuf>, NotImplemented> {
-    nope("lsp jdtls-root")
-}
+use opencode_server::lsp_jdtls::jdtls_root;
 
 fn base() -> PathBuf {
     std::env::temp_dir().join("opencode-rs-jdtls-s4")
@@ -52,17 +42,15 @@ fn workspace(name: &str) -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn single_module_maven_project_returns_pom_directory() {
     let root = workspace("single-maven");
     touch(&root.join("pom.xml"));
     let file = java_src(&root);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn multi_module_maven_project_follows_module_chain_to_top_level_pom() {
     let root = workspace("multi-maven");
     write(
@@ -73,22 +61,20 @@ fn multi_module_maven_project_follows_module_chain_to_top_level_pom() {
     touch(&child.join("pom.xml"));
     let file = java_src(&child);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn maven_project_inside_a_nested_directory() {
     let workspace = workspace("maven-workspace");
     let project = workspace.join("my-maven-app");
     touch(&project.join("pom.xml"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn nested_independent_maven_project_stops_at_its_own_pom() {
     let workspace = workspace("nested-independent");
     write(
@@ -99,11 +85,10 @@ fn nested_independent_maven_project_stops_at_its_own_pom() {
     touch(&project.join("pom.xml"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn three_level_maven_module_chain_resolves_to_top_level() {
     let root = workspace("three-level");
     write(
@@ -119,11 +104,10 @@ fn three_level_maven_module_chain_resolves_to_top_level() {
     touch(&app.join("pom.xml"));
     let file = java_src(&app);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn three_level_maven_chain_stops_when_module_link_is_broken() {
     let root = workspace("broken-chain");
     write(
@@ -136,11 +120,10 @@ fn three_level_maven_chain_stops_when_module_link_is_broken() {
     touch(&app.join("pom.xml"));
     let file = java_src(&app);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(app));
+    assert_eq!(jdtls_root(&file, &root), Some(app));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn module_with_dot_slash_prefix_is_normalized() {
     let root = workspace("dot-slash-module");
     write(
@@ -151,11 +134,10 @@ fn module_with_dot_slash_prefix_is_normalized() {
     touch(&child.join("pom.xml"));
     let file = java_src(&child);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn module_with_trailing_slash_is_normalized() {
     let root = workspace("trailing-slash-module");
     write(
@@ -166,11 +148,10 @@ fn module_with_trailing_slash_is_normalized() {
     touch(&child.join("pom.xml"));
     let file = java_src(&child);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn gradle_project_with_settings_gradle_in_a_subdirectory() {
     let workspace = workspace("gradle-sub");
     let project = workspace.join("gradle-app");
@@ -178,22 +159,20 @@ fn gradle_project_with_settings_gradle_in_a_subdirectory() {
     touch(&project.join("build.gradle"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn gradle_project_with_only_build_gradle_in_a_subdirectory() {
     let workspace = workspace("gradle-build-sub");
     let project = workspace.join("gradle-app");
     touch(&project.join("build.gradle"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn gradle_monorepo_settings_takes_precedence_over_nested_pom() {
     let workspace = workspace("gradle-monorepo");
     let gradle_root = workspace.join("gradle-project");
@@ -203,44 +182,40 @@ fn gradle_monorepo_settings_takes_precedence_over_nested_pom() {
     touch(&sub.join("pom.xml"));
     let file = java_src(&sub);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(gradle_root));
+    assert_eq!(jdtls_root(&file, &workspace), Some(gradle_root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn settings_gradle_kts_is_recognized() {
     let workspace = workspace("gradle-kts-settings");
     let project = workspace.join("gradle-app");
     touch(&project.join("settings.gradle.kts"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn build_gradle_kts_is_recognized() {
     let workspace = workspace("gradle-kts-build");
     let project = workspace.join("gradle-app");
     touch(&project.join("build.gradle.kts"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn gradlew_without_settings_gradle_in_a_subdirectory_is_recognized() {
     let workspace = workspace("gradlew-sub");
     let project = workspace.join("gradle-app");
     touch(&project.join("gradlew"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn pom_xml_is_excluded_when_gradlew_is_present_at_same_level() {
     let workspace = workspace("gradle-excludes-maven");
     let project = workspace.join("mixed-project");
@@ -248,11 +223,10 @@ fn pom_xml_is_excluded_when_gradlew_is_present_at_same_level() {
     touch(&project.join("gradlew"));
     let file = java_src(&project);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn eclipse_project_with_dot_project_in_a_subdirectory() {
     let workspace = workspace("eclipse-sub");
     let project = workspace.join("eclipse-app");
@@ -260,20 +234,18 @@ fn eclipse_project_with_dot_project_in_a_subdirectory() {
     touch(&project.join(".classpath"));
     let file = project.join("src/com/example/App.java");
     touch(&file);
-    assert_eq!(jdtls_root(&file, &workspace).unwrap(), Some(project));
+    assert_eq!(jdtls_root(&file, &workspace), Some(project));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn java_file_with_no_build_markers_returns_none() {
     let root = workspace("no-build");
     let file = root.join("src/App.java");
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), None);
+    assert_eq!(jdtls_root(&file, &root), None);
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn module_multi_segment_path_matches_nested_directory() {
     let root = workspace("multi-seg-module");
     write(
@@ -284,11 +256,10 @@ fn module_multi_segment_path_matches_nested_directory() {
     touch(&child.join("pom.xml"));
     let file = java_src(&child);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn module_declaration_mismatch_does_not_falsely_match() {
     let root = workspace("module-mismatch");
     write(
@@ -299,11 +270,10 @@ fn module_declaration_mismatch_does_not_falsely_match() {
     touch(&child.join("pom.xml"));
     let file = java_src(&child);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(child));
+    assert_eq!(jdtls_root(&file, &root), Some(child));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn multiple_module_declarations_allow_second_module_to_traverse_up() {
     let root = workspace("multi-modules");
     write(
@@ -315,11 +285,10 @@ fn multiple_module_declarations_allow_second_module_to_traverse_up() {
     touch(&child_b.join("pom.xml"));
     let file = java_src(&child_b);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn xml_commented_module_is_not_matched() {
     let root = workspace("commented-module");
     write(
@@ -330,21 +299,19 @@ fn xml_commented_module_is_not_matched() {
     touch(&child.join("pom.xml"));
     let file = java_src(&child);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(child));
+    assert_eq!(jdtls_root(&file, &root), Some(child));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn pom_xml_at_ctx_directory_itself_is_found() {
     let root = workspace("pom-at-ctx");
     touch(&root.join("pom.xml"));
     let file = java_src(&root);
     touch(&file);
-    assert_eq!(jdtls_root(&file, &root).unwrap(), Some(root));
+    assert_eq!(jdtls_root(&file, &root), Some(root));
 }
 
 #[test]
-#[ignore = "porting: lsp jdtls-root not implemented"]
 fn maven_and_gradle_sibling_projects_do_not_interfere() {
     let workspace = workspace("mixed-siblings");
     let gradle_dir = workspace.join("gradle-project");
@@ -356,9 +323,6 @@ fn maven_and_gradle_sibling_projects_do_not_interfere() {
     let maven_src = maven_dir.join("src/main/java/com/example/MavenApp.java");
     touch(&maven_src);
 
-    assert_eq!(
-        jdtls_root(&gradle_src, &workspace).unwrap(),
-        Some(gradle_dir)
-    );
-    assert_eq!(jdtls_root(&maven_src, &workspace).unwrap(), Some(maven_dir));
+    assert_eq!(jdtls_root(&gradle_src, &workspace), Some(gradle_dir));
+    assert_eq!(jdtls_root(&maven_src, &workspace), Some(maven_dir));
 }

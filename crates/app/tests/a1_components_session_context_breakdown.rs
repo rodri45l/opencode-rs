@@ -1,36 +1,11 @@
 //! Port of packages/app/src/components/session/session-context-breakdown.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
 use std::collections::BTreeMap;
 
-#[derive(Clone, Debug, PartialEq)]
-struct Segment {
-    key: String,
-    tokens: i64,
-    width: f64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Message {
-    id: String,
-    role: String,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct TextPart {
-    text: String,
-}
-
-// Local stub (fast wave): real module lands later.
-fn estimate_session_context_breakdown(
-    _messages: &[Message],
-    _parts: &BTreeMap<String, Vec<TextPart>>,
-    _input: i64,
-    _system_prompt: &str,
-) -> Vec<Segment> {
-    Vec::new()
-}
+use opencode_app::session_context_breakdown::{
+    estimate_session_context_breakdown, Message, TextPart,
+};
 
 fn user(id: &str) -> Message {
     Message {
@@ -47,7 +22,6 @@ fn assistant(id: &str) -> Message {
 }
 
 #[test]
-#[ignore = "porting: components/session-context-breakdown not implemented"]
 fn estimates_tokens_and_keeps_remaining_tokens_as_other() {
     let messages = vec![user("u1"), assistant("a1")];
     let mut parts = BTreeMap::new();
@@ -73,7 +47,6 @@ fn estimates_tokens_and_keeps_remaining_tokens_as_other() {
 }
 
 #[test]
-#[ignore = "porting: components/session-context-breakdown not implemented"]
 fn scales_segments_when_estimates_exceed_input() {
     let messages = vec![user("u1"), assistant("a1")];
     let mut parts = BTreeMap::new();

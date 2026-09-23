@@ -12,85 +12,9 @@
 //! Stubs are local to this file per the fast-wave protocol and return a typed
 //! error until the module lands.
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum S2Error {
-    NotImplemented(&'static str),
-}
-
-impl std::fmt::Display for S2Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            S2Error::NotImplemented(what) => write!(f, "not implemented: {what}"),
-        }
-    }
-}
-
-impl std::error::Error for S2Error {}
-
-#[derive(Debug, Clone, Copy, Default)]
-struct Usage {
-    input_tokens: u64,
-    output_tokens: u64,
-    total_tokens: u64,
-    reasoning_tokens: Option<u64>,
-    cache_read_input_tokens: Option<u64>,
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-struct Metadata {
-    anthropic_cache_creation: Option<u64>,
-    bedrock_cache_write: Option<u64>,
-    vertex_cache_creation: Option<u64>,
-    copilot_total_nano_aiu: Option<u64>,
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-struct Cost {
-    input: f64,
-    output: f64,
-    cache_read: f64,
-    cache_write: f64,
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-struct Tier {
-    size: u64,
-    cost: Cost,
-}
-
-#[derive(Debug, Clone, Default)]
-struct UsageModel {
-    context: u64,
-    output: u64,
-    npm: &'static str,
-    cost: Cost,
-    tiers: Vec<Tier>,
-    over_200k: Option<Cost>,
-    malformed_cost_input: bool,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-struct UsageTotals {
-    input: u64,
-    output: u64,
-    reasoning: u64,
-    cache_read: u64,
-    cache_write: u64,
-    total: u64,
-    cost: f64,
-}
-
-fn token_estimate(_text: &str) -> Result<u64, S2Error> {
-    Err(S2Error::NotImplemented("util.token.estimate"))
-}
-
-fn get_usage(
-    _model: &UsageModel,
-    _usage: &Usage,
-    _metadata: &Metadata,
-) -> Result<UsageTotals, S2Error> {
-    Err(S2Error::NotImplemented("SessionNs.getUsage"))
-}
+use opencode_server::session_usage::{
+    get_usage, token_estimate, Cost, Metadata, Tier, Usage, UsageModel,
+};
 
 fn approx(a: f64, b: f64) -> bool {
     (a - b).abs() < 1e-9
@@ -115,27 +39,23 @@ fn base_cost() -> Cost {
 }
 
 #[test]
-#[ignore = "porting: session.compaction token estimate not implemented"]
 fn estimates_tokens_from_text_at_four_chars_per_token() {
     let text = "x".repeat(4000);
-    assert_eq!(token_estimate(&text).expect("token estimate"), 1000);
+    assert_eq!(token_estimate(&text), 1000);
 }
 
 #[test]
-#[ignore = "porting: session.compaction token estimate not implemented"]
 fn estimates_tokens_from_larger_text() {
     let text = "y".repeat(20_000);
-    assert_eq!(token_estimate(&text).expect("token estimate"), 5000);
+    assert_eq!(token_estimate(&text), 5000);
 }
 
 #[test]
-#[ignore = "porting: session.compaction token estimate not implemented"]
 fn token_estimate_returns_zero_for_empty_string() {
-    assert_eq!(token_estimate("").expect("token estimate"), 0);
+    assert_eq!(token_estimate(""), 0);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn normalizes_standard_usage_to_token_format() {
     let result = get_usage(
         &model(100_000, 32_000, Cost::default()),
@@ -146,8 +66,7 @@ fn normalizes_standard_usage_to_token_format() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 1000);
     assert_eq!(result.output, 500);
@@ -157,7 +76,6 @@ fn normalizes_standard_usage_to_token_format() {
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn extracts_cached_tokens_to_cache_read() {
     let result = get_usage(
         &model(100_000, 32_000, Cost::default()),
@@ -169,15 +87,13 @@ fn extracts_cached_tokens_to_cache_read() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 800);
     assert_eq!(result.cache_read, 200);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn handles_anthropic_cache_write_metadata() {
     let result = get_usage(
         &model(100_000, 32_000, Cost::default()),
@@ -191,14 +107,12 @@ fn handles_anthropic_cache_write_metadata() {
             anthropic_cache_creation: Some(300),
             ..Metadata::default()
         },
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.cache_write, 300);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn subtracts_cached_tokens_for_anthropic_provider() {
     let result = get_usage(
         &model(100_000, 32_000, Cost::default()),
@@ -210,15 +124,13 @@ fn subtracts_cached_tokens_for_anthropic_provider() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 800);
     assert_eq!(result.cache_read, 200);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn separates_reasoning_tokens_from_output_tokens() {
     let result = get_usage(
         &model(100_000, 32_000, Cost::default()),
@@ -230,8 +142,7 @@ fn separates_reasoning_tokens_from_output_tokens() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 1000);
     assert_eq!(result.output, 400);
@@ -240,7 +151,6 @@ fn separates_reasoning_tokens_from_output_tokens() {
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn does_not_double_count_reasoning_tokens_in_cost() {
     let cost = Cost {
         output: 15.0,
@@ -256,8 +166,7 @@ fn does_not_double_count_reasoning_tokens_in_cost() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.output, 750_000);
     assert_eq!(result.reasoning, 250_000);
@@ -265,14 +174,12 @@ fn does_not_double_count_reasoning_tokens_in_cost() {
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn handles_undefined_optional_values_gracefully() {
     let result = get_usage(
         &model(100_000, 32_000, Cost::default()),
         &Usage::default(),
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 0);
     assert_eq!(result.output, 0);
@@ -283,7 +190,6 @@ fn handles_undefined_optional_values_gracefully() {
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn ignores_malformed_cost_fields() {
     let mut m = model(
         100_000,
@@ -306,14 +212,12 @@ fn ignores_malformed_cost_fields() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert!(approx(result.cost, 1.5), "cost {}", result.cost);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn calculates_cost_correctly() {
     let result = get_usage(
         &model(100_000, 32_000, base_cost()),
@@ -324,14 +228,12 @@ fn calculates_cost_correctly() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert!(approx(result.cost, 4.5), "cost {}", result.cost);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn uses_authoritative_copilot_billed_cost_when_provided() {
     let result = get_usage(
         &model(100_000, 32_000, base_cost()),
@@ -345,14 +247,12 @@ fn uses_authoritative_copilot_billed_cost_when_provided() {
             copilot_total_nano_aiu: Some(4_473_525_000),
             ..Metadata::default()
         },
-    )
-    .expect("usage");
+    );
 
     assert!(approx(result.cost, 0.044_735_25), "cost {}", result.cost);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn uses_matching_context_cost_tier_before_over_200k_fallback() {
     let m = UsageModel {
         context: 1_000_000,
@@ -403,8 +303,7 @@ fn uses_matching_context_cost_tier_before_over_200k_fallback() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 550_000);
     assert!(
@@ -415,7 +314,6 @@ fn uses_matching_context_cost_tier_before_over_200k_fallback() {
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn falls_back_to_over_200k_pricing_when_no_cost_tier_matches() {
     let m = UsageModel {
         context: 1_000_000,
@@ -454,14 +352,12 @@ fn falls_back_to_over_200k_pricing_when_no_cost_tier_matches() {
             ..Usage::default()
         },
         &Metadata::default(),
-    )
-    .expect("usage");
+    );
 
     assert!(approx(result.cost, 0.9 + 0.4), "cost {}", result.cost);
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn computes_total_from_components_for_anthropic_family_models() {
     for npm in [
         "@ai-sdk/anthropic",
@@ -491,7 +387,7 @@ fn computes_total_from_components_for_anthropic_family_models() {
             }
         };
 
-        let result = get_usage(&m, &usage, &metadata).expect("usage");
+        let result = get_usage(&m, &usage, &metadata);
 
         assert_eq!(result.input, 500, "npm {npm}");
         assert_eq!(result.cache_read, 200, "npm {npm}");
@@ -501,7 +397,6 @@ fn computes_total_from_components_for_anthropic_family_models() {
 }
 
 #[test]
-#[ignore = "porting: SessionNs.getUsage not implemented"]
 fn extracts_cache_write_tokens_from_vertex_metadata_key() {
     let mut m = model(100_000, 32_000, Cost::default());
     m.npm = "@ai-sdk/google-vertex/anthropic";
@@ -519,8 +414,7 @@ fn extracts_cache_write_tokens_from_vertex_metadata_key() {
             vertex_cache_creation: Some(300),
             ..Metadata::default()
         },
-    )
-    .expect("usage");
+    );
 
     assert_eq!(result.input, 500);
     assert_eq!(result.cache_read, 200);

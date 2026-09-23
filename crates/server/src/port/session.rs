@@ -4,8 +4,9 @@
 //! and the session metadata/fork cases from `session/session.test.ts`.
 
 use serde_json::Value;
-use std::collections::BTreeSet;
-use std::path::PathBuf;
+use std::cell::RefCell;
+use std::collections::{BTreeSet, HashMap};
+use std::path::{Path, PathBuf};
 
 /// A resolved instruction document.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -42,6 +43,7 @@ pub struct Instruction {
     pub global_home: Option<PathBuf>,
     /// Skip Claude Code prompt files.
     pub disable_claude_code_prompt: bool,
+    claims: RefCell<HashMap<String, BTreeSet<String>>>,
 }
 
 impl Instruction {
@@ -51,33 +53,155 @@ impl Instruction {
             directory: directory.into(),
             global_home: None,
             disable_claude_code_prompt: false,
+            claims: RefCell::new(HashMap::new()),
         }
+    }
+
+    fn instruction_files(&self) -> Vec<&'static str> {
+        if self.disable_claude_code_prompt {
+            vec!["AGENTS.md", "CONTEXT.md"]
+        } else {
+            vec!["AGENTS.md", "CLAUDE.md", "CONTEXT.md"]
+        }
+    }
+
+    fn global_files(&self) -> Vec<PathBuf> {
+        let Some(home) = &self.global_home else {
+            return Vec::new();
+        };
+        let mut files = vec![home.join("AGENTS.md")];
+        if !self.disable_claude_code_prompt {
+            files.push(home.join(".claude").join("CLAUDE.md"));
+        }
+        files
+    }
+
+    fn ordered_paths(&self) -> Vec<String> {
+        let mut paths = Vec::new();
+        for file in self.global_files() {
+            if file.exists() {
+                paths.push(file.to_string_lossy().into_owned());
+                break;
+            }
+        }
+        for name in self.instruction_files() {
+            let matches = find_up(name, &self.directory, &self.directory);
+            if !matches.is_empty() {
+                paths.extend(
+                    matches
+                        .into_iter()
+                        .map(|path| path.to_string_lossy().into_owned()),
+                );
+                break;
+            }
+        }
+        paths
     }
 
     /// Instruction files already captured in the system prompt.
     pub fn system_paths(&self) -> BTreeSet<String> {
-        BTreeSet::new()
+        self.ordered_paths().into_iter().collect()
     }
 
     /// Resolve nearby instructions for `file` that `loaded` has not reported.
     pub fn resolve(
         &self,
-        _loaded: &[Vec<String>],
-        _file: &str,
-        _message_id: &str,
+        loaded: &[Vec<String>],
+        file: &str,
+        message_id: &str,
     ) -> Result<Vec<InstructionFile>, InstructionError> {
-        Err(InstructionError::NotImplemented("instruction::resolve"))
+        let system: BTreeSet<String> = self.system_paths();
+        let mut already: BTreeSet<String> = BTreeSet::new();
+        for group in loaded {
+            already.extend(group.iter().cloned());
+        }
+
+        let target = PathBuf::from(file);
+        let root = self.directory.clone();
+        let mut results = Vec::new();
+        let mut current = target.parent().map(Path::to_path_buf);
+
+        while let Some(dir) = current {
+            if !dir.starts_with(&root) || dir == root {
+                break;
+            }
+            let found = self
+                .instruction_files()
+                .into_iter()
+                .map(|name| dir.join(name))
+                .find(|candidate| candidate.exists());
+            let Some(found) = found else {
+                current = dir.parent().map(Path::to_path_buf);
+                continue;
+            };
+            let found_str = found.to_string_lossy().into_owned();
+            if found == target || system.contains(&found_str) || already.contains(&found_str) {
+                current = dir.parent().map(Path::to_path_buf);
+                continue;
+            }
+
+            let mut claims = self.claims.borrow_mut();
+            let claimed = claims.entry(message_id.to_string()).or_default();
+            if claimed.contains(&found_str) {
+                drop(claims);
+                current = dir.parent().map(Path::to_path_buf);
+                continue;
+            }
+            claimed.insert(found_str.clone());
+            drop(claims);
+
+            if let Ok(content) = std::fs::read_to_string(&found) {
+                if !content.is_empty() {
+                    results.push(InstructionFile {
+                        filepath: found_str.clone(),
+                        content: format!("Instructions from: {found_str}\n{content}"),
+                    });
+                }
+            }
+
+            current = dir.parent().map(Path::to_path_buf);
+        }
+
+        Ok(results)
     }
 
     /// Forget the claim state for `message_id`.
-    pub fn clear(&self, _message_id: &str) -> Result<(), InstructionError> {
-        Err(InstructionError::NotImplemented("instruction::clear"))
+    pub fn clear(&self, message_id: &str) -> Result<(), InstructionError> {
+        self.claims.borrow_mut().remove(message_id);
+        Ok(())
     }
 
     /// Load the project and global instruction documents.
     pub fn system(&self) -> Result<Vec<String>, InstructionError> {
-        Err(InstructionError::NotImplemented("instruction::system"))
+        let mut rules = Vec::new();
+        for path in self.ordered_paths() {
+            if let Ok(content) = std::fs::read_to_string(&path) {
+                if !content.is_empty() {
+                    rules.push(format!("Instructions from: {path}\n{content}"));
+                }
+            }
+        }
+        Ok(rules)
     }
+}
+
+fn find_up(name: &str, start: &Path, stop: &Path) -> Vec<PathBuf> {
+    let mut result = Vec::new();
+    let mut current = start.to_path_buf();
+    loop {
+        let candidate = current.join(name);
+        if candidate.exists() {
+            result.push(candidate);
+        }
+        if current == stop {
+            break;
+        }
+        match current.parent() {
+            Some(parent) if parent != current => current = parent.to_path_buf(),
+            _ => break,
+        }
+    }
+    result
 }
 
 /// A stored session record.

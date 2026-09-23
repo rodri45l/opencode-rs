@@ -46,7 +46,6 @@ fn event(
 }
 
 #[test]
-#[ignore = "porting: tui event routing not implemented"]
 fn delivers_events_for_the_current_project() {
     let emitted = event(
         "/tmp/other",
@@ -58,7 +57,6 @@ fn delivers_events_for_the_current_project() {
 }
 
 #[test]
-#[ignore = "porting: tui event routing not implemented"]
 fn delivers_current_project_events_regardless_of_active_workspace() {
     let emitted = event(
         "/tmp/other",
@@ -70,14 +68,12 @@ fn delivers_current_project_events_regardless_of_active_workspace() {
 }
 
 #[test]
-#[ignore = "porting: tui event routing not implemented"]
 fn delivers_truly_global_events_even_when_a_workspace_is_active() {
     let emitted = event("global", None, None, "installation.update-available");
     assert_eq!(deliver(&emitted), Some(None));
 }
 
 #[test]
-#[ignore = "porting: tui event routing not implemented"]
 fn drops_sync_and_other_project_events() {
     assert_eq!(deliver(&event("global", None, None, "sync")), None);
     assert_eq!(

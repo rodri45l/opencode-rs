@@ -6,30 +6,12 @@
 //! Dropped: none — every upstream case is pure. `pathToFileURL` is a Node
 //! helper; the Rust port asserts the platform-independent URL shape.
 
-use serde_json::{json, Value};
-
-#[allow(dead_code)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct NotImplemented(&'static str);
-
-fn nope<T>(topic: &'static str) -> Result<T, NotImplemented> {
-    Err(NotImplemented(topic))
-}
-
-fn content_block_to_parts(_block: &Value) -> Result<Value, NotImplemented> {
-    nope("acp content")
-}
-
-fn prompt_content_to_parts(_blocks: &Value) -> Result<Value, NotImplemented> {
-    nope("acp content")
-}
-
-fn parts_to_content_chunks(_parts: &Value) -> Result<Value, NotImplemented> {
-    nope("acp content")
-}
+use opencode_server::acp_content::{
+    content_block_to_parts, parts_to_content_chunks, prompt_content_to_parts,
+};
+use serde_json::json;
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn plain_text_block_becomes_a_text_part() {
     assert_eq!(
         content_block_to_parts(&json!({ "type": "text", "text": "hello" })).unwrap(),
@@ -38,7 +20,6 @@ fn plain_text_block_becomes_a_text_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn assistant_only_text_audience_becomes_synthetic() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -52,7 +33,6 @@ fn assistant_only_text_audience_becomes_synthetic() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn user_only_text_audience_becomes_ignored() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -66,7 +46,6 @@ fn user_only_text_audience_becomes_ignored() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn image_block_with_base64_data_becomes_a_data_url_file_part() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -86,7 +65,6 @@ fn image_block_with_base64_data_becomes_a_data_url_file_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn image_block_with_http_uri_becomes_a_file_part() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -106,7 +84,6 @@ fn image_block_with_http_uri_becomes_a_file_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn resource_link_file_url_becomes_a_file_part_with_name_and_fallback_mime() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -125,7 +102,6 @@ fn resource_link_file_url_becomes_a_file_part_with_name_and_fallback_mime() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn resource_link_zed_path_becomes_a_file_url_part() {
     let result = content_block_to_parts(&json!({
         "type": "resource_link",
@@ -144,7 +120,6 @@ fn resource_link_zed_path_becomes_a_file_url_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn resource_with_text_becomes_a_sourced_text_part() {
     let result = content_block_to_parts(&json!({
         "type": "resource",
@@ -165,7 +140,6 @@ fn resource_with_text_becomes_a_sourced_text_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn resource_with_text_uses_uri_fallback_for_non_file_resources() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -178,7 +152,6 @@ fn resource_with_text_uses_uri_fallback_for_non_file_resources() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn resource_with_text_includes_file_path() {
     let result = content_block_to_parts(&json!({
         "type": "resource",
@@ -198,7 +171,6 @@ fn resource_with_text_includes_file_path() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn resource_with_blob_and_mime_type_becomes_a_data_url_file_part() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -220,7 +192,6 @@ fn resource_with_blob_and_mime_type_becomes_a_data_url_file_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn data_url_resource_is_preserved_as_a_file_part() {
     assert_eq!(
         content_block_to_parts(&json!({
@@ -242,7 +213,6 @@ fn data_url_resource_is_preserved_as_a_file_part() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn unsupported_blocks_are_ignored() {
     assert_eq!(
         prompt_content_to_parts(
@@ -258,7 +228,6 @@ fn unsupported_blocks_are_ignored() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn replays_text_audience_annotations() {
     assert_eq!(
         parts_to_content_chunks(&json!([{ "type": "text", "text": "cached", "synthetic": true }]))
@@ -274,7 +243,6 @@ fn replays_text_audience_annotations() {
 }
 
 #[test]
-#[ignore = "porting: acp content not implemented"]
 fn replays_file_and_data_url_parts_as_acp_content() {
     let result = parts_to_content_chunks(&json!([
         { "type": "file", "url": "file:///tmp/readme.md", "filename": "readme.md", "mime": "text/markdown" },

@@ -227,14 +227,12 @@ fn format_completed_subagent_detail(toolcalls: i64, duration: &str) -> String {
 }
 
 #[test]
-#[ignore = "porting: tui session tool parser helpers not implemented"]
 fn falls_back_for_unknown_tool_names() {
     assert_eq!(tool_display("bash"), "bash");
     assert_eq!(tool_display("plugin_tool"), "generic");
 }
 
 #[test]
-#[ignore = "porting: tui session tool parser helpers not implemented"]
 fn filters_malformed_nested_tool_wire_data() {
     use serde_json::json;
 
@@ -276,7 +274,6 @@ fn filters_malformed_nested_tool_wire_data() {
 }
 
 #[test]
-#[ignore = "porting: tui session tool parser helpers not implemented"]
 fn ignores_diagnostics_with_malformed_nested_ranges() {
     use serde_json::json;
 
@@ -304,7 +301,6 @@ fn ignores_diagnostics_with_malformed_nested_ranges() {
 }
 
 #[test]
-#[ignore = "porting: tui session tool parser helpers not implemented"]
 fn formats_completed_subagent_toolcall_details() {
     assert_eq!(format_completed_subagent_detail(0, "501ms"), "501ms");
     assert_eq!(
@@ -319,7 +315,6 @@ fn formats_completed_subagent_toolcall_details() {
 }
 
 #[test]
-#[ignore = "porting: tui session tool parser helpers not implemented"]
 fn keeps_background_state_attached_to_the_subagent_identity() {
     assert_eq!(
         format_subagent_title("Explore", "Inspect renderer", false),
@@ -332,7 +327,6 @@ fn keeps_background_state_attached_to_the_subagent_identity() {
 }
 
 #[test]
-#[ignore = "porting: tui session tool parser helpers not implemented"]
 fn keeps_retry_status_ahead_of_wrapping_messages() {
     assert_eq!(
         format_subagent_retry(2, "Rate limited by provider"),

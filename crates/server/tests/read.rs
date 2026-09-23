@@ -40,7 +40,6 @@ fn read(dir: &Path, file: &Path) -> Result<ToolResult, ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn allows_reading_absolute_path_inside_project_directory() -> Result<(), ToolError> {
     let dir = temp_dir("inside");
     let file = dir.join("test.txt");
@@ -52,7 +51,6 @@ fn allows_reading_absolute_path_inside_project_directory() -> Result<(), ToolErr
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn allows_reading_file_in_subdirectory_inside_project_directory() -> Result<(), ToolError> {
     let dir = temp_dir("subdir");
     let file = dir.join("subdir").join("test.txt");
@@ -65,7 +63,6 @@ fn allows_reading_file_in_subdirectory_inside_project_directory() -> Result<(), 
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn asks_for_external_directory_permission_when_reading_absolute_path_outside_project() {
     let outer = temp_dir("outer");
     let dir = temp_dir("project");
@@ -94,7 +91,6 @@ fn asks_for_external_directory_permission_when_reading_absolute_path_outside_pro
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn does_not_ask_for_external_directory_permission_when_reading_inside_project() {
     let dir = temp_dir("internal");
     let file = dir.join("internal.txt");
@@ -117,7 +113,6 @@ fn does_not_ask_for_external_directory_permission_when_reading_inside_project() 
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn truncates_by_line_count_when_limit_is_specified() -> Result<(), ToolError> {
     let dir = temp_dir("limit");
     let file = dir.join("many-lines.txt");
@@ -146,7 +141,6 @@ fn truncates_by_line_count_when_limit_is_specified() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn does_not_truncate_small_file() -> Result<(), ToolError> {
     let dir = temp_dir("small");
     let file = dir.join("small.txt");
@@ -167,7 +161,6 @@ fn does_not_truncate_small_file() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn respects_offset_parameter() -> Result<(), ToolError> {
     let dir = temp_dir("offset");
     let file = dir.join("offset.txt");
@@ -194,7 +187,6 @@ fn respects_offset_parameter() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn throws_when_offset_is_beyond_end_of_file() {
     let dir = temp_dir("offset-beyond");
     let file = dir.join("short.txt");
@@ -216,7 +208,6 @@ fn throws_when_offset_is_beyond_end_of_file() {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn allows_reading_empty_file_at_default_offset() -> Result<(), ToolError> {
     let dir = temp_dir("empty");
     let file = dir.join("empty.txt");
@@ -229,7 +220,6 @@ fn allows_reading_empty_file_at_default_offset() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn throws_when_offset_greater_than_one_for_empty_file() {
     let dir = temp_dir("empty-offset");
     let file = dir.join("empty.txt");
@@ -251,7 +241,6 @@ fn throws_when_offset_greater_than_one_for_empty_file() {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn truncates_long_lines() -> Result<(), ToolError> {
     let dir = temp_dir("long-line");
     let file = dir.join("long-line.txt");
@@ -264,7 +253,6 @@ fn truncates_long_lines() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn image_files_set_truncated_to_false() -> Result<(), ToolError> {
     let dir = temp_dir("image");
     let file = dir.join("image.png");
@@ -283,7 +271,6 @@ fn image_files_set_truncated_to_false() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn detects_attachment_media_from_file_contents() -> Result<(), ToolError> {
     let dir = temp_dir("jpeg");
     let file = dir.join("image.bin");
@@ -301,7 +288,6 @@ fn detects_attachment_media_from_file_contents() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn flatbuffers_files_are_read_as_text() -> Result<(), ToolError> {
     let dir = temp_dir("fbs");
     let file = dir.join("schema.fbs");
@@ -316,7 +302,6 @@ fn flatbuffers_files_are_read_as_text() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn unsupported_image_mime_types_fall_through_to_text() -> Result<(), ToolError> {
     let dir = temp_dir("unsupported-image");
     for (name, content) in [
@@ -333,7 +318,6 @@ fn unsupported_image_mime_types_fall_through_to_text() -> Result<(), ToolError> 
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn loads_agents_md_from_parent_directory_and_includes_it_in_metadata() -> Result<(), ToolError> {
     let dir = temp_dir("instructions");
     let agents = dir.join("subdir").join("AGENTS.md");
@@ -356,7 +340,6 @@ fn loads_agents_md_from_parent_directory_and_includes_it_in_metadata() -> Result
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn rejects_text_extension_files_with_null_bytes() {
     let dir = temp_dir("null-byte");
     let file = dir.join("null-byte.txt");
@@ -367,7 +350,6 @@ fn rejects_text_extension_files_with_null_bytes() {
 }
 
 #[test]
-#[ignore = "porting: tool.read not implemented"]
 fn rejects_known_binary_extensions() {
     let dir = temp_dir("wasm");
     let file = dir.join("module.wasm");

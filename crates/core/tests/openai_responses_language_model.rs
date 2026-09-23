@@ -17,7 +17,6 @@ use serde_json::json;
 const NOTE: &str = "porting: copilot responses conversion not implemented";
 
 #[test]
-#[ignore = "porting: copilot responses conversion not implemented"]
 fn echoes_a_stale_tool_call_item_id_from_the_copilot_namespace() {
     let converted = convert_to_openai_responses_input(&json!([
         {
@@ -48,7 +47,6 @@ fn echoes_a_stale_tool_call_item_id_from_the_copilot_namespace() {
 }
 
 #[test]
-#[ignore = "porting: copilot responses conversion not implemented"]
 fn omits_the_function_call_id_once_the_stale_item_id_is_stripped() {
     let converted = convert_to_openai_responses_input(&json!([
         {
@@ -70,7 +68,6 @@ fn omits_the_function_call_id_once_the_stale_item_id_is_stripped() {
 }
 
 #[test]
-#[ignore = "porting: copilot responses conversion not implemented"]
 fn preserves_reasoning_keyed_by_the_copilot_namespace_and_drops_others() {
     let kept = convert_to_openai_responses_input(&json!([
         {
@@ -109,7 +106,6 @@ fn preserves_reasoning_keyed_by_the_copilot_namespace_and_drops_others() {
 }
 
 #[test]
-#[ignore = "porting: copilot responses conversion not implemented"]
 fn reads_image_detail_from_the_copilot_namespace_on_user_file_parts() {
     let converted = convert_to_openai_responses_input(&json!([
         {
@@ -130,7 +126,6 @@ fn reads_image_detail_from_the_copilot_namespace_on_user_file_parts() {
 }
 
 #[test]
-#[ignore = "porting: copilot responses conversion not implemented"]
 fn attaches_generated_metadata_under_the_copilot_namespace_not_openai() {
     assert_eq!(
         ResponsesMetadata::reasoning("rs_1", Some("enc_1")).expect(NOTE),

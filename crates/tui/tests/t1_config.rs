@@ -378,7 +378,6 @@ fn resolve(input: &Value, terminal_suspend: bool) -> Resolved {
 // --- tests ------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn defines_package_owned_plugin_specs_and_attention_sound_names() {
     assert_eq!(
         decode_plugin_spec(&json!("example-plugin")).unwrap(),
@@ -403,7 +402,6 @@ fn defines_package_owned_plugin_specs_and_attention_sound_names() {
 }
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn validates_config_constraints() {
     let decoded = decode_info(&json!({
         "leader_timeout": 250,
@@ -433,7 +431,6 @@ fn validates_config_constraints() {
 }
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn resolves_host_neutral_defaults() {
     let config = resolve(&json!({}), true);
 
@@ -456,7 +453,6 @@ fn resolves_host_neutral_defaults() {
 }
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn resolves_overrides_without_mutating_input() {
     let input = json!({
         "theme": "custom",
@@ -502,7 +498,6 @@ fn resolves_overrides_without_mutating_input() {
 }
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn resolves_a_session_move_keybind() {
     let config = resolve(&json!({ "keybinds": { "session_move": "ctrl+o" } }), true);
 
@@ -515,7 +510,6 @@ fn resolves_a_session_move_keybind() {
 }
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn disables_suspend_and_assigns_ctrl_z_to_undo_when_unsupported() {
     let config = resolve(&json!({}), false);
 
@@ -529,7 +523,6 @@ fn disables_suspend_and_assigns_ctrl_z_to_undo_when_unsupported() {
 }
 
 #[test]
-#[ignore = "porting: tui config schema/resolution not implemented"]
 fn preserves_an_explicit_undo_binding_when_suspend_is_unsupported() {
     let config = resolve(
         &json!({ "keybinds": { "input_undo": "ctrl+u", "terminal_suspend": "ctrl+s" } }),

@@ -84,7 +84,6 @@ fn output(files: &[(&str, &str)]) -> Output {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen write not implemented"]
 fn writes_compiled_files_and_the_owned_manifest() {
     let fs = FakeFs::default();
     let out = output(&[("session.ts", "export const session = {}")]);
@@ -108,7 +107,6 @@ fn writes_compiled_files_and_the_owned_manifest() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen write not implemented"]
 fn removes_only_stale_files_owned_by_the_previous_manifest() {
     let fs = FakeFs::with_manifest(r#"["old.ts", "session.ts"]"#);
     let out = output(&[("session.ts", "")]);
@@ -119,7 +117,6 @@ fn removes_only_stale_files_owned_by_the_previous_manifest() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen write not implemented"]
 fn rejects_unsafe_and_duplicate_output_paths_before_writing() {
     let fs = FakeFs::default();
     let out = output(&[("../outside.ts", ""), ("client.ts", ""), ("CLIENT.ts", "")]);
@@ -132,7 +129,6 @@ fn rejects_unsafe_and_duplicate_output_paths_before_writing() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen write not implemented"]
 fn rejects_case_insensitive_duplicate_output_paths() {
     let fs = FakeFs::default();
     let out = output(&[("client.ts", ""), ("CLIENT.ts", "")]);
@@ -144,7 +140,6 @@ fn rejects_case_insensitive_duplicate_output_paths() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen write not implemented"]
 fn reserves_the_private_manifest_path() {
     let fs = FakeFs::default();
     let out = output(&[(MANIFEST_NAME, "")]);
@@ -155,7 +150,6 @@ fn reserves_the_private_manifest_path() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen write not implemented"]
 fn rejects_existing_symbolic_link_output_targets() {
     let fs = FakeFs::with_symlink("/generated/session.ts");
     let out = output(&[("session.ts", "")]);

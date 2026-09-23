@@ -1,24 +1,9 @@
 //! Port of packages/app/src/pages/home-session-open.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct Click {
-    button: i64,
-    mac: bool,
-    meta: bool,
-    ctrl: bool,
-    shift: bool,
-    alt: bool,
-}
-
-// Local stub (fast wave): real module lands later.
-fn should_open_session_in_background(_click: Click) -> bool {
-    false
-}
+use opencode_app::home_session_open::{should_open_session_in_background, Click};
 
 #[test]
-#[ignore = "porting: pages/home-session-open not implemented"]
 fn opens_middle_clicks_in_the_background() {
     assert!(should_open_session_in_background(Click {
         button: 1,
@@ -39,7 +24,6 @@ fn opens_middle_clicks_in_the_background() {
 }
 
 #[test]
-#[ignore = "porting: pages/home-session-open not implemented"]
 fn requires_only_the_platform_primary_modifier() {
     assert!(should_open_session_in_background(Click {
         button: 0,

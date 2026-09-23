@@ -1,37 +1,13 @@
 //! Port of packages/app/src/utils/worktree.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-use std::collections::HashMap;
-
-#[derive(Clone, Debug, PartialEq)]
-enum WorktreeState {
-    Pending,
-    Ready,
-    Failed(String),
-}
-
-#[derive(Default)]
-struct Worktree {
-    states: HashMap<(String, String), WorktreeState>,
-}
-
-impl Worktree {
-    // Local stubs (fast wave): real module lands later.
-    fn ready(&mut self, _scope: &str, _key: &str) {}
-    fn pending(&mut self, _scope: &str, _key: &str) {}
-    fn failed(&mut self, _scope: &str, _key: &str, _message: &str) {}
-    fn get(&self, _scope: &str, _key: &str) -> Option<WorktreeState> {
-        None
-    }
-}
+use opencode_app::worktree::{Worktree, WorktreeState};
 
 fn normalize(key: &str) -> String {
     key.trim_end_matches('/').to_string()
 }
 
 #[test]
-#[ignore = "porting: utils/worktree not implemented"]
 fn normalizes_trailing_slashes() {
     let mut worktree = Worktree::default();
     let key = "/tmp/opencode-worktree-normalize";
@@ -40,7 +16,6 @@ fn normalizes_trailing_slashes() {
 }
 
 #[test]
-#[ignore = "porting: utils/worktree not implemented"]
 fn pending_does_not_overwrite_a_terminal_state() {
     let mut worktree = Worktree::default();
     let key = "/tmp/opencode-worktree-pending";
@@ -53,7 +28,6 @@ fn pending_does_not_overwrite_a_terminal_state() {
 }
 
 #[test]
-#[ignore = "porting: utils/worktree not implemented"]
 fn wait_resolves_shared_pending_waiter_when_ready() {
     let mut worktree = Worktree::default();
     let key = "/tmp/opencode-worktree-wait-ready";
@@ -67,7 +41,6 @@ fn wait_resolves_shared_pending_waiter_when_ready() {
 }
 
 #[test]
-#[ignore = "porting: utils/worktree not implemented"]
 fn wait_resolves_with_failure_message() {
     let mut worktree = Worktree::default();
     let key = "/tmp/opencode-worktree-wait-failed";
@@ -83,7 +56,6 @@ fn wait_resolves_with_failure_message() {
 }
 
 #[test]
-#[ignore = "porting: utils/worktree not implemented"]
 fn isolates_identical_directories_by_server_scope() {
     let mut worktree = Worktree::default();
     let key = "/tmp/opencode-worktree-scope";

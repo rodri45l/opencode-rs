@@ -5,6 +5,9 @@
 //! surface and remain red-first (`#[ignore]`) until that surface lands. The SSE
 //! decoding tests need no transport and are pinned directly.
 
+mod common;
+
+use common::FakeTransport;
 use futures::executor::block_on;
 use opencode_client::{
     Admission, Client, ClientError, CreateInput, HistoryInput, ListInput, ModelRef, Prompt,
@@ -16,9 +19,14 @@ const CONNECTED_EVENT: &str = r#"{"id":"evt_connected","type":"server.connected"
 const MODEL_SWITCHED_EVENT: &str = r#"{"id":"evt_model","type":"session.next.model.switched","durable":{"aggregateID":"ses_test","seq":1,"version":1},"data":{"timestamp":1717171717000,"sessionID":"ses_test","messageID":"msg_model","model":{"id":"claude","providerID":"anthropic"}}}"#;
 
 #[test]
-#[ignore = "porting: typed sessions client not implemented"]
 fn sessions_get_returns_the_decoded_projection() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(vec![(
+        "GET",
+        "http://localhost:3000/api/session/ses_test",
+        200,
+        common::SESSION_JSON,
+    )]);
+    let client = Client::with_transport("http://localhost:3000", transport);
     let result: Session = block_on(client.sessions().get("ses_test")).expect("get");
     assert_eq!(result.time.created, 1_717_171_717_000);
 }
@@ -52,9 +60,9 @@ fn events_subscribe_terminates_on_protocol_decode_failures() {
 }
 
 #[test]
-#[ignore = "porting: typed sessions client not implemented"]
 fn session_methods_retain_decoded_inputs_and_outputs() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(common::standard_routes());
+    let client = Client::with_transport("http://localhost:3000", transport);
     let sessions = client.sessions();
 
     let page = block_on(sessions.list(ListInput {
@@ -130,9 +138,14 @@ fn session_methods_retain_decoded_inputs_and_outputs() {
 }
 
 #[test]
-#[ignore = "porting: typed sessions client not implemented"]
 fn sessions_history_retains_the_typed_session_not_found_error() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(vec![(
+        "GET",
+        "http://localhost:3000/api/session/ses_missing/history",
+        404,
+        r#"{"_tag":"SessionNotFoundError","sessionID":"ses_missing","message":"not found"}"#,
+    )]);
+    let client = Client::with_transport("http://localhost:3000", transport);
     let error = block_on(client.sessions().history(HistoryInput {
         session_id: "ses_missing".into(),
         after: None,

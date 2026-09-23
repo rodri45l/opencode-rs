@@ -7,7 +7,7 @@
 fn run() {}
 
 #[test]
-#[ignore = "porting: tui package lifecycle entrypoint not implemented"]
+#[ignore = "porting: the canonical lifecycle entrypoint is process/renderer wiring, human-verified (see app-lifecycle for the in-memory model)"]
 fn exports_the_canonical_application_lifecycle() {
     let entrypoint: fn() = run;
     assert!(entrypoint as usize != 0);

@@ -6,8 +6,11 @@
 //! the ignore is removed. SSE wire parsing needs no transport and is pinned
 //! directly against [`opencode_client::decode_event_stream`].
 
+mod common;
+
 use std::collections::HashMap;
 
+use common::FakeTransport;
 use futures::executor::block_on;
 use opencode_client::{
     is_session_not_found_error, is_unauthorized_error, Admission, Client, ClientError, CreateInput,
@@ -19,7 +22,6 @@ const CONNECTED_EVENT: &str = r#"{"id":"evt_connected","type":"server.connected"
 const MODEL_SWITCHED_EVENT: &str = r#"{"id":"evt_model","type":"session.next.model.switched","durable":{"aggregateID":"ses_test","seq":1,"version":1},"data":{"timestamp":1717171717000,"sessionID":"ses_test","messageID":"msg_model","model":{"id":"claude","providerID":"anthropic"}}}"#;
 
 #[test]
-#[ignore = "porting: client group surface not implemented"]
 fn exposes_every_standard_http_api_group() {
     let client = Client::new("http://localhost:3000");
     let groups = client.groups().expect("groups");
@@ -77,9 +79,14 @@ fn exposes_every_standard_http_api_group() {
 }
 
 #[test]
-#[ignore = "porting: sessions transport not implemented"]
 fn sessions_get_returns_the_wire_projection() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(vec![(
+        "GET",
+        "http://localhost:3000/api/session/ses_test",
+        200,
+        common::SESSION_JSON,
+    )]);
+    let client = Client::with_transport("http://localhost:3000", transport);
     let result: Session = block_on(client.sessions().get("ses_test")).expect("sessions.get");
     assert_eq!(result.time.created, 1_717_171_717_000);
 }
@@ -106,9 +113,9 @@ fn events_subscribe_terminates_on_malformed_promise_sse_data() {
 }
 
 #[test]
-#[ignore = "porting: sessions transport + request recording not implemented"]
 fn session_methods_use_the_public_http_contract() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(common::standard_routes());
+    let client = Client::with_transport("http://localhost:3000", transport.clone());
     let sessions = client.sessions();
 
     let expected: Vec<(&str, &str)> = vec![
@@ -219,19 +226,23 @@ fn session_methods_use_the_public_http_contract() {
     let message = block_on(sessions.message("ses_test", "msg_model")).expect("message");
     assert_eq!(message.id, "msg_model");
 
-    assert_eq!(
-        expected[0],
-        (
-            "GET",
-            "http://localhost:3000/api/session?limit=10&order=desc"
-        )
-    );
+    let recorded: Vec<(String, String)> = transport.recorded();
+    let expected: Vec<(String, String)> = expected
+        .into_iter()
+        .map(|(method, url)| (method.to_string(), url.to_string()))
+        .collect();
+    assert_eq!(recorded, expected);
 }
 
 #[test]
-#[ignore = "porting: sessions transport + declared errors not implemented"]
 fn middleware_errors_remain_declared_client_errors() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(vec![(
+        "POST",
+        "http://localhost:3000/api/session",
+        401,
+        r#"{"_tag":"UnauthorizedError","message":"missing credentials"}"#,
+    )]);
+    let client = Client::with_transport("http://localhost:3000", transport);
     let error = block_on(client.sessions().create(CreateInput {
         location: LocationRef {
             directory: "/tmp/project".into(),
@@ -243,9 +254,14 @@ fn middleware_errors_remain_declared_client_errors() {
 }
 
 #[test]
-#[ignore = "porting: sessions transport + declared errors not implemented"]
 fn sessions_history_decodes_session_not_found_error() {
-    let client = Client::new("http://localhost:3000");
+    let transport = FakeTransport::new(vec![(
+        "GET",
+        "http://localhost:3000/api/session/ses_missing/history",
+        404,
+        r#"{"_tag":"SessionNotFoundError","sessionID":"ses_missing","message":"not found"}"#,
+    )]);
+    let client = Client::with_transport("http://localhost:3000", transport);
     let error = block_on(client.sessions().history(HistoryInput {
         session_id: "ses_missing".into(),
         after: None,

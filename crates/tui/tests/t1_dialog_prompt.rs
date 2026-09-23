@@ -31,7 +31,6 @@ fn overrides(entries: &[(&str, &str)]) -> BTreeMap<String, String> {
 }
 
 #[test]
-#[ignore = "porting: dialog prompt submit binding resolution not implemented"]
 fn dialog_prompt_submit_wins_when_return_is_also_input_newline() {
     let config = overrides(&[
         ("input_submit", "super+return"),
@@ -44,7 +43,6 @@ fn dialog_prompt_submit_wins_when_return_is_also_input_newline() {
 }
 
 #[test]
-#[ignore = "porting: dialog prompt submit binding resolution not implemented"]
 fn dialog_prompt_submit_can_be_rebound_separately_from_input_submit() {
     let config = overrides(&[
         ("input_submit", "return"),

@@ -71,7 +71,6 @@ fn fixture_two() -> Value {
 }
 
 #[test]
-#[ignore = "porting: models-dev not implemented"]
 fn get_returns_providers_from_disk_when_cache_file_exists() {
     let dir = scratch();
     let cache_file = dir.join("models.json");
@@ -82,7 +81,6 @@ fn get_returns_providers_from_disk_when_cache_file_exists() {
 }
 
 #[test]
-#[ignore = "porting: models-dev not implemented"]
 fn get_returns_empty_catalog_when_disk_is_empty() {
     let dir = scratch();
     let models = ModelsDev::with_cache_path(dir.join("models.json"));
@@ -91,7 +89,6 @@ fn get_returns_empty_catalog_when_disk_is_empty() {
 }
 
 #[test]
-#[ignore = "porting: models-dev not implemented"]
 fn get_caches_across_calls_until_invalidated() {
     let dir = scratch();
     let cache_file = dir.join("models.json");

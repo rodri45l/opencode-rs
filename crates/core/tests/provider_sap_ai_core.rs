@@ -20,7 +20,6 @@ fn env(pairs: &[(&str, &str)]) -> BTreeMap<String, String> {
 }
 
 #[test]
-#[ignore = "porting: sap-ai-core provider plugin not implemented"]
 fn copies_a_configured_service_key_into_the_environment() {
     let resolved = SapAICorePlugin::resolve(
         &env(&[
@@ -42,7 +41,6 @@ fn copies_a_configured_service_key_into_the_environment() {
 }
 
 #[test]
-#[ignore = "porting: sap-ai-core provider plugin not implemented"]
 fn preserves_an_existing_environment_service_key() {
     let resolved = SapAICorePlugin::resolve(
         &env(&[
@@ -60,7 +58,6 @@ fn preserves_an_existing_environment_service_key() {
 }
 
 #[test]
-#[ignore = "porting: sap-ai-core provider plugin not implemented"]
 fn omits_deployment_and_resource_group_without_a_service_key() {
     let resolved = SapAICorePlugin::resolve(
         &env(&[

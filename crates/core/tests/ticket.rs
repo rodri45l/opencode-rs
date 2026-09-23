@@ -18,7 +18,6 @@ fn scope(pty_id: &str, directory: Option<&str>) -> TicketScope {
 }
 
 #[test]
-#[ignore = "porting: pty ticket not implemented"]
 fn consumes_tickets_once() {
     let tickets = PtyTicket::default();
     let id = PtyId::ascending();
@@ -30,7 +29,6 @@ fn consumes_tickets_once() {
 }
 
 #[test]
-#[ignore = "porting: pty ticket not implemented"]
 fn rejects_tickets_scoped_to_a_different_request() {
     let tickets = PtyTicket::default();
     let id = PtyId::ascending();
@@ -47,7 +45,6 @@ fn rejects_tickets_scoped_to_a_different_request() {
 }
 
 #[test]
-#[ignore = "porting: pty ticket not implemented"]
 fn rejects_tickets_scoped_to_a_different_workspace() {
     let tickets = PtyTicket::default();
     let id = PtyId::ascending();
@@ -62,7 +59,6 @@ fn rejects_tickets_scoped_to_a_different_workspace() {
 }
 
 #[test]
-#[ignore = "porting: pty ticket not implemented"]
 fn rejects_tickets_after_the_ttl_elapses() {
     let tickets = PtyTicket::new(Duration::from_millis(5));
     let id = PtyId::ascending();

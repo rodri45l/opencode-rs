@@ -15,7 +15,6 @@ fn seqs(page: &opencode_core::session_history::HistoryPage) -> Vec<u64> {
 }
 
 #[test]
-#[ignore = "porting: session history not implemented"]
 fn returns_an_exhausted_page_for_a_session_with_no_events() {
     let mut history = SessionHistory::new();
     history.create("ses_empty_history").expect(NOTE);
@@ -25,7 +24,6 @@ fn returns_an_exhausted_page_for_a_session_with_no_events() {
 }
 
 #[test]
-#[ignore = "porting: session history not implemented"]
 fn treats_after_as_an_exclusive_aggregate_sequence() {
     let mut history = SessionHistory::new();
     history.create("ses_history").expect(NOTE);
@@ -42,7 +40,6 @@ fn treats_after_as_an_exclusive_aggregate_sequence() {
 }
 
 #[test]
-#[ignore = "porting: session history not implemented"]
 fn paginates_in_aggregate_order_without_duplicates() {
     let mut history = SessionHistory::new();
     history.create("ses_pages").expect(NOTE);
@@ -64,7 +61,6 @@ fn paginates_in_aggregate_order_without_duplicates() {
 }
 
 #[test]
-#[ignore = "porting: session history not implemented"]
 fn fails_with_not_found_for_a_missing_session() {
     let history = SessionHistory::new();
     assert!(history.history("ses_missing", None, 10).is_err());

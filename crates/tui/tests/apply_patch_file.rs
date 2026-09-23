@@ -4,63 +4,7 @@
 //! keep working.
 //! Red-first: the apply-patch file projection is not implemented.
 
-#[allow(dead_code)]
-mod apply_patch_file {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui apply-patch file projection not implemented";
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct PatchInput {
-        pub file_path: String,
-        pub relative_path: String,
-        pub kind: String,
-        pub patch: Option<String>,
-        pub before: Option<String>,
-        pub after: Option<String>,
-        pub additions: i64,
-        pub deletions: i64,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct FileDiff {
-        pub name: String,
-        pub is_partial: bool,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct DiffView {
-        pub file_diff: FileDiff,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct AppliedFile {
-        pub view: DiffView,
-    }
-
-    pub fn patch_files(_inputs: &[PatchInput]) -> PortResult<Vec<AppliedFile>> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn text(_view: &DiffView, _side: &str) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use apply_patch_file::{patch_files, text, PatchInput, NOTE};
+use opencode_tui::apply_patch_file::{patch_files, text, PatchInput, NOTE};
 
 fn server_patch(patch: &str) -> PatchInput {
     PatchInput {
@@ -89,7 +33,6 @@ fn legacy_patch(before: &str, after: &str) -> PatchInput {
 }
 
 #[test]
-#[ignore = "porting: session-ui apply-patch file projection not implemented"]
 fn parses_patch_metadata_from_the_server() {
     let files = patch_files(&[server_patch(
         "Index: a.ts\n===================================================================\n--- a.ts\t\n+++ a.ts\t\n@@ -1,2 +1,2 @@\n one\n-two\n+three\n",
@@ -104,7 +47,6 @@ fn parses_patch_metadata_from_the_server() {
 }
 
 #[test]
-#[ignore = "porting: session-ui apply-patch file projection not implemented"]
 fn keeps_legacy_before_and_after_payloads_working() {
     let files = patch_files(&[legacy_patch("one\n", "two\n")]).expect(NOTE);
     let file = files.into_iter().next().expect("file");

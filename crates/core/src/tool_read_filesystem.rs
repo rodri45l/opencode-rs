@@ -10,6 +10,7 @@
 //! Effect `FSUtil`/`FileSystem` service wiring is replaced by `std::fs`.
 
 use std::fmt;
+use std::path::Path;
 
 /// Maximum bytes accepted for media ingestion.
 pub const MAX_MEDIA_INGEST_BYTES: usize = 10 * 1024 * 1024;
@@ -69,22 +70,80 @@ pub struct ReadToolFileSystem;
 impl ReadToolFileSystem {
     /// Read `path`, optionally paginated by `offset` (1-based line) and `limit`.
     pub fn read(
-        _path: &str,
-        _resource: &str,
-        _offset: Option<usize>,
-        _limit: Option<usize>,
+        path: &str,
+        resource: &str,
+        offset: Option<usize>,
+        limit: Option<usize>,
     ) -> Result<TextPage, ReadToolError> {
-        Err(ReadToolError::FileSystem {
+        let path_ref = Path::new(path);
+        let metadata = std::fs::metadata(path_ref).map_err(|error| ReadToolError::FileSystem {
             method: "readFile".into(),
-            message: "not implemented".into(),
+            message: error.to_string(),
+        })?;
+        if metadata.is_dir() {
+            return Err(ReadToolError::PathKind(format!(
+                "Cannot read directory: {resource}"
+            )));
+        }
+
+        let mime = crate::fs_util::FSUtil::mime_type(resource).unwrap_or_default();
+        if mime.starts_with("image/") && metadata.len() > MAX_MEDIA_INGEST_BYTES as u64 {
+            return Err(ReadToolError::MediaIngestLimit(format!(
+                "Media exceeds {MAX_MEDIA_INGEST_BYTES} byte ingestion limit: {resource}"
+            )));
+        }
+
+        let bytes = std::fs::read(path_ref).map_err(|error| ReadToolError::FileSystem {
+            method: "readFile".into(),
+            message: error.to_string(),
+        })?;
+        if bytes.contains(&0) {
+            return Err(ReadToolError::Binary(format!(
+                "Cannot read binary file: {resource}"
+            )));
+        }
+        let text = String::from_utf8(bytes).map_err(|_| {
+            ReadToolError::MalformedUtf8(format!("Cannot decode UTF-8 file: {resource}"))
+        })?;
+
+        let lines: Vec<&str> = text.split('\n').collect();
+        let line_count = lines.len();
+        let start = offset.unwrap_or(1);
+        if start == 0 || start > line_count {
+            return Err(ReadToolError::OffsetOutOfRange(format!(
+                "Offset {start} is out of range"
+            )));
+        }
+        let start_index = start - 1;
+        let end_index = match limit {
+            Some(limit) => (start_index + limit).min(line_count),
+            None => line_count,
+        };
+        let content = lines[start_index..end_index].join("\n");
+        let truncated = end_index < line_count;
+        let next = if truncated { Some(end_index + 1) } else { None };
+        Ok(TextPage {
+            content,
+            truncated,
+            next,
         })
     }
 
     /// List the entries of a directory.
-    pub fn list(_path: &str) -> Result<Vec<String>, ReadToolError> {
-        Err(ReadToolError::FileSystem {
+    pub fn list(path: &str) -> Result<Vec<String>, ReadToolError> {
+        let entries = std::fs::read_dir(path).map_err(|error| ReadToolError::FileSystem {
             method: "readDirectoryEntries".into(),
-            message: "not implemented".into(),
-        })
+            message: error.to_string(),
+        })?;
+        let mut names = Vec::new();
+        for entry in entries {
+            let entry = entry.map_err(|error| ReadToolError::FileSystem {
+                method: "readDirectoryEntries".into(),
+                message: error.to_string(),
+            })?;
+            names.push(entry.file_name().to_string_lossy().to_string());
+        }
+        names.sort();
+        Ok(names)
     }
 }

@@ -1,21 +1,10 @@
 //! Port of packages/app/src/context/command.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct CommandOption {
-    id: String,
-    title: String,
-    hidden: bool,
-    disabled: bool,
-    when: Option<bool>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Registration {
-    key: Option<String>,
-    options: Vec<CommandOption>,
-}
+use opencode_app::command::{
+    active_command_registrations, add_command_registration, command_palette_options,
+    resolve_keybind_option, CommandOption, Registration,
+};
 
 fn option(id: &str, title: &str) -> CommandOption {
     CommandOption {
@@ -25,26 +14,6 @@ fn option(id: &str, title: &str) -> CommandOption {
         disabled: false,
         when: None,
     }
-}
-
-// Local stubs (fast wave): real module lands later.
-fn command_palette_options(_options: &[CommandOption]) -> Vec<CommandOption> {
-    Vec::new()
-}
-
-fn add_command_registration(
-    _registrations: Vec<Registration>,
-    _next: Registration,
-) -> Vec<Registration> {
-    Vec::new()
-}
-
-fn active_command_registrations(_registrations: &[Registration]) -> Vec<Registration> {
-    Vec::new()
-}
-
-fn resolve_keybind_option(_options: &[CommandOption]) -> Option<CommandOption> {
-    None
 }
 
 fn palette_options() -> Vec<CommandOption> {
@@ -62,7 +31,6 @@ fn palette_options() -> Vec<CommandOption> {
 }
 
 #[test]
-#[ignore = "porting: context/command not implemented"]
 fn keeps_visible_enabled_commands() {
     assert_eq!(
         command_palette_options(&palette_options())
@@ -74,7 +42,6 @@ fn keeps_visible_enabled_commands() {
 }
 
 #[test]
-#[ignore = "porting: context/command not implemented"]
 fn shadows_keyed_registrations_while_retaining_the_previous_owner() {
     let one = Registration {
         key: Some("layout".into()),
@@ -96,7 +63,6 @@ fn shadows_keyed_registrations_while_retaining_the_previous_owner() {
 }
 
 #[test]
-#[ignore = "porting: context/command not implemented"]
 fn keeps_unkeyed_registrations_additive() {
     let one = Registration {
         key: None,
@@ -111,7 +77,6 @@ fn keeps_unkeyed_registrations_additive() {
 }
 
 #[test]
-#[ignore = "porting: context/command not implemented"]
 fn prefers_a_matching_contextual_command_over_the_global_fallback() {
     let fallback = option("tab.close", "Close tab");
     let mut contextual = option("terminal.close", "Close terminal");
@@ -121,7 +86,6 @@ fn prefers_a_matching_contextual_command_over_the_global_fallback() {
 }
 
 #[test]
-#[ignore = "porting: context/command not implemented"]
 fn uses_the_global_fallback_outside_the_command_context() {
     let fallback = option("tab.close", "Close tab");
     let mut contextual = option("terminal.close", "Close terminal");

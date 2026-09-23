@@ -6,34 +6,9 @@
 //! only the pure `within(inputs, directory)` membership predicate is ported. The
 //! bundling assertion is recorded as n/a (bundler integration, human-verified).
 
-#[allow(dead_code)]
-mod import_boundaries {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: sdk-next import boundaries not implemented";
-
-    pub fn within_directory(_inputs: &[String], _directory: &str) -> PortResult<Vec<String>> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use import_boundaries::{within_directory, NOTE};
+use opencode_sdk::import_boundaries::within_directory;
 
 #[test]
-#[ignore = "porting: sdk-next import boundaries not implemented"]
 fn matches_inputs_at_or_below_the_directory() {
     let inputs = vec![
         "/repo/packages/client/a.ts".to_string(),
@@ -44,7 +19,7 @@ fn matches_inputs_at_or_below_the_directory() {
     ];
 
     assert_eq!(
-        within_directory(&inputs, "/repo/packages/client").expect(NOTE),
+        within_directory(&inputs, "/repo/packages/client"),
         vec![
             "/repo/packages/client/a.ts".to_string(),
             "/repo/packages/client".to_string(),

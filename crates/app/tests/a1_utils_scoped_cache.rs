@@ -1,54 +1,9 @@
 //! Port of packages/app/src/utils/scoped-cache.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct Entry {
-    key: String,
-    count: i64,
-}
-
-struct ScopedCache {
-    max_entries: Option<usize>,
-    ttl_ms: Option<i64>,
-    clock: i64,
-    disposed: Vec<String>,
-}
-
-impl ScopedCache {
-    fn new(max_entries: Option<usize>, ttl_ms: Option<i64>) -> Self {
-        ScopedCache {
-            max_entries,
-            ttl_ms,
-            clock: 0,
-            disposed: Vec::new(),
-        }
-    }
-
-    // Local stubs (fast wave): real module lands later.
-    fn get(&mut self, _key: &str) -> Entry {
-        Entry {
-            key: String::new(),
-            count: 0,
-        }
-    }
-    fn peek(&self, _key: &str) -> Option<Entry> {
-        None
-    }
-    fn delete(&mut self, _key: &str) -> Option<Entry> {
-        None
-    }
-    fn clear(&mut self) {}
-    fn set_clock(&mut self, clock: i64) {
-        self.clock = clock;
-    }
-    fn disposed(&self) -> &[String] {
-        &self.disposed
-    }
-}
+use opencode_app::scoped_cache::ScopedCache;
 
 #[test]
-#[ignore = "porting: utils/scoped-cache not implemented"]
 fn evicts_least_recently_used_entry_when_max_is_reached() {
     let mut cache = ScopedCache::new(Some(2), None);
     let a = cache.get("a");
@@ -67,7 +22,6 @@ fn evicts_least_recently_used_entry_when_max_is_reached() {
 }
 
 #[test]
-#[ignore = "porting: utils/scoped-cache not implemented"]
 fn disposes_entries_on_delete_and_clear() {
     let mut cache = ScopedCache::new(None, None);
     cache.get("a");
@@ -83,7 +37,6 @@ fn disposes_entries_on_delete_and_clear() {
 }
 
 #[test]
-#[ignore = "porting: utils/scoped-cache not implemented"]
 fn expires_stale_entries_with_ttl_and_recreates_on_get() {
     let mut cache = ScopedCache::new(None, Some(10));
     let first = cache.get("a");

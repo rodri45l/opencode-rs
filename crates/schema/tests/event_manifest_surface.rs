@@ -14,7 +14,6 @@ use opencode_schema::{
 };
 
 #[test]
-#[ignore = "porting: event manifest not implemented"]
 fn owns_the_complete_public_event_surface() {
     assert_eq!(event_manifest::server_definitions().unwrap().len(), 58);
     assert_eq!(event_manifest::definitions().unwrap().len(), 88);
@@ -41,7 +40,6 @@ fn owns_the_complete_public_event_surface() {
 }
 
 #[test]
-#[ignore = "porting: event manifest not implemented"]
 fn uses_canonical_definitions_for_current_public_events() {
     assert_eq!(
         std::any::TypeId::of::<session::Event>(),

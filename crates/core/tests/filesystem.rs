@@ -29,14 +29,12 @@ fn scratch() -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn is_dir_returns_true_for_directories() {
     let dir = scratch();
     assert!(FSUtil::is_dir(&dir).expect(NOTE));
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn is_dir_returns_false_for_files() {
     let dir = scratch();
     let file = dir.join("test.txt");
@@ -45,14 +43,12 @@ fn is_dir_returns_false_for_files() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn is_dir_returns_false_for_non_existent_paths() {
     let dir = scratch();
     assert!(!FSUtil::is_dir(&dir.join("nonexistent")).expect(NOTE));
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn is_file_returns_true_for_files() {
     let dir = scratch();
     let file = dir.join("test.txt");
@@ -61,14 +57,12 @@ fn is_file_returns_true_for_files() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn is_file_returns_false_for_directories() {
     let dir = scratch();
     assert!(!FSUtil::is_file(&dir).expect(NOTE));
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn read_file_string_safe_returns_contents_when_file_exists() {
     let dir = scratch();
     let file = dir.join("exists.txt");
@@ -80,7 +74,6 @@ fn read_file_string_safe_returns_contents_when_file_exists() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn read_file_string_safe_returns_none_for_missing_files() {
     let dir = scratch();
     assert_eq!(
@@ -90,7 +83,6 @@ fn read_file_string_safe_returns_none_for_missing_files() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn read_json_and_write_json_round_trip() {
     let dir = scratch();
     let file = dir.join("data.json");
@@ -101,7 +93,6 @@ fn read_json_and_write_json_round_trip() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn read_json_fails_invalid_json_through_the_error_channel() {
     let dir = scratch();
     let file = dir.join("broken.json");
@@ -112,7 +103,6 @@ fn read_json_fails_invalid_json_through_the_error_channel() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn ensure_dir_creates_nested_directories() {
     let dir = scratch();
     let nested = dir.join("a").join("b").join("c");
@@ -121,7 +111,6 @@ fn ensure_dir_creates_nested_directories() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn ensure_dir_is_idempotent() {
     let dir = scratch();
     let existing = dir.join("existing");
@@ -131,7 +120,6 @@ fn ensure_dir_is_idempotent() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn write_with_dirs_creates_parent_directories_if_missing() {
     let dir = scratch();
     let file = dir.join("deep").join("nested").join("file.txt");
@@ -140,7 +128,6 @@ fn write_with_dirs_creates_parent_directories_if_missing() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn write_with_dirs_writes_directly_when_parent_exists() {
     let dir = scratch();
     let file = dir.join("direct.txt");
@@ -149,7 +136,6 @@ fn write_with_dirs_writes_directly_when_parent_exists() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn write_with_dirs_writes_byte_content() {
     let dir = scratch();
     let file = dir.join("binary.bin");
@@ -158,7 +144,6 @@ fn write_with_dirs_writes_byte_content() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn find_up_finds_the_target_in_the_start_directory() {
     let dir = scratch();
     std::fs::write(dir.join("target.txt"), "found").unwrap();
@@ -169,7 +154,6 @@ fn find_up_finds_the_target_in_the_start_directory() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn find_up_finds_the_target_in_parent_directories() {
     let dir = scratch();
     std::fs::write(dir.join("marker"), "root").unwrap();
@@ -182,7 +166,6 @@ fn find_up_finds_the_target_in_parent_directories() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn find_up_returns_empty_when_not_found() {
     let dir = scratch();
     assert_eq!(
@@ -192,7 +175,6 @@ fn find_up_returns_empty_when_not_found() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn up_finds_multiple_targets_walking_up() {
     let dir = scratch();
     std::fs::write(dir.join("a.txt"), "a").unwrap();
@@ -214,7 +196,6 @@ fn up_finds_multiple_targets_walking_up() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn glob_finds_files_matching_a_pattern() {
     let dir = scratch();
     std::fs::write(dir.join("a.ts"), "a").unwrap();
@@ -227,7 +208,6 @@ fn glob_finds_files_matching_a_pattern() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn glob_supports_absolute_paths() {
     let dir = scratch();
     std::fs::write(dir.join("file.txt"), "hello").unwrap();
@@ -238,7 +218,6 @@ fn glob_supports_absolute_paths() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn glob_match_matches_patterns() {
     assert!(FSUtil::glob_match("*.ts", "foo.ts").expect(NOTE));
     assert!(!FSUtil::glob_match("*.ts", "foo.json").expect(NOTE));
@@ -246,7 +225,6 @@ fn glob_match_matches_patterns() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn glob_up_finds_files_walking_up_directories() {
     let dir = scratch();
     std::fs::write(dir.join("root.md"), "root").unwrap();
@@ -260,7 +238,6 @@ fn glob_up_finds_files_walking_up_directories() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn mime_type_returns_correct_types() {
     assert_eq!(
         FSUtil::mime_type("file.json").expect(NOTE),
@@ -274,7 +251,6 @@ fn mime_type_returns_correct_types() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn contains_checks_path_containment() {
     assert!(FSUtil::contains("/a/b", "/a/b/c").expect(NOTE));
     assert!(FSUtil::contains("/a/b", "/a/b").expect(NOTE));
@@ -283,7 +259,6 @@ fn contains_checks_path_containment() {
 }
 
 #[test]
-#[ignore = "porting: fs-util not implemented"]
 fn overlaps_detects_overlapping_paths() {
     assert!(FSUtil::overlaps("/a/b", "/a/b/c").expect(NOTE));
     assert!(FSUtil::overlaps("/a/b/c", "/a/b").expect(NOTE));

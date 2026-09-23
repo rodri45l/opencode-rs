@@ -1,46 +1,11 @@
 //! Port of packages/app/src/context/layout-scroll.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
 use std::collections::BTreeMap;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct Point {
-    x: i64,
-    y: i64,
-}
-
-type Snapshot = BTreeMap<String, BTreeMap<String, Point>>;
-
-struct ScrollPersistence {
-    snapshot: Snapshot,
-    writes: Vec<Snapshot>,
-    pending: Option<(String, String, Point)>,
-    clock: i64,
-    debounce_ms: i64,
-}
-
-impl ScrollPersistence {
-    // Local stubs (fast wave): real module lands later.
-    fn new(snapshot: Snapshot, debounce_ms: i64) -> Self {
-        ScrollPersistence {
-            snapshot,
-            writes: Vec::new(),
-            pending: None,
-            clock: 0,
-            debounce_ms,
-        }
-    }
-    fn set_scroll(&mut self, _session: &str, _key: &str, _point: Point) {}
-    fn advance(&mut self, _ms: i64) {}
-    fn scroll(&mut self, _session: &str, _key: &str) -> Option<Point> {
-        None
-    }
-    fn dispose(&mut self) {}
-}
+use opencode_app::layout_scroll::{Point, ScrollPersistence, Snapshot};
 
 #[test]
-#[ignore = "porting: context/layout-scroll not implemented"]
 fn debounces_persisted_scroll_writes() {
     let mut initial = Snapshot::new();
     let mut inner = BTreeMap::new();
@@ -71,7 +36,6 @@ fn debounces_persisted_scroll_writes() {
 }
 
 #[test]
-#[ignore = "porting: context/layout-scroll not implemented"]
 fn reseeds_empty_cache_after_persisted_snapshot_loads() {
     let mut initial = Snapshot::new();
     initial.insert("session".to_string(), BTreeMap::new());

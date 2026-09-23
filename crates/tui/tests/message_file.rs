@@ -4,71 +4,7 @@
 //! mime, and attachment labels come from the basename extension.
 //! Red-first: the message-file helpers are not implemented.
 
-#[allow(dead_code)]
-mod message_file {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui message-file helpers not implemented";
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    pub enum AttachmentKind {
-        Image,
-        File,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct SourceText {
-        pub value: String,
-        pub start: i64,
-        pub end: i64,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct FileSource {
-        pub path: String,
-        pub text: SourceText,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct FilePart {
-        pub id: String,
-        pub mime: String,
-        pub url: String,
-        pub filename: String,
-        pub source: Option<FileSource>,
-    }
-
-    pub fn attached(_part: &FilePart) -> PortResult<bool> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn inline(_part: &FilePart) -> PortResult<bool> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn kind(_part: &FilePart) -> PortResult<AttachmentKind> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn type_label(_path: &str, _mime: &str, _fallback: &str) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use message_file::{
+use opencode_tui::message_file::{
     attached, inline, kind, type_label, AttachmentKind, FilePart, FileSource, SourceText, NOTE,
 };
 
@@ -94,7 +30,6 @@ fn mention(part: &mut FilePart) {
 }
 
 #[test]
-#[ignore = "porting: session-ui message-file helpers not implemented"]
 fn treats_data_urls_as_attachments() {
     assert!(attached(&file(
         "data:text/plain;base64,SGVsbG8=",
@@ -106,7 +41,6 @@ fn treats_data_urls_as_attachments() {
 }
 
 #[test]
-#[ignore = "porting: session-ui message-file helpers not implemented"]
 fn keeps_data_backed_file_mentions_inline() {
     let mut mentioned = file("file:///repo/README.txt", "text/plain", "README.txt");
     mention(&mut mentioned);
@@ -123,7 +57,6 @@ fn keeps_data_backed_file_mentions_inline() {
 }
 
 #[test]
-#[ignore = "porting: session-ui message-file helpers not implemented"]
 fn separates_image_and_file_attachment_kinds() {
     assert_eq!(
         kind(&file("file:///a.png", "image/png", "a.png")).expect(NOTE),
@@ -136,7 +69,6 @@ fn separates_image_and_file_attachment_kinds() {
 }
 
 #[test]
-#[ignore = "porting: session-ui message-file helpers not implemented"]
 fn labels_attachment_types_from_the_basename_extension() {
     assert_eq!(
         type_label("list.md", "text/plain", "File").expect(NOTE),

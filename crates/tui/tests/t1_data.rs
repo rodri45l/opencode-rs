@@ -328,7 +328,6 @@ fn evidence() -> Vec<Value> {
 }
 
 #[test]
-#[ignore = "porting: tui data event projection not implemented"]
 fn settles_pending_tools_when_a_live_failure_arrives() {
     let mut store = Store::new();
     for event in evidence() {
@@ -373,7 +372,6 @@ fn settles_pending_tools_when_a_live_failure_arrives() {
 }
 
 #[test]
-#[ignore = "porting: tui data event projection not implemented"]
 fn renders_admitted_prompts_only_after_they_become_model_visible() {
     let mut store = Store::new();
     let admitted = json!({ "type": "session.next.prompt.admitted", "properties": { "sessionID": "session-1", "messageID": "msg_user_1", "timestamp": 0, "prompt": { "text": "hello" }, "delivery": "steer" } });
@@ -398,7 +396,6 @@ fn renders_admitted_prompts_only_after_they_become_model_visible() {
 }
 
 #[test]
-#[ignore = "porting: tui data event projection not implemented"]
 fn projects_live_context_updates_with_their_message_id() {
     let mut store = Store::new();
     apply(

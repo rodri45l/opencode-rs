@@ -13,7 +13,6 @@ use serde_json::json;
 const NOTE: &str = "porting: shared schema not implemented";
 
 #[test]
-#[ignore = "porting: shared schema not implemented"]
 fn shared_record_schemas_construct_and_decode_plain_objects() {
     let made = Prompt::make("hello").expect(NOTE);
     let decoded = Prompt::decode(&json!({ "text": "hello" })).expect(NOTE);
@@ -38,7 +37,6 @@ fn shared_record_schemas_construct_and_decode_plain_objects() {
 }
 
 #[test]
-#[ignore = "porting: shared schema not implemented"]
 fn skill_sources_key_by_type_and_path() {
     assert_eq!(
         SkillSource::key(&json!({ "type": "directory", "path": "/tmp" })).expect(NOTE),
@@ -47,7 +45,6 @@ fn skill_sources_key_by_type_and_path() {
 }
 
 #[test]
-#[ignore = "porting: shared schema not implemented"]
 fn workspace_ids_ascend_with_the_expected_prefix() {
     assert!(WorkspaceId::ascending("").expect(NOTE).starts_with("wrk_"));
 }

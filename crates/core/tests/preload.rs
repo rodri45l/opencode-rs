@@ -9,7 +9,6 @@ use opencode_core::preload::Preload;
 const NOTE: &str = "porting: preload not implemented";
 
 #[test]
-#[ignore = "porting: preload not implemented"]
 fn disables_public_npm_security_audits() {
     let environment = Preload::environment().expect(NOTE);
     assert!(environment

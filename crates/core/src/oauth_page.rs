@@ -14,16 +14,22 @@ pub struct OauthCallbackPage;
 impl OauthCallbackPage {
     /// Build the callback HTML with `provider` and `token_path` embedded in the
     /// bootstrap script.
-    pub fn bootstrap(_provider: &str, _token_path: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "oauth_page::OauthCallbackPage::bootstrap",
+    pub fn bootstrap(provider: &str, token_path: &str) -> CoreResult<String> {
+        let script = format!(
+            "var PROVIDER={};\nvar TOKEN_URL=new URL({},window.location.origin).href;",
+            Self::escape(provider)?,
+            Self::escape(token_path)?
+        );
+        Ok(format!(
+            "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <meta name=\"robots\" content=\"noindex\" />\n    <title>Finishing sign-in · OpenCode</title>\n  </head>\n  <body>\n    <main class=\"card\" id=\"oc-card\" data-status=\"pending\">\n      <h1 class=\"headline\" id=\"oc-headline\">Finishing sign-in</h1>\n      <p class=\"message\" id=\"oc-message\">Completing authorization.</p>\n      <pre class=\"detail\" id=\"oc-detail\" hidden></pre>\n      <p class=\"footnote\" id=\"oc-footnote\">You can close this window once sign-in finishes.</p>\n    </main>\n    <script>{script}</script>\n  </body>\n</html>"
         ))
     }
 
     /// Escape a value for safe embedding inside an inline script.
-    pub fn escape(_value: &str) -> CoreResult<String> {
-        Err(CoreError::NotImplemented(
-            "oauth_page::OauthCallbackPage::escape",
-        ))
+    pub fn escape(value: &str) -> CoreResult<String> {
+        let json = serde_json::to_string(value).map_err(|error| {
+            CoreError::Invalid(format!("failed to encode script value: {error}"))
+        })?;
+        Ok(json.replace('<', "\\u003c"))
     }
 }

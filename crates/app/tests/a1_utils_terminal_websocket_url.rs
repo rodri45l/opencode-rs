@@ -1,49 +1,8 @@
 //! Port of packages/app/src/utils/terminal-websocket-url.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-use std::collections::BTreeMap;
-
+use opencode_app::terminal_websocket_url::{terminal_websocket_url, Protocol, WsInput};
 use opencode_test_support as ts;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Protocol {
-    V1,
-    V2,
-}
-
-struct WsInput {
-    protocol: Protocol,
-    url: String,
-    id: String,
-    directory: String,
-    cursor: i64,
-    same_origin: bool,
-    username: Option<String>,
-    password: Option<String>,
-    auth_token: bool,
-    ticket: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct WsUrl {
-    protocol: String,
-    username: String,
-    password: String,
-    pathname: String,
-    params: BTreeMap<String, String>,
-}
-
-// Local stub (fast wave): real module lands later.
-fn terminal_websocket_url(_input: WsInput) -> WsUrl {
-    WsUrl {
-        protocol: String::new(),
-        username: String::new(),
-        password: String::new(),
-        pathname: String::new(),
-        params: BTreeMap::new(),
-    }
-}
 
 fn base(protocol: Protocol) -> WsInput {
     WsInput {
@@ -61,7 +20,6 @@ fn base(protocol: Protocol) -> WsInput {
 }
 
 #[test]
-#[ignore = "porting: utils/terminal-websocket-url not implemented"]
 fn uses_the_current_ticketed_pty_route() {
     let mut input = base(Protocol::V2);
     input.ticket = Some("connect-ticket".into());
@@ -84,7 +42,6 @@ fn uses_the_current_ticketed_pty_route() {
 }
 
 #[test]
-#[ignore = "porting: utils/terminal-websocket-url not implemented"]
 fn uses_query_auth_without_embedding_credentials_for_v1() {
     let mut input = base(Protocol::V1);
     input.username = Some("opencode".into());
@@ -106,7 +63,6 @@ fn uses_query_auth_without_embedding_credentials_for_v1() {
 }
 
 #[test]
-#[ignore = "porting: utils/terminal-websocket-url not implemented"]
 fn omits_query_auth_for_same_origin_saved_credentials_for_v1() {
     let mut input = base(Protocol::V1);
     input.url = "https://app.example.test".into();
@@ -126,7 +82,6 @@ fn omits_query_auth_for_same_origin_saved_credentials_for_v1() {
 }
 
 #[test]
-#[ignore = "porting: utils/terminal-websocket-url not implemented"]
 fn uses_query_auth_for_same_origin_credentials_from_auth_token_for_v1() {
     let mut input = base(Protocol::V1);
     input.url = "https://app.example.test".into();

@@ -1,46 +1,11 @@
 //! Port of packages/app/src/context/global-sync/session-cache.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
-#[derive(Clone, Debug, PartialEq)]
-struct Message {
-    id: String,
-    session_id: String,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Part {
-    id: String,
-    session_id: String,
-    message_id: String,
-}
-
-#[derive(Default, Clone, Debug, PartialEq)]
-struct Store {
-    session_status: BTreeMap<String, String>,
-    session_diff: BTreeMap<String, Vec<String>>,
-    todo: BTreeMap<String, Vec<String>>,
-    message: BTreeMap<String, Vec<Message>>,
-    session_message: BTreeMap<String, Vec<String>>,
-    part: BTreeMap<String, Vec<Part>>,
-    permission: BTreeMap<String, Vec<String>>,
-    question: BTreeMap<String, Vec<String>>,
-    part_text_accum_delta: BTreeMap<String, String>,
-}
-
-// Local stub (fast wave): real module lands later.
-fn drop_session_caches(_store: &mut Store, _session_ids: &[&str]) {}
-
-fn pick_session_cache_evictions(
-    _seen: &mut BTreeSet<String>,
-    _keep: &str,
-    _limit: usize,
-    _preserve: &[&str],
-) -> Vec<String> {
-    Vec::new()
-}
+use opencode_app::session_cache::{
+    drop_session_caches, pick_session_cache_evictions, Message, Part, Store,
+};
 
 fn msg(id: &str, session_id: &str) -> Message {
     Message {
@@ -58,7 +23,6 @@ fn part(id: &str, session_id: &str, message_id: &str) -> Part {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/session-cache not implemented"]
 fn drop_session_caches_clears_orphaned_parts_without_message_rows() {
     let mut store = Store::default();
     store.session_status.insert("ses_1".into(), "busy".into());
@@ -86,7 +50,6 @@ fn drop_session_caches_clears_orphaned_parts_without_message_rows() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/session-cache not implemented"]
 fn drop_session_caches_clears_message_backed_parts() {
     let mut store = Store::default();
     let m = msg("msg_1", "ses_1");
@@ -102,7 +65,6 @@ fn drop_session_caches_clears_message_backed_parts() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/session-cache not implemented"]
 fn pick_session_cache_evictions_preserves_requested_sessions() {
     let mut seen: BTreeSet<String> = ["ses_1", "ses_2", "ses_3"]
         .iter()

@@ -28,7 +28,6 @@ fn grep() -> GrepTool {
 }
 
 #[test]
-#[ignore = "porting: tool.grep not implemented"]
 fn basic_search() -> Result<(), ToolError> {
     let dir = temp_dir("basic");
     std::fs::write(dir.join("a.ts"), "export const a = 1\n").expect("write");
@@ -49,7 +48,6 @@ fn basic_search() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.grep not implemented"]
 fn no_matches_returns_correct_output() -> Result<(), ToolError> {
     let dir = temp_dir("none");
     std::fs::write(dir.join("test.txt"), "hello world").expect("write");
@@ -69,7 +67,6 @@ fn no_matches_returns_correct_output() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.grep not implemented"]
 fn finds_matches_in_tmp_instance() -> Result<(), ToolError> {
     let dir = temp_dir("matches");
     std::fs::write(dir.join("test.txt"), "line1\nline2\nline3").expect("write");
@@ -88,7 +85,6 @@ fn finds_matches_in_tmp_instance() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.grep not implemented"]
 fn does_not_report_an_unknown_total_when_results_are_truncated() -> Result<(), ToolError> {
     let dir = temp_dir("truncated");
     for index in 0..101 {
@@ -112,7 +108,6 @@ fn does_not_report_an_unknown_total_when_results_are_truncated() -> Result<(), T
 }
 
 #[test]
-#[ignore = "porting: tool.grep not implemented"]
 fn supports_exact_file_paths() -> Result<(), ToolError> {
     let dir = temp_dir("exact");
     let file = dir.join("test.txt");
@@ -135,7 +130,6 @@ fn supports_exact_file_paths() -> Result<(), ToolError> {
 
 #[cfg(unix)]
 #[test]
-#[ignore = "porting: tool.grep not implemented"]
 fn does_not_ask_for_external_directory_when_alias_path_is_allowed() -> Result<(), ToolError> {
     let base = temp_dir("alias");
     let real = base.join("real");

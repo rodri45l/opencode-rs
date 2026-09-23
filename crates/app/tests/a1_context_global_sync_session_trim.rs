@@ -1,29 +1,9 @@
 //! Port of packages/app/src/context/global-sync/session-trim.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
 use std::collections::BTreeSet;
 
-#[derive(Clone, Debug, PartialEq)]
-struct Session {
-    id: String,
-    parent_id: Option<String>,
-    created: i64,
-    updated: Option<i64>,
-    archived: Option<i64>,
-}
-
-#[derive(Default)]
-struct TrimOptions {
-    limit: usize,
-    permission: BTreeSet<String>,
-    now: i64,
-}
-
-// Local stub (fast wave): real module lands later.
-fn trim_sessions(_list: &[Session], _options: &TrimOptions) -> Vec<Session> {
-    Vec::new()
-}
+use opencode_app::session_trim::{trim_sessions, Session, TrimOptions};
 
 fn session(
     id: &str,
@@ -42,7 +22,6 @@ fn session(
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/session-trim not implemented"]
 fn keeps_base_roots_and_recent_roots_beyond_the_limit() {
     let now = 1_000_000;
     let list = vec![
@@ -72,7 +51,6 @@ fn keeps_base_roots_and_recent_roots_beyond_the_limit() {
 }
 
 #[test]
-#[ignore = "porting: context/global-sync/session-trim not implemented"]
 fn keeps_children_when_root_is_kept_permission_exists_or_child_is_recent() {
     let now = 1_000_000;
     let list = vec![

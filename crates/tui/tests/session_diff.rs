@@ -6,74 +6,9 @@
 //! Re-derived: the Solid `View` wrapper is represented as a plain value.
 //! Red-first: the session-diff projection is not implemented.
 
-#[allow(dead_code)]
-mod session_diff {
-    use std::fmt;
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct NotImplemented(pub &'static str);
-
-    impl fmt::Display for NotImplemented {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str(self.0)
-        }
-    }
-
-    impl std::error::Error for NotImplemented {}
-
-    pub type PortResult<T> = Result<T, NotImplemented>;
-
-    pub const NOTE: &str = "porting: session-ui session diff projection not implemented";
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct DiffInput {
-        pub file: String,
-        pub patch: Option<String>,
-        pub before: Option<String>,
-        pub after: Option<String>,
-        pub additions: i64,
-        pub deletions: i64,
-        pub status: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct FileDiffInput {
-        pub file: String,
-        pub patch: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Hunk {
-        pub collapsed_before: i64,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct FileDiff {
-        pub name: String,
-        pub is_partial: bool,
-        pub addition_lines: Vec<String>,
-        pub hunks: Vec<Hunk>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct View {
-        pub file_diff: FileDiff,
-    }
-
-    pub fn normalize(_diff: &DiffInput) -> PortResult<View> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn resolve_file_diff(_input: &FileDiffInput) -> PortResult<FileDiff> {
-        Err(NotImplemented(NOTE))
-    }
-
-    pub fn text(_view: &View, _side: &str) -> PortResult<String> {
-        Err(NotImplemented(NOTE))
-    }
-}
-
-use session_diff::{normalize, resolve_file_diff, text, DiffInput, FileDiffInput, NOTE};
+use opencode_tui::session_diff::{
+    normalize, resolve_file_diff, text, DiffInput, FileDiffInput, NOTE,
+};
 
 fn modified(patch: &str) -> DiffInput {
     DiffInput {
@@ -95,7 +30,6 @@ fn file_diff(patch: &str) -> FileDiffInput {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn renders_whole_file_unified_patches_as_complete_diffs() {
     let view = normalize(&modified(
         "Index: a.ts\n===================================================================\n--- a.ts\t\n+++ a.ts\t\n@@ -1,2 +1,2 @@\n one\n-two\n+three\n",
@@ -109,7 +43,6 @@ fn renders_whole_file_unified_patches_as_complete_diffs() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn keeps_missing_final_newlines_from_unified_patches() {
     let view = normalize(&modified(
         "Index: a.ts\n===================================================================\n--- a.ts\t\n+++ a.ts\t\n@@ -1,2 +1,2 @@\n one\n-two\n\\ No newline at end of file\n+three\n\\ No newline at end of file\n",
@@ -121,7 +54,6 @@ fn keeps_missing_final_newlines_from_unified_patches() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn renders_whole_file_vcs_patches_as_complete_diffs() {
     let diff = resolve_file_diff(&file_diff(
         "diff --git a/a.ts b/a.ts\nindex 1a2b3c4..5d6e7f8 100644\n--- a/a.ts\n+++ b/a.ts\n@@ -1,2 +1,2 @@\n one\n-old\n+new\n",
@@ -136,7 +68,6 @@ fn renders_whole_file_vcs_patches_as_complete_diffs() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn keeps_ordinary_leading_tool_patches_partial() {
     let diff = resolve_file_diff(&file_diff(
         "Index: a.ts\n===================================================================\n--- a.ts\n+++ a.ts\n@@ -1,5 +1,5 @@\n-old\n+new\n two\n three\n four\n five\n",
@@ -157,7 +88,6 @@ fn keeps_ordinary_leading_tool_patches_partial() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn keeps_separated_patch_hunks_partial_without_complete_file_contents() {
     let diff = resolve_file_diff(&FileDiffInput {
         file: "project.ts".into(),
@@ -171,7 +101,6 @@ fn keeps_separated_patch_hunks_partial_without_complete_file_contents() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn renders_headerless_persisted_patches() {
     let view = normalize(&modified("@@ -1 +1 @@\n-old\n+new\n")).expect(NOTE);
 
@@ -182,7 +111,6 @@ fn renders_headerless_persisted_patches() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn does_not_share_headerless_patch_metadata_between_files() {
     let patch = "@@ -1 +1 @@\n-old\n+new\n";
 
@@ -207,7 +135,6 @@ fn does_not_share_headerless_patch_metadata_between_files() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn keeps_capped_header_only_patches_partial() {
     let diff = resolve_file_diff(&file_diff(
         "Index: a.ts\n===================================================================\n--- a.ts\t\n+++ a.ts\t\n",
@@ -220,7 +147,6 @@ fn keeps_capped_header_only_patches_partial() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn keeps_full_legacy_content_as_a_complete_diff() {
     let view = normalize(&DiffInput {
         file: "a.ts".into(),
@@ -239,7 +165,6 @@ fn keeps_full_legacy_content_as_a_complete_diff() {
 }
 
 #[test]
-#[ignore = "porting: session-ui session diff projection not implemented"]
 fn ignores_malformed_persisted_patches() {
     let view = normalize(&modified(
         "diff --git a/a.ts b/a.ts\nindex ff4ceb2..65a1de0 100644\n--- a/a.ts\n+++ b/a.ts\n@@ -1,3 +1,3 @@\n keep\n+add\n same\r",

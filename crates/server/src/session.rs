@@ -265,6 +265,169 @@ impl std::error::Error for DecodeError {}
 
 /// Decode a named session-domain schema, returning the normalized value.
 pub fn decode(schema: &str, value: &Value) -> Result<Value, DecodeError> {
-    let _ = (schema, value);
-    Err(DecodeError::NotImplemented("session::decode"))
+    match schema {
+        "Session.Info" | "Session.GlobalInfo" => {
+            require_object(value, schema)?;
+            require_branded(value, "id", "ses_")?;
+            require_keys(
+                value,
+                schema,
+                &[
+                    "id",
+                    "slug",
+                    "projectID",
+                    "directory",
+                    "title",
+                    "version",
+                    "time",
+                ],
+            )?;
+            if schema == "Session.GlobalInfo" {
+                require_key(value, "project")?;
+            }
+        }
+        "Session.ProjectInfo" => {
+            require_object(value, schema)?;
+            require_keys(value, schema, &["id", "worktree"])?;
+        }
+        "Session.CreateInput" => {
+            if value.is_null() {
+                return Ok(Value::Null);
+            }
+            require_object(value, schema)?;
+        }
+        "Session.ForkInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            optional_branded(value, "messageID", "msg_")?;
+        }
+        "Session.SetTitleInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            require_key(value, "title")?;
+        }
+        "Session.SetArchivedInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+        }
+        "Session.SetPermissionInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            require_key(value, "permission")?;
+        }
+        "Session.MessagesInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+        }
+        "SessionRevert.RevertInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            require_branded(value, "messageID", "msg_")?;
+            optional_branded(value, "partID", "prt_")?;
+        }
+        "SessionSummary.DiffInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            optional_branded(value, "messageID", "msg_")?;
+        }
+        "SessionStatus.Info" => {
+            require_object(value, schema)?;
+            match value.get("type").and_then(Value::as_str) {
+                Some("idle") | Some("busy") => {}
+                Some("retry") => {
+                    require_keys(value, schema, &["attempt", "message", "next"])?;
+                }
+                _ => return Err(invalid(schema, "unknown status type")),
+            }
+        }
+        "Todo.Info" => {
+            require_object(value, schema)?;
+            require_keys(value, schema, &["content", "status", "priority"])?;
+        }
+        "SessionPrompt.LoopInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+        }
+        "SessionPrompt.ShellInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            require_keys(value, schema, &["agent", "command"])?;
+        }
+        "SessionPrompt.PromptInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            if let Some(parts) = value.get("parts") {
+                let parts = parts
+                    .as_array()
+                    .ok_or_else(|| invalid(schema, "parts must be an array"))?;
+                for part in parts {
+                    let part_type = part.get("type").and_then(Value::as_str);
+                    match part_type {
+                        Some("text") => {
+                            if part.get("text").and_then(Value::as_str).is_none() {
+                                return Err(invalid(schema, "text part requires text"));
+                            }
+                        }
+                        Some("file") => {
+                            if part.get("mime").and_then(Value::as_str).is_none()
+                                || part.get("url").and_then(Value::as_str).is_none()
+                            {
+                                return Err(invalid(schema, "file part requires mime and url"));
+                            }
+                        }
+                        _ => return Err(invalid(schema, "unknown part type")),
+                    }
+                }
+            }
+        }
+        "SessionPrompt.CommandInput" => {
+            require_object(value, schema)?;
+            require_branded(value, "sessionID", "ses_")?;
+            require_key(value, "command")?;
+        }
+        other => return Err(DecodeError::Invalid(format!("unknown schema: {other}"))),
+    }
+    Ok(value.clone())
+}
+
+fn invalid(schema: &str, message: &str) -> DecodeError {
+    DecodeError::Invalid(format!("{schema}: {message}"))
+}
+
+fn require_object(value: &Value, schema: &str) -> Result<(), DecodeError> {
+    if value.is_object() {
+        Ok(())
+    } else {
+        Err(invalid(schema, "expected an object"))
+    }
+}
+
+fn require_key(value: &Value, key: &str) -> Result<(), DecodeError> {
+    if value.get(key).is_some() {
+        Ok(())
+    } else {
+        Err(DecodeError::Invalid(format!("missing field: {key}")))
+    }
+}
+
+fn require_keys(value: &Value, schema: &str, keys: &[&str]) -> Result<(), DecodeError> {
+    for key in keys {
+        require_key(value, key).map_err(|_| invalid(schema, &format!("missing field: {key}")))?;
+    }
+    Ok(())
+}
+
+fn require_branded(value: &Value, key: &str, prefix: &str) -> Result<(), DecodeError> {
+    match value.get(key).and_then(Value::as_str) {
+        Some(id) if id.starts_with(prefix) => Ok(()),
+        _ => Err(DecodeError::Invalid(format!("invalid {key}"))),
+    }
+}
+
+fn optional_branded(value: &Value, key: &str, prefix: &str) -> Result<(), DecodeError> {
+    match value.get(key) {
+        None | Some(Value::Null) => Ok(()),
+        Some(Value::String(id)) if id.starts_with(prefix) => Ok(()),
+        _ => Err(DecodeError::Invalid(format!("invalid {key}"))),
+    }
 }

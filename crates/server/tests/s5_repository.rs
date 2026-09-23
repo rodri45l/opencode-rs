@@ -8,93 +8,9 @@
 //! `Global.Path.repos`, whose Rust equivalent is environment-dependent.
 #![allow(dead_code)]
 
-// Fast-wave local stubs: `util::repository` is not implemented in this crate yet.
-mod repository {
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct RemoteReference {
-        pub host: String,
-        pub path: String,
-        pub segments: Vec<String>,
-        pub owner: String,
-        pub repo: String,
-        pub remote: String,
-        pub label: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct LocalReference {
-        pub host: String,
-        pub protocol: String,
-        pub label: String,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum Reference {
-        Remote(RemoteReference),
-        Local(LocalReference),
-    }
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum RepositoryError {
-        InvalidReference,
-        UnsupportedLocal,
-        InvalidBranch(String),
-    }
-
-    impl std::fmt::Display for RepositoryError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            match self {
-                RepositoryError::InvalidReference => write!(f, "invalid repository reference"),
-                RepositoryError::UnsupportedLocal => {
-                    write!(f, "Local file repositories are not supported")
-                }
-                RepositoryError::InvalidBranch(message) => write!(f, "{message}"),
-            }
-        }
-    }
-
-    pub fn parse_remote(_input: &str) -> Result<RemoteReference, RepositoryError> {
-        Err(RepositoryError::InvalidReference)
-    }
-
-    pub fn parse_reference(_input: &str) -> Result<Reference, RepositoryError> {
-        Err(RepositoryError::InvalidReference)
-    }
-
-    pub fn cache_path(_reference: &RemoteReference) -> Result<String, RepositoryError> {
-        Err(RepositoryError::InvalidReference)
-    }
-
-    pub fn cache_identity(_reference: &RemoteReference) -> Result<String, RepositoryError> {
-        Err(RepositoryError::InvalidReference)
-    }
-
-    pub fn same_reference(
-        _left: &RemoteReference,
-        _right: &RemoteReference,
-    ) -> Result<bool, RepositoryError> {
-        Err(RepositoryError::InvalidReference)
-    }
-
-    pub fn is_file_reference(reference: &Reference) -> bool {
-        matches!(reference, Reference::Local(_))
-    }
-
-    pub fn is_remote_reference(reference: &Reference) -> bool {
-        matches!(reference, Reference::Remote(_))
-    }
-
-    pub fn validate_branch(_branch: &str) -> Result<(), RepositoryError> {
-        Err(RepositoryError::InvalidBranch(
-            "porting: repository::validateBranch not implemented".to_string(),
-        ))
-    }
-}
-
-use repository::RepositoryError;
+use opencode_server::repository::{self, RepositoryError};
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn parses_github_shorthand_and_preserves_cache_path() {
     let reference = repository::parse_remote("owner/repo").unwrap();
 
@@ -105,17 +21,14 @@ fn parses_github_shorthand_and_preserves_cache_path() {
     assert_eq!(reference.repo, "repo");
     assert_eq!(reference.label, "owner/repo");
 
-    assert!(repository::cache_path(&reference)
-        .unwrap()
-        .ends_with("github.com/owner/repo"));
+    assert!(repository::cache_path(&reference).ends_with("github.com/owner/repo"));
     assert_eq!(
-        repository::cache_identity(&reference).unwrap(),
+        repository::cache_identity(&reference),
         "github.com/owner/repo"
     );
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn parses_host_path_and_scp_remote_references() {
     let host_path = repository::parse_remote("gitlab.com/group/repo").unwrap();
     let scp = repository::parse_remote("git@github.com:owner/repo.git").unwrap();
@@ -132,7 +45,6 @@ fn parses_host_path_and_scp_remote_references() {
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn keeps_local_file_repositories_distinct_from_remote_repositories() {
     let local_path = "/tmp/oc-repository/repo.git";
     let local = format!("file://{local_path}");
@@ -157,7 +69,6 @@ fn keeps_local_file_repositories_distinct_from_remote_repositories() {
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn rejects_invalid_remote_repository_references_with_typed_errors() {
     assert_eq!(
         repository::parse_remote("not-a-repo").unwrap_err(),
@@ -170,18 +81,16 @@ fn rejects_invalid_remote_repository_references_with_typed_errors() {
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn compares_cache_identity_independent_of_input_spelling() {
     let shorthand = repository::parse_remote("owner/repo").unwrap();
     let url = repository::parse_remote("https://github.com/owner/repo.git").unwrap();
     let host_path = repository::parse_remote("github.com/owner/repo").unwrap();
 
-    assert!(repository::same_reference(&shorthand, &url).unwrap());
-    assert!(repository::same_reference(&shorthand, &host_path).unwrap());
+    assert!(repository::same_reference(&shorthand, &url));
+    assert!(repository::same_reference(&shorthand, &host_path));
 }
 
 #[test]
-#[ignore = "porting: repository not implemented"]
 fn validates_repository_branch_names() {
     assert!(repository::validate_branch("feature/docs.v1").is_ok());
 

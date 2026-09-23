@@ -144,7 +144,6 @@ fn generation_error_reasons_match_reference() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compiles_one_contract_for_promise_and_effect_emitters() {
     let contract = compile(&get_session_by_id(), &CompileOptions::default()).expect("compile");
 
@@ -159,7 +158,6 @@ fn compiles_one_contract_for_promise_and_effect_emitters() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_preserves_public_group_and_endpoint_identifiers() {
     let contract = compile(&get_session_by_id(), &CompileOptions::default()).expect("compile");
 
@@ -169,7 +167,6 @@ fn compile_preserves_public_group_and_endpoint_identifiers() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_separates_hosted_and_consumer_group_names() {
     let source =
         ApiSpec::new("test").group(GroupSpec::new("server.session").endpoint(
@@ -190,7 +187,6 @@ fn compile_separates_hosted_and_consumer_group_names() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_supports_explicit_public_endpoint_names() {
     let source = ApiSpec::new("test").group(
         GroupSpec::new("server.permission")
@@ -221,7 +217,6 @@ fn compile_supports_explicit_public_endpoint_names() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_uses_the_unqualified_endpoint_name() {
     let contract = compile(
         &api(
@@ -237,7 +232,6 @@ fn compile_uses_the_unqualified_endpoint_name() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_omits_custom_transport_endpoints() {
     let source = ApiSpec::new("test").group(
         GroupSpec::new("server.pty")
@@ -265,7 +259,6 @@ fn compile_omits_custom_transport_endpoints() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_flattens_transport_input_channels_into_one_domain_input() {
     let spec = api(
         EndpointSpec::new(HttpMethod::Post, "prompt", "/session/:sessionID")
@@ -308,7 +301,6 @@ fn compile_flattens_transport_input_channels_into_one_domain_input() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_uses_no_argument_when_an_operation_has_no_input_fields() {
     let spec = api(EndpointSpec::new(HttpMethod::Get, "health", "/health").success_value());
     let contract = compile(&spec, &CompileOptions::default()).expect("compile");
@@ -319,7 +311,6 @@ fn compile_uses_no_argument_when_an_operation_has_no_input_fields() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_uses_optional_object_when_every_field_is_optional() {
     let spec = api(EndpointSpec::new(HttpMethod::Get, "list", "/session")
         .query_optional("limit")
@@ -332,7 +323,6 @@ fn compile_uses_optional_object_when_every_field_is_optional() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_uses_required_object_when_any_field_is_required() {
     let spec = api(
         EndpointSpec::new(HttpMethod::Get, "get", "/session/:sessionID")
@@ -348,7 +338,6 @@ fn compile_uses_required_object_when_any_field_is_required() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_rejects_colliding_input_names_across_channels() {
     let spec = api(
         EndpointSpec::new(HttpMethod::Post, "prompt", "/session/:id")
@@ -365,7 +354,6 @@ fn compile_rejects_colliding_input_names_across_channels() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_unwraps_an_exact_data_success_envelope() {
     let contract = compile(&get_session_by_id(), &CompileOptions::default()).expect("compile");
     let endpoint = &contract.groups[0].endpoints[0];
@@ -374,7 +362,6 @@ fn compile_unwraps_an_exact_data_success_envelope() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_returns_a_non_envelope_success_unchanged() {
     let spec = api(EndpointSpec::new(HttpMethod::Get, "health", "/health").success_value());
     let contract = compile(&spec, &CompileOptions::default()).expect("compile");
@@ -384,7 +371,6 @@ fn compile_returns_a_non_envelope_success_unchanged() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_maps_no_content_success_to_void() {
     let spec = api(EndpointSpec::new(
         HttpMethod::Post,
@@ -401,7 +387,6 @@ fn compile_maps_no_content_success_to_void() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_models_an_sse_success_as_a_direct_stream() {
     let spec = api(EndpointSpec::new(HttpMethod::Get, "subscribe", "/event").success_stream());
     let contract = compile(&spec, &CompileOptions::default()).expect("compile");
@@ -412,7 +397,6 @@ fn compile_models_an_sse_success_as_a_direct_stream() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_rejects_multiple_success_shapes() {
     let spec = api(EndpointSpec::new(HttpMethod::Get, "get", "/session")
         .success_value()
@@ -422,7 +406,6 @@ fn compile_rejects_multiple_success_shapes() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_rejects_multiple_payload_alternatives() {
     let spec = api(EndpointSpec::new(HttpMethod::Post, "prompt", "/session")
         .payload(&["text"])
@@ -433,7 +416,6 @@ fn compile_rejects_multiple_payload_alternatives() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_appends_client_error_and_declared_error_tags() {
     let spec = ApiSpec::new("test").group(
         GroupSpec::new("session").endpoint(
@@ -455,7 +437,6 @@ fn compile_appends_client_error_and_declared_error_tags() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_rejects_required_client_middleware_without_an_adapter() {
     let spec = api(EndpointSpec::new(HttpMethod::Get, "get", "/session")
         .success_value()
@@ -468,7 +449,6 @@ fn compile_rejects_required_client_middleware_without_an_adapter() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_rejects_schemas_that_cannot_be_emitted_exactly() {
     // Re-derived from the reference's opaque/custom-check/spoofed/lexical cases:
     // all of them surface as the same `Unportable schema: <path>` failure.
@@ -480,7 +460,6 @@ fn compile_rejects_schemas_that_cannot_be_emitted_exactly() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen compile not implemented"]
 fn compile_requires_an_authoritative_import_for_hidden_transformations() {
     // Re-derived from the reference's custom-transformation and altered-wire
     // cases: both surface as `Effect schema requires authoritative import`.
@@ -499,7 +478,6 @@ fn compile_requires_an_authoritative_import_for_hidden_transformations() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_rejects_consumer_group_name_collisions() {
     let source = ApiSpec::new("test")
         .group(
@@ -523,7 +501,6 @@ fn compile_rejects_consumer_group_name_collisions() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn compile_rejects_collisions_in_the_flattened_client_namespace() {
     let source = ApiSpec::new("test")
         .group(
@@ -545,7 +522,6 @@ fn compile_rejects_collisions_in_the_flattened_client_namespace() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn emit_effect_emits_one_client_module_per_group() {
     let source = ApiSpec::new("test")
         .group(
@@ -572,7 +548,6 @@ fn emit_effect_emits_one_client_module_per_group() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn module_paths_are_safe_and_do_not_change_public_identifiers() {
     let source = ApiSpec::new("test")
         .group(
@@ -598,7 +573,6 @@ fn module_paths_are_safe_and_do_not_change_public_identifiers() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn module_paths_reserve_support_module_names_case_insensitively() {
     let source = ApiSpec::new("test")
         .group(
@@ -622,7 +596,6 @@ fn module_paths_reserve_support_module_names_case_insensitively() {
 }
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn module_paths_keep_searching_when_a_reserved_fallback_is_occupied() {
     let source = ApiSpec::new("test")
         .group(
@@ -650,7 +623,6 @@ fn module_paths_keep_searching_when_a_reserved_fallback_is_occupied() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn emit_effect_imported_emits_only_the_root_modules() {
     let contract = compile(&get_session_by_id(), &CompileOptions::default()).expect("compile");
     let output = emit_effect_imported(
@@ -673,7 +645,6 @@ fn emit_effect_imported_emits_only_the_root_modules() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "porting: httpapi-codegen not implemented"]
 fn emit_promise_rejects_unsupported_transports() {
     let text = compile(
         &api(EndpointSpec::new(HttpMethod::Get, "text", "/text").success_text()),

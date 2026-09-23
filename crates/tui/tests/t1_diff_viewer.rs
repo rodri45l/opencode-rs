@@ -123,7 +123,6 @@ fn command_for(keybind_name: &str) -> Option<&'static str> {
 }
 
 #[test]
-#[ignore = "porting: tui diff-viewer routing/source selection not implemented"]
 fn closing_the_diff_viewer_returns_to_the_route_it_opened_from() {
     let start = session_route("session-1");
     let viewer = diff_open(&start);
@@ -154,7 +153,6 @@ fn closing_the_diff_viewer_returns_to_the_route_it_opened_from() {
 }
 
 #[test]
-#[ignore = "porting: tui diff-viewer routing/source selection not implemented"]
 fn brackets_navigate_diff_hunks() {
     assert_eq!(default_value("diff_next_hunk"), Some("]"));
     assert_eq!(default_value("diff_previous_hunk"), Some("["));
@@ -166,7 +164,6 @@ fn brackets_navigate_diff_hunks() {
 }
 
 #[test]
-#[ignore = "porting: tui diff-viewer routing/source selection not implemented"]
 fn branch_diff_source_requests_branch_vcs_diff() {
     let params = DiffParams {
         mode: Some("branch".to_string()),
@@ -186,7 +183,6 @@ fn branch_diff_source_requests_branch_vcs_diff() {
 }
 
 #[test]
-#[ignore = "porting: tui diff-viewer routing/source selection not implemented"]
 fn last_turn_diff_source_requests_session_diff() {
     let params = DiffParams {
         mode: Some("last-turn".to_string()),

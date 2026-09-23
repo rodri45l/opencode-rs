@@ -19,7 +19,6 @@ fn assert_round_trip(schema: &str, input: Value) -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn session_info_accepts_minimal_session() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.Info",
@@ -36,7 +35,6 @@ fn session_info_accepts_minimal_session() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn session_info_round_trips_every_optional_field() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.Info",
@@ -71,7 +69,6 @@ fn session_info_round_trips_every_optional_field() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn session_info_accepts_migrated_summary_diffs_without_file_details() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.Info",
@@ -94,19 +91,16 @@ fn session_info_accepts_migrated_summary_diffs_without_file_details() -> Result<
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn session_info_rejects_unbranded_session_id() {
     assert!(decode("Session.Info", &json!({ "id": "not-a-session-id" })).is_err());
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn session_info_rejects_missing_required_fields() {
     assert!(decode("Session.Info", &json!({ "id": SESSION_ID })).is_err());
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn project_info_accepts_with_and_without_optional_name() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.ProjectInfo",
@@ -119,7 +113,6 @@ fn project_info_accepts_with_and_without_optional_name() -> Result<(), DecodeErr
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn global_info_accepts_null_project() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.GlobalInfo",
@@ -137,7 +130,6 @@ fn global_info_accepts_null_project() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn global_info_accepts_populated_project() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.GlobalInfo",
@@ -155,7 +147,6 @@ fn global_info_accepts_populated_project() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn create_input_accepts_undefined_and_populated_forms() -> Result<(), DecodeError> {
     assert_eq!(decode("Session.CreateInput", &Value::Null)?, Value::Null);
     assert_round_trip(
@@ -171,7 +162,6 @@ fn create_input_accepts_undefined_and_populated_forms() -> Result<(), DecodeErro
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn fork_input_round_trips() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.ForkInput",
@@ -181,13 +171,11 @@ fn fork_input_round_trips() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn set_title_input_rejects_missing_title() {
     assert!(decode("Session.SetTitleInput", &json!({ "sessionID": SESSION_ID })).is_err());
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn set_archived_input_accepts_both_with_and_without_time() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.SetArchivedInput",
@@ -200,7 +188,6 @@ fn set_archived_input_accepts_both_with_and_without_time() -> Result<(), DecodeE
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn set_permission_input_requires_a_ruleset() -> Result<(), DecodeError> {
     assert_round_trip(
         "Session.SetPermissionInput",
@@ -218,7 +205,6 @@ fn set_permission_input_requires_a_ruleset() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn messages_input_accepts_optional_limit() -> Result<(), DecodeError> {
     assert_round_trip("Session.MessagesInput", json!({ "sessionID": SESSION_ID }))?;
     assert_round_trip(
@@ -228,7 +214,6 @@ fn messages_input_accepts_optional_limit() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn revert_input_requires_message_id_and_optional_part_id() -> Result<(), DecodeError> {
     assert_round_trip(
         "SessionRevert.RevertInput",
@@ -247,7 +232,6 @@ fn revert_input_requires_message_id_and_optional_part_id() -> Result<(), DecodeE
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn diff_input_accepts_optional_message_id() -> Result<(), DecodeError> {
     assert_round_trip(
         "SessionSummary.DiffInput",
@@ -260,14 +244,12 @@ fn diff_input_accepts_optional_message_id() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn status_info_accepts_idle_and_busy() -> Result<(), DecodeError> {
     assert_round_trip("SessionStatus.Info", json!({ "type": "idle" }))?;
     assert_round_trip("SessionStatus.Info", json!({ "type": "busy" }))
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn status_info_retry_carries_attempt_message_action_and_next() -> Result<(), DecodeError> {
     assert_round_trip(
         "SessionStatus.Info",
@@ -289,13 +271,11 @@ fn status_info_retry_carries_attempt_message_action_and_next() -> Result<(), Dec
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn status_info_rejects_unknown_type() {
     assert!(decode("SessionStatus.Info", &json!({ "type": "bogus" })).is_err());
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn todo_info_round_trips_three_fields() -> Result<(), DecodeError> {
     assert_round_trip(
         "Todo.Info",
@@ -304,7 +284,6 @@ fn todo_info_round_trips_three_fields() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn loop_input_is_just_session_id() -> Result<(), DecodeError> {
     assert_round_trip(
         "SessionPrompt.LoopInput",
@@ -313,7 +292,6 @@ fn loop_input_is_just_session_id() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn shell_input_requires_agent_and_command() -> Result<(), DecodeError> {
     assert_round_trip(
         "SessionPrompt.ShellInput",
@@ -328,7 +306,6 @@ fn shell_input_requires_agent_and_command() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn prompt_input_accepts_text_and_file_parts() -> Result<(), DecodeError> {
     let input = json!({
         "sessionID": SESSION_ID,
@@ -346,7 +323,6 @@ fn prompt_input_accepts_text_and_file_parts() -> Result<(), DecodeError> {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn prompt_input_rejects_unknown_part_type() {
     assert!(decode(
         "SessionPrompt.PromptInput",
@@ -359,7 +335,6 @@ fn prompt_input_rejects_unknown_part_type() {
 }
 
 #[test]
-#[ignore = "porting: session schema decoding not implemented"]
 fn command_input_round_trips_core_fields() -> Result<(), DecodeError> {
     assert_round_trip(
         "SessionPrompt.CommandInput",

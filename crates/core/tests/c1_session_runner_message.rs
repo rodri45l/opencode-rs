@@ -6,26 +6,11 @@
 //! metadata, and drops provider-native continuation metadata from failed assistant
 //! turns and after a model switch.
 //! Re-derived: the `@opencode-ai/llm` `Message`/`Model` types are represented as
-//! JSON shapes; no protocol runtime is exercised.
+//! JSON shapes in `opencode_core::session_runner_message`; no protocol runtime is
+//! exercised.
 
-#![allow(dead_code)]
-
+use opencode_core::session_runner_message::to_llm_messages;
 use serde_json::{json, Value};
-
-const NOTE: &str = "porting: session runner to-llm-message not implemented";
-
-mod local {
-    use serde_json::Value;
-
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    pub enum PortError {
-        NotImplemented(&'static str),
-    }
-
-    pub fn to_llm_messages(_messages: &[Value], _model: &Value) -> Result<Vec<Value>, PortError> {
-        Err(PortError::NotImplemented("session runner to-llm-message"))
-    }
-}
 
 fn id(value: &str) -> String {
     format!("msg_{value}")
@@ -51,10 +36,9 @@ fn file() -> Value {
 }
 
 #[test]
-#[ignore = "porting: session runner to-llm-message not implemented"]
 fn omits_empty_assistant_turns() {
     let catalog_model = json!({ "id": "model", "providerID": "provider" });
-    let messages = local::to_llm_messages(
+    let messages = to_llm_messages(
         &[
             assistant("empty", json!([]), &catalog_model),
             assistant(
@@ -84,8 +68,7 @@ fn omits_empty_assistant_turns() {
             ),
         ],
         &model(),
-    )
-    .expect(NOTE);
+    );
 
     let ids: Vec<&str> = messages
         .iter()
@@ -95,10 +78,9 @@ fn omits_empty_assistant_turns() {
 }
 
 #[test]
-#[ignore = "porting: session runner to-llm-message not implemented"]
 fn maps_every_top_level_v2_session_message_type() {
     let catalog_model = json!({ "id": "model", "providerID": "provider" });
-    let messages = local::to_llm_messages(
+    let messages = to_llm_messages(
         &[
             json!({ "id": id("agent"), "type": "agent-switched", "agent": "build", "time": { "created": 0 } }),
             json!({
@@ -141,8 +123,7 @@ fn maps_every_top_level_v2_session_message_type() {
             }),
         ],
         &model(),
-    )
-    .expect(NOTE);
+    );
 
     let roles: Vec<&str> = messages
         .iter()
@@ -182,10 +163,9 @@ fn maps_every_top_level_v2_session_message_type() {
 }
 
 #[test]
-#[ignore = "porting: session runner to-llm-message not implemented"]
 fn replays_durable_tool_media_into_canonical_tool_messages_without_structured_base64() {
     let catalog_model = json!({ "id": "model", "providerID": "provider" });
-    let messages = local::to_llm_messages(
+    let messages = to_llm_messages(
         &[assistant(
             "assistant",
             json!([
@@ -262,8 +242,7 @@ fn replays_durable_tool_media_into_canonical_tool_messages_without_structured_ba
             &catalog_model,
         )],
         &model(),
-    )
-    .expect(NOTE);
+    );
 
     let roles: Vec<&str> = messages
         .iter()
@@ -327,10 +306,9 @@ fn replays_durable_tool_media_into_canonical_tool_messages_without_structured_ba
 }
 
 #[test]
-#[ignore = "porting: session runner to-llm-message not implemented"]
 fn restores_openai_encrypted_reasoning_metadata() {
     let catalog_model = json!({ "id": "model", "providerID": "provider" });
-    let messages = local::to_llm_messages(
+    let messages = to_llm_messages(
         &[assistant(
             "assistant-openai-reasoning",
             json!([{
@@ -342,8 +320,7 @@ fn restores_openai_encrypted_reasoning_metadata() {
             &catalog_model,
         )],
         &model(),
-    )
-    .expect(NOTE);
+    );
 
     assert_eq!(
         messages[0]["content"],
@@ -356,7 +333,6 @@ fn restores_openai_encrypted_reasoning_metadata() {
 }
 
 #[test]
-#[ignore = "porting: session runner to-llm-message not implemented"]
 fn drops_provider_native_continuation_metadata_from_failed_assistant_turns() {
     let catalog_model = json!({ "id": "model", "providerID": "provider" });
     let mut failed = assistant(
@@ -392,7 +368,7 @@ fn drops_provider_native_continuation_metadata_from_failed_assistant_turns() {
     failed["finish"] = json!("error");
     failed["error"] = json!({ "type": "unknown", "message": "Provider turn interrupted" });
 
-    let messages = local::to_llm_messages(&[failed], &model()).expect(NOTE);
+    let messages = to_llm_messages(&[failed], &model());
     let content = &messages[0]["content"];
     assert!(content[0].get("providerMetadata").is_none());
     assert!(content[1].get("providerMetadata").is_none());
@@ -401,10 +377,9 @@ fn drops_provider_native_continuation_metadata_from_failed_assistant_turns() {
 }
 
 #[test]
-#[ignore = "porting: session runner to-llm-message not implemented"]
 fn drops_provider_native_continuation_metadata_after_a_model_switch() {
     let old_model = json!({ "id": "old-model", "providerID": "provider" });
-    let messages = local::to_llm_messages(
+    let messages = to_llm_messages(
         &[assistant(
             "assistant-old-model",
             json!([
@@ -453,8 +428,7 @@ fn drops_provider_native_continuation_metadata_after_a_model_switch() {
             &old_model,
         )],
         &model(),
-    )
-    .expect(NOTE);
+    );
 
     let content = &messages[0]["content"];
     assert_eq!(

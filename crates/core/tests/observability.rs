@@ -19,7 +19,6 @@ fn env(otel: &str) -> ObservabilityEnv {
 }
 
 #[test]
-#[ignore = "porting: observability resource not implemented"]
 fn parses_and_decodes_otel_resource_attributes() {
     let resolved = resource(&env(
         "service.namespace=anomalyco,team=platform%2Cobservability,label=hello%3Dworld,key%2Fname=value%20here",
@@ -47,7 +46,6 @@ fn parses_and_decodes_otel_resource_attributes() {
 }
 
 #[test]
-#[ignore = "porting: observability resource not implemented"]
 fn drops_otel_resource_attributes_when_any_entry_is_invalid() {
     let resolved = resource(&env("service.namespace=anomalyco,broken")).expect(NOTE);
     assert!(!resolved.attributes.contains_key("service.namespace"));
@@ -55,7 +53,6 @@ fn drops_otel_resource_attributes_when_any_entry_is_invalid() {
 }
 
 #[test]
-#[ignore = "porting: observability resource not implemented"]
 fn keeps_builtin_attributes_when_env_values_conflict() {
     let resolved = resource(&ObservabilityEnv {
         otel_resource_attributes: Some(

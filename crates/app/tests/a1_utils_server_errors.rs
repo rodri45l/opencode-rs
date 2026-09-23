@@ -2,6 +2,11 @@
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
 #![allow(dead_code)]
 
+use opencode_app::server_errors::{
+    format_server_error, is_session_not_found_error, parse_readable_config_invalid_error,
+    ServerError, SessionNotFoundBody, WrappedError,
+};
+
 fn t(key: &str, vars: &[(&str, &str)]) -> String {
     let text = match key {
         "error.chain.unknown" => "Erro desconhecido",
@@ -21,52 +26,7 @@ fn t(key: &str, vars: &[(&str, &str)]) -> String {
     out
 }
 
-#[derive(Clone, Debug, PartialEq)]
-enum ServerError {
-    ConfigInvalidIssues {
-        path: String,
-        issues: Vec<(Vec<String>, String)>,
-    },
-    ConfigInvalidMessage {
-        path: String,
-        message: String,
-    },
-    ProviderModelNotFound {
-        provider_id: String,
-        model_id: String,
-        suggestions: Vec<String>,
-    },
-    Plain(String),
-    Unknown,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct WrappedError {
-    cause_body: Option<Box<ServerError>>,
-    cause_status: Option<u16>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct SessionNotFoundBody {
-    session_id: String,
-    status: u16,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn parse_readable_config_invalid_error(_error: &ServerError) -> String {
-    String::new()
-}
-
-fn format_server_error(_error: &ServerError, _wrapped: Option<&WrappedError>) -> String {
-    String::new()
-}
-
-fn is_session_not_found_error(_body: &SessionNotFoundBody, _session_id: &str) -> bool {
-    false
-}
-
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn formats_issues_with_file_path() {
     let error = ServerError::ConfigInvalidIssues {
         path: "opencode.config.ts".into(),
@@ -84,7 +44,6 @@ fn formats_issues_with_file_path() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn uses_trimmed_message_when_issues_are_missing() {
     let error = ServerError::ConfigInvalidMessage {
         path: "config".into(),
@@ -97,7 +56,6 @@ fn uses_trimmed_message_when_issues_are_missing() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn formats_config_invalid_errors() {
     let error = ServerError::ConfigInvalidMessage {
         path: "config".into(),
@@ -110,7 +68,6 @@ fn formats_config_invalid_errors() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn returns_error_messages() {
     assert_eq!(
         format_server_error(
@@ -122,7 +79,6 @@ fn returns_error_messages() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn returns_provided_string_errors() {
     assert_eq!(
         format_server_error(
@@ -134,7 +90,6 @@ fn returns_provided_string_errors() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn uses_translated_unknown_fallback() {
     assert_eq!(
         format_server_error(&ServerError::Unknown, None),
@@ -143,7 +98,6 @@ fn uses_translated_unknown_fallback() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn falls_back_for_unknown_error_objects_and_names() {
     assert_eq!(
         format_server_error(&ServerError::Unknown, None),
@@ -152,7 +106,6 @@ fn falls_back_for_unknown_error_objects_and_names() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn formats_provider_model_errors_using_provider_model() {
     let error = ServerError::ProviderModelNotFound {
         provider_id: "openai".into(),
@@ -168,7 +121,6 @@ fn formats_provider_model_errors_using_provider_model() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn formats_provider_model_suggestions() {
     let error = ServerError::ProviderModelNotFound {
         provider_id: "x".into(),
@@ -185,7 +137,6 @@ fn formats_provider_model_suggestions() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn unwraps_sdk_wrapped_errors_from_cause_body() {
     let wrapped = WrappedError {
         cause_body: Some(Box::new(ServerError::ConfigInvalidMessage {
@@ -201,7 +152,6 @@ fn unwraps_sdk_wrapped_errors_from_cause_body() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn matches_an_sdk_wrapped_error_for_the_requested_session() {
     let body = SessionNotFoundBody {
         session_id: "ses_missing".into(),
@@ -211,7 +161,6 @@ fn matches_an_sdk_wrapped_error_for_the_requested_session() {
 }
 
 #[test]
-#[ignore = "porting: utils/server-errors not implemented"]
 fn rejects_errors_for_other_sessions_and_other_404_responses() {
     let body = SessionNotFoundBody {
         session_id: "ses_parent".into(),

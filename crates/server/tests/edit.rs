@@ -46,7 +46,6 @@ fn run(
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn creates_new_file_when_old_string_is_empty() -> Result<(), ToolError> {
     let dir = temp_dir("create");
     let file = dir.join("newfile.txt");
@@ -61,7 +60,6 @@ fn creates_new_file_when_old_string_is_empty() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn rejects_empty_old_string_on_existing_files() {
     let dir = temp_dir("create-existing");
     let file = dir.join("existing.cs");
@@ -75,7 +73,6 @@ fn rejects_empty_old_string_on_existing_files() {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn creates_new_file_with_nested_directories() -> Result<(), ToolError> {
     let dir = temp_dir("nested");
     let file = dir.join("nested").join("dir").join("file.txt");
@@ -86,7 +83,6 @@ fn creates_new_file_with_nested_directories() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn replaces_text_in_existing_file() -> Result<(), ToolError> {
     let dir = temp_dir("replace");
     let file = dir.join("existing.txt");
@@ -102,7 +98,6 @@ fn replaces_text_in_existing_file() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn replaces_the_first_visible_line_in_bom_files() -> Result<(), ToolError> {
     let dir = temp_dir("bom");
     let file = dir.join("existing.cs");
@@ -122,7 +117,6 @@ fn replaces_the_first_visible_line_in_bom_files() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn throws_when_file_does_not_exist() {
     let dir = temp_dir("missing");
     let file = dir.join("nonexistent.txt");
@@ -131,7 +125,6 @@ fn throws_when_file_does_not_exist() {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn throws_when_old_string_equals_new_string() {
     let dir = temp_dir("identical");
     let file = dir.join("file.txt");
@@ -141,7 +134,6 @@ fn throws_when_old_string_equals_new_string() {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn throws_when_old_string_not_found_in_file() {
     let dir = temp_dir("not-found");
     let file = dir.join("file.txt");
@@ -150,7 +142,6 @@ fn throws_when_old_string_not_found_in_file() {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn rejects_loose_block_anchor_matches() {
     let dir = temp_dir("anchor");
     let file = dir.join("file.ts");
@@ -178,7 +169,6 @@ fn rejects_loose_block_anchor_matches() {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn replaces_all_occurrences_with_replace_all_option() -> Result<(), ToolError> {
     let dir = temp_dir("replace-all");
     let file = dir.join("file.txt");
@@ -193,7 +183,6 @@ fn replaces_all_occurrences_with_replace_all_option() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn handles_multiline_replacements() -> Result<(), ToolError> {
     let dir = temp_dir("multiline");
     let file = dir.join("file.txt");
@@ -208,7 +197,6 @@ fn handles_multiline_replacements() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn handles_crlf_line_endings() -> Result<(), ToolError> {
     let dir = temp_dir("crlf");
     let file = dir.join("file.txt");
@@ -223,7 +211,6 @@ fn handles_crlf_line_endings() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn throws_when_path_is_a_directory() {
     let dir = temp_dir("directory");
     let target = dir.join("adir");
@@ -233,7 +220,6 @@ fn throws_when_path_is_a_directory() {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn tracks_file_diff_statistics() -> Result<(), ToolError> {
     let dir = temp_dir("stats");
     let file = dir.join("file.txt");
@@ -254,7 +240,6 @@ fn tracks_file_diff_statistics() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn preserves_lf_when_new_string_uses_crlf() -> Result<(), ToolError> {
     let dir = temp_dir("lf-crlf");
     let file = dir.join("test.txt");
@@ -275,7 +260,6 @@ fn preserves_lf_when_new_string_uses_crlf() -> Result<(), ToolError> {
 }
 
 #[test]
-#[ignore = "porting: tool.edit not implemented"]
 fn preserves_crlf_when_new_string_uses_lf() -> Result<(), ToolError> {
     let dir = temp_dir("crlf-lf");
     let file = dir.join("test.txt");

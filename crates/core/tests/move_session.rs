@@ -21,7 +21,6 @@ fn tmp(tag: &str) -> PathBuf {
 }
 
 #[test]
-#[ignore = "porting: move session not implemented"]
 fn moves_within_a_checkout_without_transferring_existing_changes() {
     let source = tmp("source");
     let destination = source.join("packages");
@@ -47,7 +46,6 @@ fn moves_within_a_checkout_without_transferring_existing_changes() {
 }
 
 #[test]
-#[ignore = "porting: move session not implemented"]
 fn moves_session_changes_to_another_project_directory() {
     let source = tmp("source-transfer");
     let destination = tmp("destination-transfer");

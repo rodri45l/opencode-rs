@@ -1,43 +1,10 @@
 //! Port of packages/app/src/pages/session/session-model-helpers.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-struct Model {
-    provider_id: String,
-    model_id: String,
-    variant: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct UserMessage {
-    agent: String,
-    model: Model,
-}
-
-#[derive(Default)]
-struct SessionState {
-    restore_calls: Vec<UserMessage>,
-    reset_calls: usize,
-}
-
-#[derive(Default)]
-struct PromptModel {
-    set_calls: Vec<Model>,
-    variant_calls: Vec<Option<String>>,
-    current: Option<Model>,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn sync_session_model(_session: &mut SessionState, _message: &UserMessage) {}
-
-fn reset_session_model(_session: &mut SessionState) {}
-
-fn sync_prompt_model(_session_model: &Model, _prompt: &mut PromptModel) {}
-
-fn restore_prompt_model(_session: &mut PromptModel, _prompt: &PromptModel) -> bool {
-    false
-}
+use opencode_app::session_model_helpers::{
+    reset_session_model, restore_prompt_model, sync_prompt_model, sync_session_model, Model,
+    PromptModel, SessionState, UserMessage,
+};
 
 fn message(model: Model) -> UserMessage {
     UserMessage {
@@ -47,7 +14,6 @@ fn message(model: Model) -> UserMessage {
 }
 
 #[test]
-#[ignore = "porting: pages/session/session-model-helpers not implemented"]
 fn restores_the_last_message_through_session_state() {
     let mut session = SessionState::default();
     let msg = message(Model {
@@ -60,7 +26,6 @@ fn restores_the_last_message_through_session_state() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/session-model-helpers not implemented"]
 fn reset_session_model_clears_draft_session_state() {
     let mut session = SessionState::default();
     reset_session_model(&mut session);
@@ -68,7 +33,6 @@ fn reset_session_model_clears_draft_session_state() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/session-model-helpers not implemented"]
 fn sync_prompt_model_stores_the_effective_session_model_in_prompt_state() {
     let session_model = Model {
         provider_id: "anthropic".into(),
@@ -81,7 +45,6 @@ fn sync_prompt_model_stores_the_effective_session_model_in_prompt_state() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/session-model-helpers not implemented"]
 fn sync_prompt_model_does_not_rewrite_an_unchanged_prompt_model() {
     let model = Model {
         provider_id: "anthropic".into(),
@@ -97,7 +60,6 @@ fn sync_prompt_model_does_not_rewrite_an_unchanged_prompt_model() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/session-model-helpers not implemented"]
 fn restore_prompt_model_restores_the_persisted_prompt_model_into_session_selection() {
     let mut session = PromptModel::default();
     let prompt = PromptModel {
@@ -122,7 +84,6 @@ fn restore_prompt_model_restores_the_persisted_prompt_model_into_session_selecti
 }
 
 #[test]
-#[ignore = "porting: pages/session/session-model-helpers not implemented"]
 fn restore_prompt_model_does_nothing_without_a_persisted_prompt_model() {
     let mut session = PromptModel::default();
     let prompt = PromptModel::default();

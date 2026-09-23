@@ -11,11 +11,11 @@ fn get_weather() -> serde_json::Value {
         "description": "Get current weather for a city.",
         "parameters": { "type": "object", "properties": { "city": { "type": "string" } }, "required": ["city"] },
         "success": { "type": "object", "properties": { "temperature": { "type": "number" }, "condition": { "type": "string" } }, "required": ["temperature", "condition"] },
+        "execute": { "value": { "temperature": 22, "condition": "sunny" } },
     }))
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn uses_the_registered_model_route_when_adding_runtime_tools() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },
@@ -28,7 +28,6 @@ fn uses_the_registered_model_route_when_adding_runtime_tools() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn dispatches_a_tool_call_appends_results_and_resumes_streaming() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },
@@ -52,10 +51,14 @@ fn dispatches_a_tool_call_appends_results_and_resumes_streaming() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn projects_encoded_typed_tool_success_into_canonical_model_content() {
     let dispatched = ToolRuntime::dispatch(
-        json!({ "projected": Tool::make(json!({ "description": "Project an encoded success." })) }),
+        json!({ "projected": Tool::make(json!({
+            "description": "Project an encoded success.",
+            "parameters": { "type": "object", "properties": { "prefix": { "type": "string" } }, "required": ["prefix"] },
+            "execute": { "value": { "count": "2" } },
+            "toModelOutput": [{ "type": "text", "text": "count:2" }],
+        })) }),
         json!({ "id": "call_projected", "name": "projected", "input": { "prefix": "count" } }),
     )
     .expect("dispatch");
@@ -71,10 +74,12 @@ fn projects_encoded_typed_tool_success_into_canonical_model_content() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn uses_the_narrow_default_projection_for_encoded_typed_success() {
     let text = ToolRuntime::dispatch(
-        json!({ "text": Tool::make(json!({ "description": "Return text." })) }),
+        json!({ "text": Tool::make(json!({
+            "description": "Return text.",
+            "execute": { "value": "hello" },
+        })) }),
         json!({ "id": "call_text", "name": "text", "input": {} }),
     )
     .expect("dispatch");
@@ -84,7 +89,10 @@ fn uses_the_narrow_default_projection_for_encoded_typed_success() {
     );
 
     let json_tool = ToolRuntime::dispatch(
-        json!({ "json": Tool::make(json!({ "description": "Return JSON." })) }),
+        json!({ "json": Tool::make(json!({
+            "description": "Return JSON.",
+            "execute": { "value": { "ok": true } },
+        })) }),
         json!({ "id": "call_json", "name": "json", "input": {} }),
     )
     .expect("dispatch");
@@ -95,10 +103,14 @@ fn uses_the_narrow_default_projection_for_encoded_typed_success() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn can_retain_model_media_while_redacting_duplicated_structured_payloads() {
     let dispatched = ToolRuntime::dispatch(
-        json!({ "image": Tool::make(json!({ "description": "Return an image." })) }),
+        json!({ "image": Tool::make(json!({
+            "description": "Return an image.",
+            "execute": { "value": { "mime": "image/png", "data": "AAECAw==" } },
+            "toStructuredOutput": { "mime": "image/png" },
+            "toModelOutput": [{ "type": "file", "uri": "data:image/png;base64,AAECAw==", "mime": "image/png" }],
+        })) }),
         json!({ "id": "call_image", "name": "image", "input": {} }),
     )
     .expect("dispatch");
@@ -113,10 +125,13 @@ fn can_retain_model_media_while_redacting_duplicated_structured_payloads() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn settles_projected_url_files_as_canonical_tool_results() {
     let dispatched = ToolRuntime::dispatch(
-        json!({ "remote": Tool::make(json!({ "description": "Return a remote file." })) }),
+        json!({ "remote": Tool::make(json!({
+            "description": "Return a remote file.",
+            "execute": { "value": { "ok": true } },
+            "toModelOutput": [{ "type": "file", "uri": "https://example.test/image.png", "mime": "image/png" }],
+        })) }),
         json!({ "id": "call_remote", "name": "remote", "input": {} }),
     )
     .expect("dispatch");
@@ -135,7 +150,6 @@ fn settles_projected_url_files_as_canonical_tool_results() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn executes_tool_calls_for_one_step_without_looping_by_default() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },
@@ -158,7 +172,6 @@ fn executes_tool_calls_for_one_step_without_looping_by_default() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn emits_tool_error_for_unknown_tools_so_the_model_can_self_correct() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },
@@ -188,7 +201,6 @@ fn emits_tool_error_for_unknown_tools_so_the_model_can_self_correct() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn emits_tool_error_when_the_llm_input_fails_the_parameters_schema() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },
@@ -208,7 +220,6 @@ fn emits_tool_error_when_the_llm_input_fails_the_parameters_schema() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn respects_max_steps_and_stops_the_loop() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },
@@ -234,7 +245,6 @@ fn respects_max_steps_and_stops_the_loop() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn does_not_dispatch_provider_executed_tool_calls() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "claude-sonnet-4-5", "provider": "anthropic", "route": { "id": "anthropic-messages" } }, "prompt": "Use the tool." },
@@ -254,7 +264,6 @@ fn does_not_dispatch_provider_executed_tool_calls() {
 }
 
 #[test]
-#[ignore = "porting: tool runtime not implemented"]
 fn dispatches_multiple_tool_calls_in_one_step_concurrently() {
     let events = ToolRuntime::run(json!({
         "request": { "id": "req_1", "model": { "id": "gpt-4o-mini", "provider": "openai", "route": { "id": "openai-chat" } }, "prompt": "Use the tool." },

@@ -1,23 +1,9 @@
 //! Port of packages/app/src/pages/session/file-tab-scroll.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct ScrollInput {
-    prev_scroll_width: i64,
-    scroll_width: i64,
-    client_width: i64,
-    prev_context_open: bool,
-    context_open: bool,
-}
-
-// Local stub (fast wave): real module lands later.
-fn next_tab_list_scroll_left(_input: ScrollInput) -> Option<i64> {
-    None
-}
+use opencode_app::file_tab_scroll::{next_tab_list_scroll_left, ScrollInput};
 
 #[test]
-#[ignore = "porting: pages/session/file-tab-scroll not implemented"]
 fn does_not_scroll_when_width_shrinks() {
     assert_eq!(
         next_tab_list_scroll_left(ScrollInput {
@@ -32,7 +18,6 @@ fn does_not_scroll_when_width_shrinks() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/file-tab-scroll not implemented"]
 fn scrolls_to_start_when_context_tab_opens() {
     assert_eq!(
         next_tab_list_scroll_left(ScrollInput {
@@ -47,7 +32,6 @@ fn scrolls_to_start_when_context_tab_opens() {
 }
 
 #[test]
-#[ignore = "porting: pages/session/file-tab-scroll not implemented"]
 fn scrolls_to_right_edge_for_new_file_tabs() {
     assert_eq!(
         next_tab_list_scroll_left(ScrollInput {

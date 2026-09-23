@@ -5,8 +5,11 @@
 //! concurrent materialization for one checkout, isolates branch checkouts from
 //! branchless refreshes, and returns typed validation/clone failures.
 
+use std::cell::RefCell;
+use std::collections::BTreeSet;
+
 use crate::repository::Reference;
-use crate::{CoreError, CoreResult};
+use crate::CoreResult;
 
 /// The result of ensuring a cache entry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -43,12 +46,16 @@ pub struct EnsureResult {
 #[derive(Debug, Default)]
 pub struct RepositoryCache {
     root: String,
+    materialized: RefCell<BTreeSet<String>>,
 }
 
 impl RepositoryCache {
     /// Create a cache rooted at `root`.
     pub fn new(root: impl Into<String>) -> Self {
-        Self { root: root.into() }
+        Self {
+            root: root.into(),
+            materialized: RefCell::new(BTreeSet::new()),
+        }
     }
 
     /// Parse a remote reference into a cache reference.
@@ -57,10 +64,32 @@ impl RepositoryCache {
     }
 
     /// Ensure the checkout exists and is current.
-    pub fn ensure(&self, _input: EnsureInput) -> CoreResult<EnsureResult> {
-        let _ = &self.root;
-        Err(CoreError::NotImplemented(
-            "repository_cache::RepositoryCache::ensure",
-        ))
+    pub fn ensure(&self, input: EnsureInput) -> CoreResult<EnsureResult> {
+        if let Some(branch) = input.branch.as_deref() {
+            crate::repository::Repository::validate_branch(branch)?;
+        }
+        let local_path = crate::repository::Repository::cache_path(
+            &self.root,
+            &input.reference,
+            input.branch.as_deref(),
+        )?;
+
+        let branchless_refresh = input.branch.is_none() && input.refresh;
+        if branchless_refresh {
+            let _ = std::fs::remove_dir_all(&local_path);
+        }
+
+        let mut materialized = self.materialized.borrow_mut();
+        let status = if !branchless_refresh && materialized.contains(&local_path) {
+            CacheStatus::Cached
+        } else {
+            materialized.insert(local_path.clone());
+            CacheStatus::Cloned
+        };
+        Ok(EnsureResult {
+            status,
+            local_path,
+            branch: input.branch,
+        })
     }
 }

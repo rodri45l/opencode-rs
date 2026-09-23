@@ -101,7 +101,6 @@ impl Lifecycle {
 }
 
 #[test]
-#[ignore = "porting: tui app lifecycle not implemented"]
 fn sighup_clears_title_and_disposes_scoped_resources_once() {
     let original = vec!["stdout".to_string(), "stdin".to_string()];
     let mut app = Lifecycle::mount(original.clone());
@@ -119,7 +118,6 @@ fn sighup_clears_title_and_disposes_scoped_resources_once() {
 }
 
 #[test]
-#[ignore = "porting: tui app lifecycle not implemented"]
 fn app_exit_prints_the_session_epilogue_after_scoped_cleanup() {
     let mut app = Lifecycle::mount(Vec::new());
 
@@ -131,7 +129,6 @@ fn app_exit_prints_the_session_epilogue_after_scoped_cleanup() {
 }
 
 #[test]
-#[ignore = "porting: tui app lifecycle not implemented"]
 fn fatal_startup_errors_set_a_nonzero_exit_after_scoped_cleanup() {
     let mut app = Lifecycle::mount(Vec::new());
 

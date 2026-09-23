@@ -1,0 +1,6 @@
+{
+  "files": 98,
+  "green": 292,
+  "red": 233,
+  "note": "Pure-logic modules implemented in uniquely-named src/<module>.rs; component/DOM/Playwright tests remain ignored."
+}

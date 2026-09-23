@@ -11,7 +11,6 @@ use serde_json::json;
 const NOTE: &str = "porting: legacy event schema not implemented";
 
 #[test]
-#[ignore = "porting: legacy event schema not implemented"]
 fn retains_named_error_constructor_identity() {
     let error = ApiError::new("failed", false).expect(NOTE);
     assert_eq!(

@@ -12,7 +12,6 @@ use opencode_core::repository_cache::{CacheStatus, EnsureInput, RepositoryCache}
 const NOTE: &str = "porting: repository cache not implemented";
 
 #[test]
-#[ignore = "porting: repository cache not implemented"]
 fn replaces_a_stale_cache_directory_before_cloning() {
     let cache = RepositoryCache::new("/cache");
     let reference = RepositoryCache::parse_remote("owner/repo").expect(NOTE);
@@ -29,7 +28,6 @@ fn replaces_a_stale_cache_directory_before_cloning() {
 }
 
 #[test]
-#[ignore = "porting: repository cache not implemented"]
 fn keeps_branch_checkouts_isolated_from_branchless_refreshes() {
     let cache = RepositoryCache::new("/cache");
     let reference = RepositoryCache::parse_remote("owner/repo").expect(NOTE);
@@ -64,7 +62,6 @@ fn keeps_branch_checkouts_isolated_from_branchless_refreshes() {
 }
 
 #[test]
-#[ignore = "porting: repository cache not implemented"]
 fn returns_typed_validation_failures() {
     let cache = RepositoryCache::new("/cache");
     assert!(RepositoryCache::parse_remote("not-a-repo").is_err());

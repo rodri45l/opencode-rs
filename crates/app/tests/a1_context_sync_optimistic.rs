@@ -1,77 +1,10 @@
 //! Port of packages/app/src/context/sync-optimistic.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-use std::collections::BTreeMap;
-
-#[derive(Clone, Debug, PartialEq)]
-struct Message {
-    id: String,
-    session_id: String,
-    created: i64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Part {
-    id: String,
-    session_id: String,
-    message_id: String,
-    text: String,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct OptimisticAdd {
-    session_id: String,
-    message: Message,
-    parts: Vec<Part>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct OptimisticRemove {
-    session_id: String,
-    message_id: String,
-}
-
-#[derive(Clone, Debug, Default, PartialEq)]
-struct Draft {
-    message: BTreeMap<String, Vec<Message>>,
-    part: BTreeMap<String, Vec<Part>>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct PagePart {
-    id: String,
-    part: Vec<Part>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct FetchedPage {
-    session: Vec<Message>,
-    part: Vec<PagePart>,
-    complete: bool,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct MergedPage {
-    session: Vec<Message>,
-    part: Vec<PagePart>,
-    confirmed: Vec<String>,
-    complete: bool,
-}
-
-// Local stubs (fast wave): real module lands later.
-fn apply_optimistic_add(_draft: &mut Draft, _add: OptimisticAdd) {}
-
-fn apply_optimistic_remove(_draft: &mut Draft, _remove: OptimisticRemove) {}
-
-fn merge_optimistic_page(_page: FetchedPage, _optimistic: &[OptimisticAdd]) -> MergedPage {
-    MergedPage {
-        session: Vec::new(),
-        part: Vec::new(),
-        confirmed: Vec::new(),
-        complete: false,
-    }
-}
+use opencode_app::sync_optimistic::{
+    apply_optimistic_add, apply_optimistic_remove, merge_optimistic_page, Draft, FetchedPage,
+    Message, OptimisticAdd, OptimisticRemove, PagePart, Part,
+};
 
 fn user_message(id: &str, session_id: &str, created: i64) -> Message {
     Message {
@@ -91,7 +24,6 @@ fn text_part(id: &str, session_id: &str, message_id: &str) -> Part {
 }
 
 #[test]
-#[ignore = "porting: context/sync-optimistic not implemented"]
 fn apply_optimistic_add_inserts_by_creation_time() {
     let session_id = "ses_1";
     let mut draft = Draft::default();
@@ -129,7 +61,6 @@ fn apply_optimistic_add_inserts_by_creation_time() {
 }
 
 #[test]
-#[ignore = "porting: context/sync-optimistic not implemented"]
 fn apply_optimistic_remove_removes_message_and_part_entries() {
     let session_id = "ses_1";
     let mut draft = Draft::default();
@@ -169,7 +100,6 @@ fn apply_optimistic_remove_removes_message_and_part_entries() {
 }
 
 #[test]
-#[ignore = "porting: context/sync-optimistic not implemented"]
 fn merge_optimistic_page_keeps_pending_messages_in_fetched_timelines() {
     let session_id = "ses_1";
     let page = merge_optimistic_page(
@@ -208,7 +138,6 @@ fn merge_optimistic_page_keeps_pending_messages_in_fetched_timelines() {
 }
 
 #[test]
-#[ignore = "porting: context/sync-optimistic not implemented"]
 fn merge_optimistic_page_uses_ids_only_to_break_equal_time_ties() {
     let session_id = "ses_1";
     let page = merge_optimistic_page(
@@ -233,7 +162,6 @@ fn merge_optimistic_page_uses_ids_only_to_break_equal_time_ties() {
 }
 
 #[test]
-#[ignore = "porting: context/sync-optimistic not implemented"]
 fn merge_optimistic_page_keeps_missing_optimistic_parts_until_the_server_has_them() {
     let session_id = "ses_1";
     let page = merge_optimistic_page(
@@ -266,7 +194,6 @@ fn merge_optimistic_page_keeps_missing_optimistic_parts_until_the_server_has_the
 }
 
 #[test]
-#[ignore = "porting: context/sync-optimistic not implemented"]
 fn merge_optimistic_page_confirms_echoed_messages_once_all_parts_arrive() {
     let session_id = "ses_1";
     let mut server_part = text_part("prt_1", session_id, "msg_2");

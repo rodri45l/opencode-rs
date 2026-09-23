@@ -1,20 +1,9 @@
 //! Port of packages/app/src/components/prompt-input/placeholder.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Mode {
-    Shell,
-    Normal,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct PlaceholderInput {
-    mode: Mode,
-    comment_count: usize,
-    example: String,
-    suggest: bool,
-}
+use opencode_app::prompt_placeholder::{
+    prompt_design_placeholder, prompt_placeholder, Mode, PlaceholderInput,
+};
 
 fn t(key: &str, params: &[(&str, &str)]) -> String {
     if key == "ui.promptInput.placeholder.normal" {
@@ -36,17 +25,7 @@ fn t(key: &str, params: &[(&str, &str)]) -> String {
     }
 }
 
-// Local stubs (fast wave): real module lands later.
-fn prompt_placeholder(_input: PlaceholderInput) -> String {
-    String::new()
-}
-
-fn prompt_design_placeholder(_mode: Mode, _fallback: &str) -> String {
-    String::new()
-}
-
 #[test]
-#[ignore = "porting: components/prompt-input/placeholder not implemented"]
 fn returns_shell_placeholder_in_shell_mode() {
     assert_eq!(
         prompt_placeholder(PlaceholderInput {
@@ -60,7 +39,6 @@ fn returns_shell_placeholder_in_shell_mode() {
 }
 
 #[test]
-#[ignore = "porting: components/prompt-input/placeholder not implemented"]
 fn returns_summarize_placeholders_for_comment_context() {
     assert_eq!(
         prompt_placeholder(PlaceholderInput {
@@ -89,7 +67,6 @@ fn returns_summarize_placeholders_for_comment_context() {
 }
 
 #[test]
-#[ignore = "porting: components/prompt-input/placeholder not implemented"]
 fn returns_default_placeholder_with_example_when_suggestions_enabled() {
     assert_eq!(
         prompt_placeholder(PlaceholderInput {
@@ -106,7 +83,6 @@ fn returns_default_placeholder_with_example_when_suggestions_enabled() {
 }
 
 #[test]
-#[ignore = "porting: components/prompt-input/placeholder not implemented"]
 fn returns_simple_placeholder_when_suggestions_disabled() {
     assert_eq!(
         prompt_placeholder(PlaceholderInput {
@@ -120,7 +96,6 @@ fn returns_simple_placeholder_when_suggestions_disabled() {
 }
 
 #[test]
-#[ignore = "porting: components/prompt-input/placeholder not implemented"]
 fn composes_the_design_placeholder_from_localized_fragments() {
     assert_eq!(
         prompt_design_placeholder(Mode::Normal, "fallback"),
@@ -132,7 +107,6 @@ fn composes_the_design_placeholder_from_localized_fragments() {
 }
 
 #[test]
-#[ignore = "porting: components/prompt-input/placeholder not implemented"]
 fn preserves_the_shell_placeholder() {
     assert_eq!(
         prompt_design_placeholder(Mode::Shell, "Enter shell command..."),

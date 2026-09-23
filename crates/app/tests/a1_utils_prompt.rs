@@ -1,44 +1,9 @@
 //! Port of packages/app/src/utils/prompt.test.ts (upstream 18ef3cc).
 //! Behaviour pinned by the reference test; see docs/TEST-PORT.md.
-#![allow(dead_code)]
 
-#[derive(Clone, Debug, PartialEq)]
-enum Part {
-    Text {
-        id: String,
-        text: String,
-        session_id: String,
-        message_id: String,
-    },
-    File {
-        id: String,
-        mime: String,
-        url: String,
-        filename: String,
-        session_id: String,
-        message_id: String,
-    },
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum PromptItem {
-    Text {
-        content: String,
-    },
-    Image {
-        filename: String,
-        mime: String,
-        blob_id: String,
-    },
-}
-
-// Local stub (fast wave): real module lands later.
-fn extract_prompt_from_parts(_parts: &[Part]) -> Vec<PromptItem> {
-    Vec::new()
-}
+use opencode_app::prompt::{extract_prompt_from_parts, Part, PromptItem};
 
 #[test]
-#[ignore = "porting: utils/prompt not implemented"]
 fn restores_multiple_uploaded_attachments() {
     let parts = vec![
         Part::Text {

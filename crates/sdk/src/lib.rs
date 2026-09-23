@@ -2,6 +2,9 @@
 //!
 //! Pre-alpha scaffold. See docs/PLAN.md and docs/TEST-PORT.md.
 
+pub mod embedded;
+pub mod import_boundaries;
+
 /// Path parameters for `GET /api/session/{sessionID}/history`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct V2SessionHistoryPath {

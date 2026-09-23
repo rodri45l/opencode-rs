@@ -8,7 +8,6 @@ use opencode_core::fs_ignore::Ignore;
 const NOTE: &str = "porting: filesystem ignore not implemented";
 
 #[test]
-#[ignore = "porting: filesystem ignore not implemented"]
 fn matches_nested_and_non_nested_node_modules() {
     assert!(Ignore::match_path("node_modules/index.js").expect(NOTE));
     assert!(Ignore::match_path("node_modules").expect(NOTE));

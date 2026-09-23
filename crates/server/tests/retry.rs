@@ -26,7 +26,6 @@ fn message_of(error: &RetryError, provider: &str) -> Option<String> {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn caps_delay_at_30_seconds_when_headers_missing() {
     let error = api_error(vec![]);
     let delays: Vec<u64> = (1..=10).map(|attempt| delay(attempt, &error, 0)).collect();
@@ -37,7 +36,6 @@ fn caps_delay_at_30_seconds_when_headers_missing() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn adds_jitter_to_exponential_delays() {
     let error = api_error(vec![]);
     assert_eq!(delay(1, &error, 0), 2000);
@@ -47,21 +45,18 @@ fn adds_jitter_to_exponential_delays() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn prefers_retry_after_ms_when_shorter_than_exponential() {
     let error = api_error(vec![("retry-after-ms", "1500")]);
     assert_eq!(delay(4, &error, 0), 1500);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn uses_retry_after_seconds_when_reasonable() {
     let error = api_error(vec![("retry-after", "30")]);
     assert_eq!(delay(3, &error, 0), 30000);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn accepts_http_date_retry_after_values() {
     let date = httpdate_after_millis(20_000);
     let error = api_error(vec![("retry-after", &date)]);
@@ -70,21 +65,18 @@ fn accepts_http_date_retry_after_values() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn ignores_invalid_retry_hints() {
     let error = api_error(vec![("retry-after", "not-a-number")]);
     assert_eq!(delay(1, &error, 0), 2000);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn ignores_malformed_date_retry_hints() {
     let error = api_error(vec![("retry-after", "Invalid Date String")]);
     assert_eq!(delay(1, &error, 0), 2000);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn ignores_past_date_retry_hints() {
     let date = httpdate_after_millis(-5_000);
     let error = api_error(vec![("retry-after", &date)]);
@@ -92,7 +84,6 @@ fn ignores_past_date_retry_hints() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn uses_retry_after_values_even_when_exceeding_10_minutes_with_headers() {
     let error = api_error(vec![("retry-after", "50")]);
     assert_eq!(delay(1, &error, 0), 50000);
@@ -102,14 +93,12 @@ fn uses_retry_after_values_even_when_exceeding_10_minutes_with_headers() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn caps_oversized_header_delays_to_the_runtime_timer_limit() {
     let error = api_error(vec![("retry-after-ms", "999999999999")]);
     assert_eq!(delay(1, &error, 0), RETRY_MAX_DELAY);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_serialized_too_many_requests_messages() {
     let error = wrap(
         &serde_json::json!({ "type": "error", "error": { "type": "too_many_requests" } })
@@ -122,7 +111,6 @@ fn retries_serialized_too_many_requests_messages() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_serialized_overloaded_provider_codes() {
     let error = wrap(&serde_json::json!({ "code": "resource_exhausted" }).to_string());
     assert_eq!(
@@ -132,7 +120,6 @@ fn retries_serialized_overloaded_provider_codes() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_serialized_rate_limit_messages() {
     let message =
         serde_json::json!({ "type": "error", "error": { "code": "rate_limit_exceeded" } })
@@ -141,27 +128,23 @@ fn retries_serialized_rate_limit_messages() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn does_not_retry_unknown_json_messages() {
     let error = wrap(&serde_json::json!({ "error": { "message": "no_kv_space" } }).to_string());
     assert_eq!(message_of(&error, "test"), None);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn does_not_throw_on_numeric_error_codes() {
     let error = wrap(&serde_json::json!({ "type": "error", "error": { "code": 123 } }).to_string());
     assert_eq!(message_of(&error, "test"), None);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn returns_none_for_non_json_message() {
     assert_eq!(message_of(&wrap("not-json"), "test"), None);
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_plain_text_rate_limit_errors_from_alibaba() {
     let message = "Upstream error from Alibaba: Request rate increased too quickly. To ensure system stability, please adjust your client logic to scale requests more smoothly over time.";
     assert_eq!(
@@ -171,7 +154,6 @@ fn retries_plain_text_rate_limit_errors_from_alibaba() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_plain_text_rate_limit_errors() {
     let message = "Rate limit exceeded, please try again later";
     assert_eq!(
@@ -181,7 +163,6 @@ fn retries_plain_text_rate_limit_errors() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_too_many_requests_in_plain_text() {
     let message = "Too many requests, please slow down";
     assert_eq!(
@@ -191,7 +172,6 @@ fn retries_too_many_requests_in_plain_text() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_matching_api_error_text() {
     let cases = [
         "Internal server error",
@@ -227,7 +207,6 @@ fn retries_matching_api_error_text() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_hyphenated_service_unavailable_errors() {
     assert_eq!(
         message_of(&wrap("service-unavailable"), "test"),
@@ -236,7 +215,6 @@ fn retries_hyphenated_service_unavailable_errors() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn matches_retryable_api_response_bodies() {
     let error = RetryError {
         message: "Request failed".to_string(),
@@ -254,7 +232,6 @@ fn matches_retryable_api_response_bodies() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn does_not_retry_context_overflow_errors() {
     let error = RetryError {
         message: "Input exceeds context window of this model".to_string(),
@@ -267,7 +244,6 @@ fn does_not_retry_context_overflow_errors() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_500_errors_even_when_is_retryable_is_false() {
     let error = RetryError {
         message: "Internal server error".to_string(),
@@ -285,7 +261,6 @@ fn retries_500_errors_even_when_is_retryable_is_false() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_502_and_503_errors() {
     let bad_gateway = RetryError {
         message: "Bad gateway".to_string(),
@@ -308,7 +283,6 @@ fn retries_502_and_503_errors() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn does_not_retry_4xx_errors_when_is_retryable_is_false() {
     let error = RetryError {
         message: "Bad request".to_string(),
@@ -319,7 +293,6 @@ fn does_not_retry_4xx_errors_when_is_retryable_is_false() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn retries_zlib_decompression_failures() {
     let error = RetryError {
         message: "Response decompression failed".to_string(),
@@ -334,7 +307,6 @@ fn retries_zlib_decompression_failures() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn maps_free_limits_to_go_upsell_action() {
     let error = RetryError {
         message: "Free usage exceeded".to_string(),
@@ -360,7 +332,6 @@ fn maps_free_limits_to_go_upsell_action() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn maps_go_subscription_limits_to_workspace_payg_upsell() {
     let error = RetryError {
         message: "Subscription quota exceeded. You can continue using free models.".to_string(),
@@ -395,7 +366,6 @@ fn maps_go_subscription_limits_to_workspace_payg_upsell() {
 }
 
 #[test]
-#[ignore = "porting: session.retry not implemented"]
 fn maps_go_subscription_limits_without_limit_metadata() {
     let error = RetryError {
         message: "Subscription quota exceeded. You can continue using free models.".to_string(),
