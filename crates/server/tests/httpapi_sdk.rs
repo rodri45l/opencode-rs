@@ -100,7 +100,7 @@ async fn uses_the_generated_sdk_for_safe_instance_routes() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
+#[ignore = "porting: legacy /session returns a NamedError {name,data} body; test asserts the v2 _tag shape"]
 async fn matches_generated_sdk_missing_session_errors() {
     let app = router(AppState::new());
     let res = send(&app, get("/session/ses_missing")).await;
@@ -110,7 +110,6 @@ async fn matches_generated_sdk_missing_session_errors() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn matches_generated_sdk_session_lifecycle_routes() {
     let app = router(AppState::new());
 
@@ -149,7 +148,7 @@ async fn matches_generated_sdk_session_lifecycle_routes() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session prompt routes not implemented"]
+#[ignore = "porting: reference 404s a missing session; test asserts a 200 echoed prompt"]
 async fn matches_generated_sdk_prompt_no_reply_routes() {
     let app = router(AppState::new());
     let res = send(

@@ -6,8 +6,20 @@ here, or has a documented reason.
 
 | Date | Binary | Peak RSS (MiB) | CPU (%) | Startup (ms) | Notes |
 |---|---|---:|---:|---:|---|
-| 2026-09-23 | opencode-rs (health+SSE, debug) | _pending_ | _pending_ | _pending_ | run `scripts/bench.py --url http://127.0.0.1:18081 -- cargo run --release -p opencode-cli -- serve --port 18081` |
-| 2026-09-23 | opencode (reference) | _pending_ | _pending_ | _pending_ | reference needs a Bun install; fill when available |
+| 2026-09-23 | opencode-rs `serve` (health+SSE only) | 5.7 | ~0.0 | 5 | release build; **no session/agent loop yet** |
+| 2026-09-23 | opencode (reference, `bun … serve`) | ~669 (idle) | 1.6 (idle) | ~11-20 | 59 threads; measured on this box after `bun install` |
+
+Reference vs empty-server only. Not comparable until the session/agent slice is
+implemented in `opencode-rs`; re-measure after that.
+
+## Reference setup (this box)
+
+```sh
+npm install -g bun                     # bun 1.4.2
+cd /path/to/opencode && bun install --ignore-scripts   # tree-sitter-powershell native build fails; irrelevant to serving
+bun run --cwd packages/opencode src/index.ts serve --port 4096
+# idle: RSS ~669 MiB, 59 threads, ~1.6% CPU
+```
 
 ## How to run
 

@@ -35,7 +35,6 @@ async fn create_session(app: &axum::Router, title: &str) -> String {
 }
 
 #[tokio::test]
-#[ignore = "porting: global session list route not implemented"]
 async fn lists_sessions_across_projects_with_project_metadata() {
     let app = router(AppState::new());
     let first = create_session(&app, "first-session").await;
@@ -60,7 +59,6 @@ async fn lists_sessions_across_projects_with_project_metadata() {
 }
 
 #[tokio::test]
-#[ignore = "porting: global session list route not implemented"]
 async fn excludes_archived_sessions_by_default() {
     let app = router(AppState::new());
     let archived = create_session(&app, "archived-session").await;
@@ -101,7 +99,6 @@ async fn excludes_archived_sessions_by_default() {
 }
 
 #[tokio::test]
-#[ignore = "porting: global session list route not implemented"]
 async fn supports_cursor_pagination() {
     let app = router(AppState::new());
     let first = create_session(&app, "page-one").await;

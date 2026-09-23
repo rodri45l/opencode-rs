@@ -18,7 +18,6 @@ fn with_directory(req: Request<Body>) -> Request<Body> {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn not_found_with_named_error_body_carries_the_server_message() {
     let app = router(AppState::new());
     let res = send(

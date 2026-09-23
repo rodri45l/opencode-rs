@@ -35,7 +35,6 @@ async fn create_session(app: &axum::Router, body: serde_json::Value) -> String {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn filters_root_sessions() {
     let app = router(AppState::new());
     let root = create_session(&app, serde_json::json!({ "title": "root-session" })).await;
@@ -60,7 +59,6 @@ async fn filters_root_sessions() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn filters_by_start_time() {
     let app = router(AppState::new());
     let _ = create_session(&app, serde_json::json!({ "title": "new-session" })).await;
@@ -76,7 +74,6 @@ async fn filters_by_start_time() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn filters_by_search_term() {
     let app = router(AppState::new());
     let _ = create_session(
@@ -101,7 +98,6 @@ async fn filters_by_search_term() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn respects_limit_parameter() {
     let app = router(AppState::new());
     for index in 1..=3 {
@@ -118,7 +114,6 @@ async fn respects_limit_parameter() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session routes not implemented"]
 async fn includes_metadata_in_listed_sessions() {
     let app = router(AppState::new());
     let meta = serde_json::json!({ "source": "sdk", "trace": { "id": "abc" } });

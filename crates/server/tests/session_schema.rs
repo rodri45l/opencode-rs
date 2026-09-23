@@ -30,6 +30,7 @@ fn info() -> SessionInfo {
         share: None,
         title: "Test session".to_string(),
         version: "1.0.0".to_string(),
+        metadata: None,
         time: SessionTime {
             created: 1,
             updated: Some(2),
@@ -42,7 +43,6 @@ fn info() -> SessionInfo {
 }
 
 #[test]
-#[ignore = "porting: session schema not implemented"]
 fn encodes_undefined_optional_session_fields_as_omitted_keys() {
     let encoded = encode_info(&info());
 
@@ -62,7 +62,6 @@ fn encodes_undefined_optional_session_fields_as_omitted_keys() {
 }
 
 #[test]
-#[ignore = "porting: session schema not implemented"]
 fn encodes_undefined_optional_global_project_fields_as_omitted_keys() {
     let encoded = encode_global(&GlobalSessionInfo {
         info: info(),
@@ -78,7 +77,6 @@ fn encodes_undefined_optional_global_project_fields_as_omitted_keys() {
 }
 
 #[test]
-#[ignore = "porting: session schema not implemented"]
 fn encodes_nested_undefined_optional_session_fields_as_omitted_keys() {
     let mut value = info();
     value.summary = Some(SessionSummary {

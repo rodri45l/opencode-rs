@@ -36,7 +36,7 @@ async fn create_session(app: &axum::Router) -> String {
 }
 
 #[tokio::test]
-#[ignore = "porting: session message routes not implemented"]
+#[ignore = "porting: test seeds messages directly; no message-write route exposed"]
 async fn returns_cursor_headers_for_older_pages() {
     let app = router(AppState::new());
     let session = create_session(&app).await;
@@ -67,7 +67,6 @@ async fn returns_cursor_headers_for_older_pages() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session message routes not implemented"]
 async fn keeps_full_history_responses_when_limit_is_omitted() {
     let app = router(AppState::new());
     let session = create_session(&app).await;
@@ -78,7 +77,6 @@ async fn keeps_full_history_responses_when_limit_is_omitted() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session message routes not implemented"]
 async fn rejects_invalid_cursors_and_missing_sessions() {
     let app = router(AppState::new());
     let session = SessionId::generate();
@@ -95,7 +93,7 @@ async fn rejects_invalid_cursors_and_missing_sessions() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session message routes not implemented"]
+#[ignore = "porting: test seeds 520 messages directly; no message-write route exposed"]
 async fn does_not_truncate_large_legacy_limit_requests() {
     let app = router(AppState::new());
     let session = create_session(&app).await;
@@ -106,7 +104,7 @@ async fn does_not_truncate_large_legacy_limit_requests() {
 }
 
 #[tokio::test]
-#[ignore = "porting: session message routes not implemented"]
+#[ignore = "porting: test seeds a message directly; no message-write route exposed"]
 async fn accepts_directory_query_used_by_workspace_routing() {
     let app = router(AppState::new());
     let session = create_session(&app).await;

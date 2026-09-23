@@ -11,6 +11,7 @@ opencode-protocol.workspace = true
 opencode-schema.workspace = true
 
 axum.workspace = true
+base64.workspace = true
 futures.workspace = true
 regex.workspace = true
 serde.workspace = true
