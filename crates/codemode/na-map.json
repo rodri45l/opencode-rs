@@ -1,0 +1,3 @@
+{
+  "packages/codemode/test/openapi.test.ts": "OpenAPI spec-to-tool generation executed through the unported interpreter and an Effect HttpClient layer; fixture- and live-HTTP-driven"
+}

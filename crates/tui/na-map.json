@@ -1,0 +1,4 @@
+{
+  "packages/session-ui/src/components/markdown-worker-queue.test.ts": "live-runtime Worker scheduling (async latest-per-key queue over a Worker host); no Rust worker host yet",
+  "packages/session-ui/src/v2/components/prompt-input/store.test.ts": "SolidJS reactive createStore accessor runtime; the prompt-input logic is covered by the re-derived machine.rs test"
+}

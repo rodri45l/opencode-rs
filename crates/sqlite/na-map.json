@@ -1,0 +1,3 @@
+{
+  "packages/effect-drizzle-sqlite/test/sqlite.test.ts": "Effect/Drizzle SQLite internals (Layer/Context, fiber-based migrations); the Rust port uses sqlx/rusqlite directly, so there is no Effect layer to re-derive"
+}

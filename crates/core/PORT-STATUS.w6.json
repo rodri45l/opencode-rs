@@ -1,0 +1,10 @@
+{
+  "files": 1,
+  "green": 0,
+  "red": 1,
+  "skipped": [],
+  "renames": {
+    "packages/core/test/file-mutation.test.ts": ["file-mutation"]
+  },
+  "notes": "row already has a red-first port at tests/file-mutation.rs (hyphen stem); tracker misses it because it normalizes to file_mutation. Add the rename above to crates/core/port-map.json to mark it ported."
+}

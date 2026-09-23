@@ -1,0 +1,8 @@
+{
+  "packages/llm/test/provider/anthropic-messages-cache.recorded.test.ts": ["anthropic_messages_cache_recorded"],
+  "packages/llm/test/provider/anthropic-messages.recorded.test.ts": ["anthropic_messages_recorded"],
+  "packages/llm/test/provider/bedrock-converse-cache.recorded.test.ts": ["bedrock_converse_cache_recorded"],
+  "packages/llm/test/provider/gemini-cache.recorded.test.ts": ["gemini_cache_recorded"],
+  "packages/llm/test/provider/golden.recorded.test.ts": ["golden_recorded"],
+  "packages/llm/test/provider/openai-responses-cache.recorded.test.ts": ["openai_responses_cache_recorded"]
+}

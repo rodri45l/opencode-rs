@@ -32,18 +32,24 @@ pub fn weather_tool_loop_request() -> Value {
 
 /// Absolute path to the copied recording fixtures.
 pub fn recordings_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("testdata").join("recordings")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("testdata")
+        .join("recordings")
 }
 
 /// Whether a copied recording cassette exists.
 pub fn recording_exists(group: &str, name: &str) -> bool {
-    recordings_dir().join(group).join(format!("{name}.json")).exists()
+    recordings_dir()
+        .join(group)
+        .join(format!("{name}.json"))
+        .exists()
 }
 
 /// Load a copied recording cassette by group and name.
 pub fn recording(group: &str, name: &str) -> Value {
     let path = recordings_dir().join(group).join(format!("{name}.json"));
-    let text = std::fs::read_to_string(&path).unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+    let text = std::fs::read_to_string(&path)
+        .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
     serde_json::from_str(&text).expect("valid cassette JSON")
 }
 
