@@ -1,7 +1,7 @@
 {
   "source": "anomalyco/opencode test files under packages/**",
   "commit": "18ef3cc7c5a25b82114c953a80ccc09f4988f74e",
-  "extracted_at": "2026-09-23T09:35:09.149767+00:00",
+  "extracted_at": "2026-09-23T09:59:38.507418+00:00",
   "test_file_count": 740,
   "by_tier": {
     "C": 130,
@@ -9,8 +9,8 @@
     "W": 277
   },
   "by_status": {
-    "pending": 654,
-    "ported": 86
+    "pending": 589,
+    "ported": 151
   },
   "by_crate": {
     "crates/server": 254,
@@ -1565,7 +1565,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/config/skill.test.ts",
@@ -1579,7 +1579,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/location-mutation.test.ts",
@@ -1600,7 +1600,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-kilo.test.ts",
@@ -1614,7 +1614,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-zenmux.test.ts",
@@ -1628,7 +1628,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/pty/info-schema.test.ts",
@@ -1663,7 +1663,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-runner-tool-registry.test.ts",
@@ -1691,7 +1691,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/system-context/index.test.ts",
@@ -1705,14 +1705,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/tool-websearch.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/agent.test.ts",
@@ -1838,7 +1838,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/filesystem/watcher.test.ts",
@@ -1922,7 +1922,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/npm-config.test.ts",
@@ -1936,7 +1936,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/patch.test.ts",
@@ -1950,7 +1950,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin.test.ts",
@@ -1971,7 +1971,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/promise.test.ts",
@@ -2097,7 +2097,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-llmgateway.test.ts",
@@ -2111,7 +2111,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/plugin/provider-nvidia.test.ts",
@@ -2202,7 +2202,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/policy.test.ts",
@@ -2216,7 +2216,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/process/process.test.ts",
@@ -2244,21 +2244,21 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/provider-mistral.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/provider-xai-responses.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/pty/protocol.test.ts",
@@ -2286,7 +2286,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/reference-guidance.test.ts",
@@ -2307,7 +2307,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/repository.test.ts",
@@ -2342,7 +2342,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/session-run-coordinator.test.ts",
@@ -2384,7 +2384,7 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/skill.test.ts",
@@ -2405,14 +2405,14 @@
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/state.test.ts",
       "package": "core",
       "crate": "crates/core",
       "tier": "P",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/core/test/system-context/builtins.test.ts",
@@ -2993,7 +2993,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/mcp/headers.test.ts",
@@ -3147,7 +3147,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-pty.test.ts",
@@ -3161,28 +3161,28 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-query-schema-drift.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-reference.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-schema-error-body.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-sdk.test.ts",
@@ -3196,7 +3196,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-v2-location.test.ts",
@@ -3210,7 +3210,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-workspace-routing.test.ts",
@@ -3224,21 +3224,21 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/sdk-error-shape.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/sdk-v1-smoke.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/workspace-routing.test.ts",
@@ -3287,28 +3287,28 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/schema-decoding.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/session-schema.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/structured-output.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "C",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/share/share-next.test.ts",
@@ -3602,7 +3602,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/agent/plugin-agent-regression.test.ts",
@@ -4295,14 +4295,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-compression.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-config.test.ts",
@@ -4316,7 +4316,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-cors-vary.test.ts",
@@ -4358,14 +4358,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-mcp.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/httpapi-mdns.test.ts",
@@ -4386,42 +4386,42 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/negative-tokens-regression.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/project-copy.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/project-init-git.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/proxy-util.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/session-actions.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/session-diff-missing-patch.test.ts",
@@ -4435,14 +4435,14 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/session-messages.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/server/session-select.test.ts",
@@ -4463,7 +4463,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/instruction.test.ts",
@@ -4526,7 +4526,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/session/tools.test.ts",
@@ -4568,7 +4568,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/glob.test.ts",
@@ -4582,7 +4582,7 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/lsp.test.ts",
@@ -4631,35 +4631,35 @@
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/truncation.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/webfetch.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/websearch.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/tool/write.test.ts",
       "package": "opencode",
       "crate": "crates/server",
       "tier": "W",
-      "status": "pending"
+      "status": "ported"
     },
     {
       "path": "packages/opencode/test/util/data-url.test.ts",
